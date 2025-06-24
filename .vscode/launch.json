@@ -3,8 +3,10 @@
     "configurations": [
         {
             "type": "extendscript-debug",
-            "request": "attach",
+            "request": "launch",
             "name": "extendScript-Debug attach",
+            "hostAppSpecifier": "illustrator-21.064",
+            "engineName": "main"
         }
     ]
 }
