@@ -347,7 +347,7 @@ function label_Info() {
                     var topArrows2 = new arrowsAdd([
                         [xb + w - asize, y + limitLen / 2 + Gap - asize / 2], // 箭头右上点
                         [xb + w, y + limitLen / 2 + Gap], // 箭头尖端
-                        [xb + w - asize, xb + w - asize, y + limitLen / 2 + Gap + asize / 2], // 箭头右下点
+                        [xb + w - asize, y + limitLen / 2 + Gap + asize / 2], // 箭头右下点
                     ]);
                     // 将箭头添加到标注组中
                     topArrows1.move(topGroup, ElementPlacement.PLACEATEND);
