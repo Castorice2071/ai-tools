@@ -1,12 +1,19 @@
-var win = new Window("dialog", "标注尺寸", undefined, {
-    closeButton: false,
-});
+/**
+ * 获取选中对象的宽度
+ */
+function getSelectedWidth() {
+    var sel = app.activeDocument.selection;
+    if (sel.length === 0) {
+        alert("请先选择一个对象");
+        return;
+    }
+    var bounds = sel[0].geometricBounds;
+    var width = bounds[2] - bounds[0];
+    return width;
+}
 
-dimensionGroup = win.add("group");
-dimensionPanel = dimensionGroup.add("panel", [0, 0, 300, 100], "选择标注边");
-dimensionPanel.add("checkbox", [66, 35, 116, 50], "左边");
-dimensionPanel.add("checkbox", undefined, "右边");
-dimensionPanel.add("checkbox", undefined, "顶部");
-dimensionPanel.add("checkbox", undefined, "底部");
-
-win.show();
+var w = getSelectedWidth();
+$.writeln("pt", new UnitValue(w, "pt").as("pt"));
+$.writeln("px", new UnitValue(w, "pt").as("px"));
+$.writeln("cm", new UnitValue(w, "pt").as("cm"));
+$.writeln("in", new UnitValue(w, "pt").as("in"));
