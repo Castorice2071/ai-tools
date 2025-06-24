@@ -202,7 +202,6 @@ selectAllCheckbox.onClick = function () {
         rightCheckbox.value = false;
         rightCheckbox.enabled = true;
     }
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
 };
 
 // 各边复选框的点击事件处理
@@ -235,9 +234,6 @@ modeChecksGroup = optionsPanel.add("panel", [0, 0, 290, 260], "设置选项");
 eachSizeCheck = modeChecksGroup.add("checkbox", [10, 20, 85, 35], "单体标注");
 eachSizeCheck.helpTip = "每个对象单独尺寸标注模式。"; // 提示信息
 eachSizeCheck.value = defaultEachLength; // 使用环境变量设置默认值
-eachSizeCheck.onClick = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加间距标注复选框
 betweenCheckbox = modeChecksGroup.add(
@@ -248,9 +244,6 @@ betweenCheckbox = modeChecksGroup.add(
 betweenCheckbox.helpTip = "两个对象之间距离标注模式。"; // 提示信息
 betweenCheckbox.value = defaultObjBetween; // 使用环境变量设置默认值
 betweenCheckbox.enabled = true; // 启用复选框
-betweenCheckbox.onClick = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加总距离标注复选框
 entiretySizeCheck = modeChecksGroup.add(
@@ -261,9 +254,6 @@ entiretySizeCheck = modeChecksGroup.add(
 entiretySizeCheck.helpTip = "所选对象总尺寸标注模式。"; // 提示信息
 entiretySizeCheck.value = defaultOverallLength; // 使用环境变量设置默认值
 entiretySizeCheck.enabled = true; // 启用复选框
-entiretySizeCheck.onClick = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加单位选择下拉列表
 unitModeLabel = modeChecksGroup.add("statictext", [10, 48, 55, 63], "单位:"); // 标签文本
@@ -294,9 +284,6 @@ for (var j = 0; j < items.length; j += 1) {
 }
 // 设置单位下拉列表的默认选项和事件处理
 unitModeList.selection = defaultUnitMode; // 使用环境变量设置默认选项
-unitModeList.onChange = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加比例设置控件
 customScaleLabel = modeChecksGroup.add(
@@ -333,9 +320,6 @@ customScaleDropdown.add("item", "1/300");
 // 设置比例下拉列表的默认选项和事件处理
 customScaleDropdown.selection = defaultScale; // 使用环境变量设置默认选项
 customScaleDropdown.enabled = true;
-customScaleDropdown.onChange = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加字体设置控件
 fontdrpLabel = modeChecksGroup.add("statictext", [10, 78, 55, 93], "字体:"); // 标签文本
@@ -373,7 +357,6 @@ fontdrplist.onChange = function () {
     A = fontdrplist.selection.items;
     surfacefont(String(fontdrplist.selection)); // 更新字体名称
     setFaceFont = fontNamelist; // 更新字体设置
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
 };
 
 // 字体名称转换函数：将显示名称转换为系统字体名称
@@ -418,9 +401,6 @@ fontSizeInput = modeChecksGroup.add(
 ); // 输入框
 fontSizeInput.helpTip = "标注字体的大小。\n默认值: " + setFontSize + "pt"; // 提示信息
 fontSizeInput.characters = 6; // 设置输入框宽度
-fontSizeInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加小数位数设置控件
 decimalPlacesLabel = modeChecksGroup.add(
@@ -435,9 +415,6 @@ decimalPlacesInput = modeChecksGroup.add(
 ); // 输入框
 decimalPlacesInput.helpTip = "数值后小数位数 (0~6)。\n默认值: " + setDecimals; // 提示信息
 decimalPlacesInput.characters = 6; // 设置输入框宽度
-decimalPlacesInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 decimalPlacesInput.onChange = function () {
     decimalPlacesInput.text = decimalPlacesInput.text.replace(/[^0-9]/g, ""); // 限制只能输入数字
 };
@@ -454,9 +431,6 @@ lineWeightInput = modeChecksGroup.add(
 ); // 输入框
 lineWeightInput.helpTip = "标注字体的大小。\n默认值: " + setLineWeight + "pt"; // 提示信息
 lineWeightInput.characters = 6; // 设置输入框宽度
-lineWeightInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 lineWeightInput.onChange = function () {
     lineWeightInput.text = lineWeightInput.text.replace(/[^0-9.]/g, ""); // 限制只能输入数字和小数点
 };
@@ -475,9 +449,6 @@ lineGapInput = modeChecksGroup.add(
 lineGapInput.helpTip =
     "标注线与对象边界的距离。\n支持负数值，例：-3。\n默认值: " + setgap + "pt"; // 提示信息
 lineGapInput.characters = 6; // 设置输入框宽度
-lineGapInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 添加界线长度设置控件
 doubleLineLabel = modeChecksGroup.add(
@@ -493,9 +464,6 @@ doubleLineInput = modeChecksGroup.add(
 doubleLineInput.helpTip =
     "标注线两端的短线段。\n默认值: " + setDoubleLine + "pt"; // 提示信息
 doubleLineInput.characters = 3; // 设置输入框宽度
-doubleLineInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 // 添加箭头显示设置控件
 arrowCheckbox = modeChecksGroup.add("checkbox", [115, 168, 175, 183], "箭头:"); // 复选框
 arrowCheckbox.helpTip = "显示/隐藏标线两端箭头符号。"; // 提示信息
@@ -523,10 +491,6 @@ arrowSealingCheckbox.helpTip = "线与面箭头模式切换。"; // 提示信息
 arrowSealingCheckbox.value = 1; // 默认选中
 arrowSealingCheckbox.enabled = true; // 启用复选框
 
-// 箭头填充复选框点击事件处理
-arrowSealingCheckbox.onClick = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 
 // 箭头显示复选框点击事件处理
 arrowCheckbox.onClick = function () {
@@ -536,7 +500,6 @@ arrowCheckbox.onClick = function () {
         triangleSizeLabel.enabled = true;
         triangleSizeInput.enabled = true;
         arrowSealingCheckbox.enabled = true;
-        restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
     } else {
         // 如果取消显示箭头
         // 禁用箭头相关设置
@@ -544,7 +507,6 @@ arrowCheckbox.onClick = function () {
         triangleSizeInput.enabled = false;
         arrowSealingCheckbox.value = false;
         arrowSealingCheckbox.enabled = false;
-        restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
     }
 };
 
@@ -563,10 +525,6 @@ if (arrowCheckbox.value) {
     arrowSealingCheckbox.enabled = false;
 }
 
-// 箭头尺寸输入框激活事件处理
-triangleSizeInput.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 // 添加CMYK颜色设置控件
 colorLabel = modeChecksGroup.add("statictext", [10, 198, 80, 213], "标注颜色:"); // 标签文本
 
@@ -605,20 +563,6 @@ colorInputBlack = modeChecksGroup.add(
 ); // 输入框
 colorInputBlack.helpTip = "黑色值 K（0-100）。\n默认值: " + setBlack;
 colorInputBlack.characters = 4;
-// CMYK颜色输入框激活事件处理
-// 当用户激活（点击）任一颜色输入框时，启用恢复默认按钮
-colorInputCyan.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-colorInputMagenta.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-colorInputYellow.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-colorInputBlack.onActivate = function () {
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
 // 添加单位后缀复选框
 textUnitsCheck = modeChecksGroup.add(
     "checkbox",
@@ -627,48 +571,6 @@ textUnitsCheck = modeChecksGroup.add(
 ); // 复选框控件
 textUnitsCheck.helpTip = "显示标注值单位。\n示例: 220 mm"; // 提示信息
 textUnitsCheck.value = 1; // 默认选中
-textUnitsCheck.onClick = function () {
-    // 点击事件处理
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-// 添加包含描边复选框
-lineStrokeCheckbox = modeChecksGroup.add(
-    "checkbox",
-    [95, 225, 170, 240],
-    "包含描边"
-); // 复选框控件
-lineStrokeCheckbox.helpTip = "标注包含对象描边的尺寸。"; // 提示信息
-lineStrokeCheckbox.value = defaultLineStrokes; // 设置默认值
-lineStrokeCheckbox.onClick = function () {
-    // 点击事件处理
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-// 添加锁定标注层复选框
-lockedLay = modeChecksGroup.add("checkbox", [180, 225, 255, 240], "锁标注层"); // 复选框控件
-lockedLay.helpTip = "标注后，锁住 (" + layName + ") 图层。"; // 提示信息
-lockedLay.value = defaultlockedLay; // 设置默认值
-lockedLay.onClick = function () {
-    // 点击事件处理
-    restoreDefaultsButton.enabled = true; // 启用恢复默认按钮
-};
-aboutButton = modeChecksGroup.add("button", [260, 225, 275, 240], "?", {
-    name: "?",
-});
-aboutButton.helpTip = "关于";
-aboutButton.onClick = function () {
-    alert(
-        "快速标注尺寸 " +
-        VersionInfo +
-        " \nQuick Dimensions " +
-        VersionInfo +
-        " \n\n※ 根据选择的对象，进行标注尺寸。\n" +
-        "1、支持单个对象、两对象间距及总距标注。\n" +
-        "2、支持蒙版对象、群组蒙版、含描边标注。\n" +
-        "3、设置具有记忆功能，在退出AI前不改变。\n\n" +
-        "2022年11月5日",
-        "关于标注脚本 (by: Dhwart-tiantian)"
-    );
-};
 
 // 恢复所有设置为默认值的函数
 function restoreDefaults() {
@@ -751,36 +653,6 @@ function restoreDefaults() {
 }
 var buttonGroup = win.add("group");
 buttonGroup.alignment = "column";
-restoreDefaultsButton = buttonGroup.add("button", undefined, "默认");
-restoreDefaultsButton.alignment = "center";
-restoreDefaultsButton.size = [80, 25];
-restoreDefaultsButton.enabled =
-    eachLength != defaultEachLength ||
-        betweenLength != defaultObjBetween ||
-        overallLength != defaultOverallLength ||
-        setUnitMode != defaultUnitMode ||
-        setScale != defaultScale ||
-        setFaceFont != defaultFontFace ||
-        setFontSize != defaultFontSize ||
-        setDecimals != defaultDecimals ||
-        setLineWeight != defaultLineWeight ||
-        setgap != defaultlineGap ||
-        setDoubleLine != defaultDoubleLine ||
-        setAsizeSize != defaultTriangleSize ||
-        setArrow != defaultArrow ||
-        setArrowSealing != defaultArrowSealing ||
-        setCyan != defaultColorCyan ||
-        setMagenta != defaultColorMagenta ||
-        setYellow != defaultColorYellow ||
-        setBlack != defaultColorBlack ||
-        setUnits != defaultUnits ||
-        lineStrokes != defaultLineStrokes ||
-        setlockedLay != defaultlockedLay
-        ? true
-        : false;
-restoreDefaultsButton.onClick = function () {
-    restoreDefaults();
-};
 ok_button = buttonGroup.add("button", undefined, "确定", {
     name: "ok",
 });
@@ -2064,10 +1936,10 @@ function check_app() {
         return true;
     } else {
         if (app.documents.length == 0) {
-            alert("警告：\n请先打开文档哦！", "错误提示");
+            alert("警告：\n请先打开文档哦!", "错误提示");
         } else {
             if (app.activeDocument.selection.length == 0) {
-                alert("警告：\n请先选择标注对象！", "错误提示");
+                alert("警告：\n请先选择标注对象!", "错误提示");
             }
         }
         return false;
