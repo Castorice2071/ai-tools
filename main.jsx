@@ -1,3 +1,6 @@
+#target illustrator
+#targetengine main
+
 var scriptFile = File($.fileName);
 var scriptPath = scriptFile.parent.fsName;
 

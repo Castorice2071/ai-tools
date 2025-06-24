@@ -658,14 +658,14 @@ aboutButton.helpTip = "关于";
 aboutButton.onClick = function () {
     alert(
         "快速标注尺寸 " +
-        VersionInfo +
-        " \nQuick Dimensions " +
-        VersionInfo +
-        " \n\n※ 根据选择的对象，进行标注尺寸。\n" +
-        "1、支持单个对象、两对象间距及总距标注。\n" +
-        "2、支持蒙版对象、群组蒙版、含描边标注。\n" +
-        "3、设置具有记忆功能，在退出AI前不改变。\n\n" +
-        "2022年11月5日",
+            VersionInfo +
+            " \nQuick Dimensions " +
+            VersionInfo +
+            " \n\n※ 根据选择的对象，进行标注尺寸。\n" +
+            "1、支持单个对象、两对象间距及总距标注。\n" +
+            "2、支持蒙版对象、群组蒙版、含描边标注。\n" +
+            "3、设置具有记忆功能，在退出AI前不改变。\n\n" +
+            "2022年11月5日",
         "关于标注脚本 (by: Dhwart-tiantian)"
     );
 };
@@ -756,26 +756,26 @@ restoreDefaultsButton.alignment = "center";
 restoreDefaultsButton.size = [80, 25];
 restoreDefaultsButton.enabled =
     eachLength != defaultEachLength ||
-        betweenLength != defaultObjBetween ||
-        overallLength != defaultOverallLength ||
-        setUnitMode != defaultUnitMode ||
-        setScale != defaultScale ||
-        setFaceFont != defaultFontFace ||
-        setFontSize != defaultFontSize ||
-        setDecimals != defaultDecimals ||
-        setLineWeight != defaultLineWeight ||
-        setgap != defaultlineGap ||
-        setDoubleLine != defaultDoubleLine ||
-        setAsizeSize != defaultTriangleSize ||
-        setArrow != defaultArrow ||
-        setArrowSealing != defaultArrowSealing ||
-        setCyan != defaultColorCyan ||
-        setMagenta != defaultColorMagenta ||
-        setYellow != defaultColorYellow ||
-        setBlack != defaultColorBlack ||
-        setUnits != defaultUnits ||
-        lineStrokes != defaultLineStrokes ||
-        setlockedLay != defaultlockedLay
+    betweenLength != defaultObjBetween ||
+    overallLength != defaultOverallLength ||
+    setUnitMode != defaultUnitMode ||
+    setScale != defaultScale ||
+    setFaceFont != defaultFontFace ||
+    setFontSize != defaultFontSize ||
+    setDecimals != defaultDecimals ||
+    setLineWeight != defaultLineWeight ||
+    setgap != defaultlineGap ||
+    setDoubleLine != defaultDoubleLine ||
+    setAsizeSize != defaultTriangleSize ||
+    setArrow != defaultArrow ||
+    setArrowSealing != defaultArrowSealing ||
+    setCyan != defaultColorCyan ||
+    setMagenta != defaultColorMagenta ||
+    setYellow != defaultColorYellow ||
+    setBlack != defaultColorBlack ||
+    setUnits != defaultUnits ||
+    lineStrokes != defaultLineStrokes ||
+    setlockedLay != defaultlockedLay
         ? true
         : false;
 restoreDefaultsButton.onClick = function () {
@@ -1396,11 +1396,9 @@ function label_Info() {
         }
     }
 
-    /**
-     * 总距标注函数：计算多个选中对象的整体边界，并添加标注
-     * @param {Object} item1 - 第一个选中对象（未使用）
-     * @param {String} where - 标注位置（"Top", "Bottom", "Left", "Right"）
-     */
+    // 总距标注函数：计算多个选中对象的整体边界，并添加标注    // @param {Object} item1 - 第一个选中对象（未使用）
+
+    // @param {String} where - 标注位置（"Top", "Bottom", "Left", "Right"）
     function Entirety_DIMENSIONS(item1, where) {
         var bound = new Array(); // 存储边界数组
         var n = sel.length; // 获取选中对象数量
@@ -1460,11 +1458,9 @@ function label_Info() {
         linedraw(bound, where); // 绘制标注线
     }
 
-    /**
-     * 添加线条函数：创建一个新的路径项并设置其属性
-     * @param {Array} geo - 线条的路径点数组
-     * @returns {PathItem} 创建的线条对象
-     */
+    // 添加线条函数：创建一个新的路径项并设置其属性
+    // @param {Array} geo - 线条的路径点数组
+    // @returns {PathItem} 创建的线条对象
     function Lineadd(geo) {
         var Linename = itemsGroup.pathItems.add(); // 在标注组中创建新的路径项
         Linename.setEntirePath(geo); // 设置路径点
@@ -1476,11 +1472,9 @@ function label_Info() {
         return Linename; // 返回创建的线条对象
     }
 
-    /**
-     * 添加箭头函数：创建箭头路径并设置其样式
-     * @param {Array} geoAR - 箭头的路径点数组
-     * @returns {PathItem} 创建的箭头对象
-     */
+    // 添加箭头函数：创建箭头路径并设置其样式
+    // @param {Array} geoAR - 箭头的路径点数组
+    // @returns {PathItem} 创建的箭头对象
     function arrowsAdd(geoAR) {
         var arrowName = itemsGroup.pathItems.add(); // 在标注组中创建新的路径项
         arrowName.setEntirePath(geoAR); // 设置箭头路径点
@@ -1505,11 +1499,9 @@ function label_Info() {
         return arrowName; // 返回创建的箭头对象
     }
 
-    /**
-     * 绘制标注线函数：根据边界和位置绘制标注线、箭头和文字
-     * @param {Array} bound - 对象的边界数组 [左, 上, 右, 下]
-     * @param {String} where - 标注位置（"Top", "Bottom", "Left", "Right"）
-     */
+    // 绘制标注线函数：根据边界和位置绘制标注线、箭头和文字
+    // @param {Array} bound - 对象的边界数组 [左, 上, 右, 下]
+    // @param {String} where - 标注位置（"Top", "Bottom", "Left", "Right"）
     function linedraw(bound, where) {
         var x = bound[0]; // 左边界
         var y = bound[1]; // 上边界
@@ -1798,13 +1790,11 @@ function label_Info() {
         specsLayer.locked = true;
     }
 
-    /*
-     * 创建标注文字函数：根据值和单位创建文字标注
-     * @param {Number} val - 标注值
-     * @param {Number} x - 文字X坐标 
-     * @param {Number} y - 文字Y坐标
-     * @param {String} wheres - 单位类型（"auto", "mm", "cm", "m", "pt", "px", "in", "ft", "pc"）
-     */
+    // 创建标注文字函数：根据值和单位创建文字标注
+    // @param {Number} val - 标注值
+    // @param {Number} x - 文字X坐标
+    // @param {Number} y - 文字Y坐标
+    // @param {String} wheres - 单位类型（"auto", "mm", "cm", "m", "pt", "px", "in", "ft", "pc"）
     function specTextLabel(val, x, y, wheres) {
         var textInfo = doc.textFrames.add(); // 创建文本框
         textInfo.textRange.characterAttributes.size = tsize; // 设置字号
@@ -1912,14 +1902,12 @@ function label_Info() {
     }
 }
 
-/*
- * 将字符串转换为布尔值的辅助函数
- * @param {String} string - 要转换的字符串
- * @returns {Boolean} - 转换后的布尔值
- */
+// 将字符串转换为布尔值的辅助函数
+// @param {String} string - 要转换的字符串
+// @returns {Boolean} - 转换后的布尔值
 function convertToBoolean(string) {
     switch (
-    string.toLowerCase() // 转换为小写进行比较
+        string.toLowerCase() // 转换为小写进行比较
     ) {
         case "true": // 如果是"true"
             return true;
@@ -1930,11 +1918,9 @@ function convertToBoolean(string) {
     }
 }
 
-/*
- * 计算对象（包括剪切蒙版）的几何边界和可视边界
- * @param {Object} the_obj - 要计算边界的对象
- * @returns {Array} - 返回包含几何边界和可视边界的数组 [几何左,几何上,几何右,几何下,可视左,可视上,可视右,可视下]
- */
+// 计算对象（包括剪切蒙版）的几何边界和可视边界
+// @param {Object} the_obj - 要计算边界的对象
+// @returns {Array} - 返回包含几何边界和可视边界的数组 [几何左,几何上,几何右,几何下,可视左,可视上,可视右,可视下]
 function NO_CLIP_BOUNDS(the_obj) {
     var NO_CLIP_OBJECTS_AND_MASKS = new Array(); // 存储所有非剪切对象和蒙版对象
     GET_NO_CLIP_OBJECTS_AND_MASKS(the_obj); // 递归获取所有非剪切对象和蒙版
@@ -1970,10 +1956,8 @@ function NO_CLIP_BOUNDS(the_obj) {
     // 返回包含所有边界值的数组
     return [g_L, g_T, g_R, g_B, v_L, v_T, v_R, v_B];
 
-    /**
-     * 递归获取所有非剪切对象和蒙版对象
-     * @param {Object} the_obj - 要处理的对象
-     */
+    // 递归获取所有非剪切对象和蒙版对象
+    // @param {Object} the_obj - 要处理的对象
     function GET_NO_CLIP_OBJECTS_AND_MASKS(the_obj) {
         // 如果是剪切组，只添加第一个子项（蒙版内容）
         if (IS_CLIP(the_obj)) {
@@ -1998,11 +1982,9 @@ function NO_CLIP_BOUNDS(the_obj) {
     }
 }
 
-/**
- * 检查对象是否为剪切组
- * @param {Object} the_obj - 要检查的对象
- * @returns {Boolean} - 如果是剪切组返回true，否则返回false
- */
+// 检查对象是否为剪切组
+// @param {Object} the_obj - 要检查的对象
+// @returns {Boolean} - 如果是剪切组返回true，否则返回false
 function IS_CLIP(the_obj) {
     try {
         if (the_obj.constructor.name == "GroupItem") {
@@ -2018,11 +2000,9 @@ function IS_CLIP(the_obj) {
     return false;
 }
 
-/*
- * 获取数组中的最大值
- * @param {Array} the_array - 要处理的数组
- * @returns {Number} - 数组中的最大值
- */
+// 获取数组中的最大值
+// @param {Array} the_array - 要处理的数组
+// @returns {Number} - 数组中的最大值
 function MAX_IN_ARRAY(the_array) {
     var MAX = the_array[0]; // 初始化最大值为第一个元素
     for (var i = 0; i < the_array.length; i += 1) {
@@ -2034,11 +2014,9 @@ function MAX_IN_ARRAY(the_array) {
     return MAX;
 }
 
-/**
- * 获取数组中的最小值
- * @param {Array} the_array - 要处理的数组
- * @returns {Number} - 数组中的最小值
- */
+// 获取数组中的最小值
+// @param {Array} the_array - 要处理的数组
+// @returns {Number} - 数组中的最小值
 function MIN_IN_ARRAY(the_array) {
     var MIN = the_array[0]; // 初始化最小值为第一个元素
     for (var i = 0; i < the_array.length; i += 1) {
@@ -2050,10 +2028,8 @@ function MIN_IN_ARRAY(the_array) {
     return MIN;
 }
 
-/*
- * 检查应用程序环境是否满足运行条件
- * @returns {Boolean} - 如果满足条件返回true，否则返回false
- */
+// 检查应用程序环境是否满足运行条件
+// @returns {Boolean} - 如果满足条件返回true，否则返回false
 function check_app() {
     // 检查是否是Illustrator、有打开的文档且有选中的对象
     if (
