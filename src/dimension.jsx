@@ -1,5 +1,5 @@
-#target illustrator
-#targetengine main
+//@target illustrator
+//@targetengine main
 
 // 脚本版本信息
 var VersionInfo = "v0.0.1";
