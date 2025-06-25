@@ -46,8 +46,8 @@ var res =
             spacing: 10, \
             topCheckbox: Checkbox { text: '上边', value: false }, \
             rightCheckbox: Checkbox { text: '右边', value: false }, \
-            bottomCheckbox: Checkbox { text: '下边', value: true }, \
-            leftCheckbox: Checkbox { text: '左边', value: true } \
+            bottomCheckbox: Checkbox { text: '下边', value: false }, \
+            leftCheckbox: Checkbox { text: '左边', value: false } \
         } \
     }, \
     optionsPanel: Panel { \
@@ -91,7 +91,12 @@ win.optionsPanel.unitGroup.unitModeList.selection = 0;
 // 添加按钮事件
 win.buttonGroup.ok_button.onClick = function () {
     if (!check_app()) return;
-    label_Info();
+    try {
+        label_Info();
+        win.close();
+    } catch (error) {
+        alert(error);
+    }
 };
 win.buttonGroup.cancel_button.onClick = function () {
     win.close();
@@ -109,8 +114,7 @@ function label_Info() {
     var bottom = win.dimensionPanel.directionGroup.bottomCheckbox.value;
 
     if (!top && !left && !right && !bottom) {
-        alert("请至少选择一个标注边。", "信息提示");
-        return;
+        throw new Error("请至少选择一个标注边。");
     }
 
     // 获取单位设置
@@ -494,8 +498,10 @@ function check_app() {
     } else {
         if (app.documents.length == 0) {
             alert("警告：\n请先打开文档哦!", "错误提示");
-        } else if (app.activeDocument.selection.length == 0) {
-            alert("警告：\n请先选择标注对象!", "错误提示");
+        } else {
+            if (app.activeDocument.selection.length == 0) {
+                alert("警告：\n请先选择标注对象!", "错误提示");
+            }
         }
         return false;
     }

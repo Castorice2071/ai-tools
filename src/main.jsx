@@ -29,7 +29,7 @@ var btn2 = btnGroup.add("button", undefined, "测试");
 
 btn1.onClick = function () {
     try {
-        load_jsxbin(File(scriptPath + "./makesize.jsxbin"));
+        load_jsxbin(File(scriptPath + "./dimension-new.jsxbin"));
     } catch (e) {
         alert(e);
     }
@@ -37,7 +37,8 @@ btn1.onClick = function () {
 
 btn2.onClick = function() {
     try {
-        $.evalFile(File(scriptPath + "./dimension.jsx"));
+        // $.evalFile(File(scriptPath + "./dimension.jsx"));
+        alert('111')
     } catch (e) {
         alert(e);
     }
