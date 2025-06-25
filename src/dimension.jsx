@@ -8,7 +8,7 @@ var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
 var color = new CMYKColor();
 
-var bit = 32; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
+var bit = 64; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
 
@@ -240,7 +240,7 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w / 2, y + setDoubleLine / 2 + setgap + setLineWeight, unitConvert);
+                var textInfo = specTextLabel(w, x + w / 2, y + setDoubleLine / 2 + setgap + setLineWeight + 5, unitConvert);
                 textInfo.top += textInfo.height;
                 textInfo.left -= textInfo.width / 2;
 
@@ -285,7 +285,7 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w / 2, y - h - setDoubleLine / 2 - (setgap + setLineWeight), unitConvert);
+                var textInfo = specTextLabel(w, x + w / 2, y - h - setDoubleLine / 2 - (setgap + setLineWeight + 5), unitConvert);
                 textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
@@ -332,11 +332,9 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x - (setDoubleLine / 2 + setgap + setLineWeight), y - h / 2, unitConvert);
-                textInfo.rotate(-90, true, false, false, false, Transformation.BOTTOMLEFT);
-                textInfo.top += textInfo.width;
+                var textInfo = specTextLabel(h, x - (setDoubleLine / 2 + setgap + setLineWeight + 5), y - h / 2, unitConvert);
                 textInfo.top += textInfo.height / 2;
-                textInfo.left -= textInfo.width;
+                textInfo.left -= textInfo.width + 5;
 
                 // 组织元素
                 leftLines1.move(leftGroup, ElementPlacement.PLACEATBEGINNING);
@@ -379,10 +377,9 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x + w + setDoubleLine / 2 + setgap + setLineWeight, y - h / 2, unitConvert);
-                textInfo.rotate(-90, true, false, false, false, Transformation.BOTTOMLEFT);
-                textInfo.top += textInfo.width;
+                var textInfo = specTextLabel(h, x + w + setDoubleLine / 2 + setgap + setLineWeight + 5, y - h / 2, unitConvert);
                 textInfo.top += textInfo.height / 2;
+                textInfo.left += 5;
 
                 // 组织元素
                 rightLines1.move(rightGroup, ElementPlacement.PLACEATBEGINNING);
