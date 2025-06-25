@@ -26,32 +26,53 @@ color.yellow = 100; // 黄色分量（默认100%）
 color.black = 10; // 黑色分量（默认10%）
 
 // 创建主对话框窗口
-var win = new Window("dialog", "标注尺寸 " + VersionInfo, undefined, {
-    closeButton: false,
-});
+var res =
+    "dialog { \
+    text: '标注尺寸 " +
+    VersionInfo +
+    "', \
+    closeButton: false, \
+    alignChildren: 'fill', \
+    spacing: 10, \
+    margins: 16, \
+    dimensionPanel: Panel { \
+        text: '选择标注边', \
+        orientation: 'column', \
+        alignChildren: 'center', \
+        margins: 16, \
+        spacing: 10, \
+        directionGroup: Group { \
+            orientation: 'row', \
+            spacing: 10, \
+            topCheckbox: Checkbox { text: '上边', value: false }, \
+            rightCheckbox: Checkbox { text: '右边', value: false }, \
+            bottomCheckbox: Checkbox { text: '下边', value: true }, \
+            leftCheckbox: Checkbox { text: '左边', value: true } \
+        } \
+    }, \
+    optionsPanel: Panel { \
+        text: '设置选项', \
+        orientation: 'column', \
+        alignChildren: 'left', \
+        margins: 16, \
+        spacing: 10, \
+        unitGroup: Group { \
+            orientation: 'row', \
+            spacing: 5, \
+            unitModeLabel: StaticText { text: '单位:' }, \
+            unitModeList: DropDownList { alignment: 'fill', preferredSize: [150, -1] } \
+        } \
+    }, \
+    buttonGroup: Group { \
+        orientation: 'row', \
+        alignment: 'center', \
+        spacing: 10, \
+        ok_button: Button { text: '确定', name: 'ok' }, \
+        cancel_button: Button { text: '取消', name: 'cancel' } \
+    } \
+}";
 
-// 创建标注边选择面板
-dimensionGroup = win.add("group");
-dimensionPanel = dimensionGroup.add("panel", [0, 0, 300, 110], "选择标注边");
-
-// 添加标注复选框
-leftCheckbox = dimensionPanel.add("checkbox", [75, 45, 125, 60], "左边");
-leftCheckbox.value = true;
-bottomCheckbox = dimensionPanel.add("checkbox", [125, 70, 175, 85], "下边");
-bottomCheckbox.value = true;
-topCheckbox = dimensionPanel.add("checkbox", [125, 20, 175, 35], "上边");
-topCheckbox.value = false;
-rightCheckbox = dimensionPanel.add("checkbox", [175, 45, 225, 60], "右边");
-rightCheckbox.value = false;
-
-// 创建设置选项面板
-optionsPanel = win.add("group");
-modeChecksGroup = optionsPanel.add("panel", undefined, "设置选项");
-
-// 添加单位选择下拉列表
-unitModeLabel = modeChecksGroup.add("statictext", [10, 48, 55, 63], "单位:");
-unitModeList = modeChecksGroup.add("dropdownlist", [55, 45, 150, 65]);
-unitModeList.helpTip = "标注值的单位转换。\n默认: 自动（随软件）";
+var win = new Window(res);
 
 // 定义可选单位列表
 var items = new Array("自动-auto", "毫米-mm", "厘米-cm", "米-m", "磅-pt", "像素-px", "英寸-in", "英尺-ft", "派卡-pc");
@@ -59,32 +80,22 @@ var items = new Array("自动-auto", "毫米-mm", "厘米-cm", "米-m", "磅-pt"
 // 添加单位选项到下拉列表
 for (var j = 0; j < items.length; j += 1) {
     if (j == 0) {
-        unitModeList.add("item", items[0]);
-        unitModeList.add("separator");
+        win.optionsPanel.unitGroup.unitModeList.add("item", items[0]);
+        win.optionsPanel.unitGroup.unitModeList.add("separator");
     } else {
-        unitModeList.add("item", items[j]);
+        win.optionsPanel.unitGroup.unitModeList.add("item", items[j]);
     }
 }
-unitModeList.selection = 0;
+win.optionsPanel.unitGroup.unitModeList.selection = 0;
 
-// 添加按钮组
-var buttonGroup = win.add("group");
-buttonGroup.alignment = "column";
-ok_button = buttonGroup.add("button", undefined, "确定", { name: "ok" });
-ok_button.helpTip = "确定请按回车键";
-cancel_button = buttonGroup.add("button", undefined, "取消", { name: "cancel" });
-cancel_button.helpTip = "取消请按Esc键";
-ok_button.size = cancel_button.size = [80, 25];
-ok_button.onClick = do_DIMENSIONS;
-cancel_button.onClick = function () {
-    win.close();
-};
-
-// 主函数
-function do_DIMENSIONS() {
+// 添加按钮事件
+win.buttonGroup.ok_button.onClick = function () {
     if (!check_app()) return;
     label_Info();
-}
+};
+win.buttonGroup.cancel_button.onClick = function () {
+    win.close();
+};
 
 // 标注信息处理函数
 function label_Info() {
@@ -92,10 +103,10 @@ function label_Info() {
     var sel = doc.selection;
 
     // 获取标注边的选择状态
-    var top = topCheckbox.value;
-    var left = leftCheckbox.value;
-    var right = rightCheckbox.value;
-    var bottom = bottomCheckbox.value;
+    var top = win.dimensionPanel.directionGroup.topCheckbox.value;
+    var left = win.dimensionPanel.directionGroup.leftCheckbox.value;
+    var right = win.dimensionPanel.directionGroup.rightCheckbox.value;
+    var bottom = win.dimensionPanel.directionGroup.bottomCheckbox.value;
 
     if (!top && !left && !right && !bottom) {
         alert("请至少选择一个标注边。", "信息提示");
@@ -103,7 +114,7 @@ function label_Info() {
     }
 
     // 获取单位设置
-    var unitConvert = unitModeList.selection.toString().replace(/[^a-zA-Z]/g, "");
+    var unitConvert = win.optionsPanel.unitGroup.unitModeList.selection.toString().replace(/[^a-zA-Z]/g, "");
 
     // 处理标注图层
     try {
