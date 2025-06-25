@@ -5,6 +5,22 @@ var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
 var color = new CMYKColor();
 
+var bit = 64; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
+var aiVersion = app.version.split(".")[0];
+var vs = "illustrator-" + aiVersion + ".0" + bit;
+
+// 实际代码建立 buildMsg(code) 函数传送代码
+function buildMsg(code) {
+    try {
+        var bt = new BridgeTalk();
+        bt.target = vs;
+        bt.body = code;
+        bt.send();
+    } catch (e) {
+        alert(e);
+    }
+}
+
 // 标注位置默认值
 var topCheck = false;
 var rightCheck = false;
@@ -27,7 +43,7 @@ color.black = 10; // 黑色分量（默认10%）
 
 // 创建主对话框窗口
 var res =
-    "dialog { \
+    "palette { \
     text: '标注尺寸 " +
     VersionInfo +
     "', \
@@ -46,8 +62,8 @@ var res =
             spacing: 10, \
             topCheckbox: Checkbox { text: '上边', value: false }, \
             rightCheckbox: Checkbox { text: '右边', value: false }, \
-            bottomCheckbox: Checkbox { text: '下边', value: false }, \
-            leftCheckbox: Checkbox { text: '左边', value: false } \
+            bottomCheckbox: Checkbox { text: '下边', value: true }, \
+            leftCheckbox: Checkbox { text: '左边', value: true } \
         } \
     }, \
     optionsPanel: Panel { \
@@ -90,13 +106,7 @@ win.optionsPanel.unitGroup.unitModeList.selection = 0;
 
 // 添加按钮事件
 win.buttonGroup.ok_button.onClick = function () {
-    if (!check_app()) return;
-    try {
-        label_Info();
-        win.close();
-    } catch (error) {
-        alert(error);
-    }
+    buildMsg("label_Info();");
 };
 win.buttonGroup.cancel_button.onClick = function () {
     win.close();
@@ -107,6 +117,10 @@ function label_Info() {
     var doc = app.activeDocument;
     var sel = doc.selection;
 
+    if (sel.length <= 0) {
+        return alert("请先选择标注对象！");
+    }
+
     // 获取标注边的选择状态
     var top = win.dimensionPanel.directionGroup.topCheckbox.value;
     var left = win.dimensionPanel.directionGroup.leftCheckbox.value;
@@ -114,7 +128,7 @@ function label_Info() {
     var bottom = win.dimensionPanel.directionGroup.bottomCheckbox.value;
 
     if (!top && !left && !right && !bottom) {
-        throw new Error("请至少选择一个标注边。");
+        return alert("请至少选择一个标注边。");
     }
 
     // 获取单位设置
@@ -488,22 +502,6 @@ function NO_CLIP_BOUNDS(the_obj) {
         }
     } else {
         return the_obj.geometricBounds;
-    }
-}
-
-// 检查应用程序环境
-function check_app() {
-    if (app.name == "Adobe Illustrator" && app.documents.length > 0 && app.activeDocument.selection.length > 0) {
-        return true;
-    } else {
-        if (app.documents.length == 0) {
-            alert("警告：\n请先打开文档哦!", "错误提示");
-        } else {
-            if (app.activeDocument.selection.length == 0) {
-                alert("警告：\n请先选择标注对象!", "错误提示");
-            }
-        }
-        return false;
     }
 }
 
