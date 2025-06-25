@@ -1,3 +1,6 @@
+#target illustrator
+#targetengine main
+
 // 脚本版本信息
 var VersionInfo = "v0.0.1";
 // 标注图层名称
@@ -5,7 +8,7 @@ var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
 var color = new CMYKColor();
 
-var bit = 64; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
+var bit = 32; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
 
