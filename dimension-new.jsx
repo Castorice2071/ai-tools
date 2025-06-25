@@ -1,5 +1,5 @@
 // 脚本版本信息
-var VersionInfo = "v1.0";
+var VersionInfo = "v0.0.1";
 // 标注图层名称
 var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
@@ -12,41 +12,41 @@ var bottomCheck = false;
 var leftCheck = false;
 
 // 标注样式默认值
-var setFontSize = 12;      // 字号大小（默认12pt）
-var setDecimals = 2;       // 小数位数（默认2位）
-var setLineWeight = 0.5;   // 线条粗细（默认0.5pt）
-var setgap = 3;           // 标注线与对象的间距（默认3pt）
-var setDoubleLine = 8;     // 标注线两端的短线长度（默认8pt）
-var setAsizeSize = 6;      // 箭头大小（默认6pt）
+var setFontSize = 12; // 字号大小（默认12pt）
+var setDecimals = 2; // 小数位数（默认2位）
+var setLineWeight = 0.5; // 线条粗细（默认0.5pt）
+var setgap = 3; // 标注线与对象的间距（默认3pt）
+var setDoubleLine = 8; // 标注线两端的短线长度（默认8pt）
+var setAsizeSize = 6; // 箭头大小（默认6pt）
 
 // 标注颜色CMYK值
-color.cyan = 0;        // 青色分量（默认0%）
-color.magenta = 100;   // 品红分量（默认100%）
-color.yellow = 100;    // 黄色分量（默认100%）
-color.black = 10;      // 黑色分量（默认10%）
+color.cyan = 0; // 青色分量（默认0%）
+color.magenta = 100; // 品红分量（默认100%）
+color.yellow = 100; // 黄色分量（默认100%）
+color.black = 10; // 黑色分量（默认10%）
 
 // 创建主对话框窗口
 var win = new Window("dialog", "标注尺寸 " + VersionInfo, undefined, {
-    closeButton: false
+    closeButton: false,
 });
 
 // 创建标注边选择面板
-dimensionPanel = win.add("group", [0, 0, 290, 90]);
-dimensionGroup = dimensionPanel.add("panel", [0, 0, 290, 90], "选择标注边");
+dimensionGroup = win.add("group");
+dimensionPanel = dimensionGroup.add("panel", [0, 0, 300, 110], "选择标注边");
 
 // 添加标注复选框
-leftCheckbox = dimensionGroup.add("checkbox", [66, 35, 116, 50], "左边");
+leftCheckbox = dimensionPanel.add("checkbox", [75, 45, 125, 60], "左边");
 leftCheckbox.value = true;
-bottomCheckbox = dimensionGroup.add("checkbox", [121, 60, 171, 75], "下边");
+bottomCheckbox = dimensionPanel.add("checkbox", [125, 70, 175, 85], "下边");
 bottomCheckbox.value = true;
-topCheckbox = dimensionGroup.add("checkbox", [121, 10, 171, 25], "上边");
+topCheckbox = dimensionPanel.add("checkbox", [125, 20, 175, 35], "上边");
 topCheckbox.value = false;
-rightCheckbox = dimensionGroup.add("checkbox", [176, 35, 226, 50], "右边");
+rightCheckbox = dimensionPanel.add("checkbox", [175, 45, 225, 60], "右边");
 rightCheckbox.value = false;
 
 // 创建设置选项面板
-optionsPanel = win.add("group", [0, 0, 290, 260]);
-modeChecksGroup = optionsPanel.add("panel", [0, 0, 290, 260], "设置选项");
+optionsPanel = win.add("group");
+modeChecksGroup = optionsPanel.add("panel", undefined, "设置选项");
 
 // 添加单位选择下拉列表
 unitModeLabel = modeChecksGroup.add("statictext", [10, 48, 55, 63], "单位:");
@@ -76,7 +76,9 @@ cancel_button = buttonGroup.add("button", undefined, "取消", { name: "cancel" 
 cancel_button.helpTip = "取消请按Esc键";
 ok_button.size = cancel_button.size = [80, 25];
 ok_button.onClick = do_DIMENSIONS;
-cancel_button.onClick = function() { win.close(); };
+cancel_button.onClick = function () {
+    win.close();
+};
 
 // 主函数
 function do_DIMENSIONS() {
@@ -117,7 +119,6 @@ function label_Info() {
 
     // 处理单体标注
     if (sel.length > 0) {
-        labelGroupNames = "单体";
         if (top) Each_DIMENSIONS(sel[0], "Top");
         if (left) Each_DIMENSIONS(sel[0], "Left");
         if (right) Each_DIMENSIONS(sel[0], "Right");
@@ -178,38 +179,38 @@ function label_Info() {
         if (w != 0) {
             if (where == "Top") {
                 var topGroup = specsLayer.groupItems.add();
-                topGroup.name = "上_" + labelGroupNames;
+                topGroup.name = "上";
 
                 // 创建标注线
                 var topLines1 = new Lineadd([
-                    [x, y + setDoubleLine/2 + setgap],
-                    [x + w, y + setDoubleLine/2 + setgap]
+                    [x, y + setDoubleLine / 2 + setgap],
+                    [x + w, y + setDoubleLine / 2 + setgap],
                 ]);
                 var topLines2 = new Lineadd([
                     [x, y + setDoubleLine + setgap],
-                    [x, y + setgap]
+                    [x, y + setgap],
                 ]);
                 var topLines3 = new Lineadd([
                     [x + w, y + setDoubleLine + setgap],
-                    [x + w, y + setgap]
+                    [x + w, y + setgap],
                 ]);
 
                 // 添加箭头
                 var topArrows1 = new arrowsAdd([
-                    [xa + setAsizeSize, y + setDoubleLine/2 + setgap - setAsizeSize/2],
-                    [xa, y + setDoubleLine/2 + setgap],
-                    [xa + setAsizeSize, y + setDoubleLine/2 + setgap + setAsizeSize/2]
+                    [xa + setAsizeSize, y + setDoubleLine / 2 + setgap - setAsizeSize / 2],
+                    [xa, y + setDoubleLine / 2 + setgap],
+                    [xa + setAsizeSize, y + setDoubleLine / 2 + setgap + setAsizeSize / 2],
                 ]);
                 var topArrows2 = new arrowsAdd([
-                    [xb + w - setAsizeSize, y + setDoubleLine/2 + setgap - setAsizeSize/2],
-                    [xb + w, y + setDoubleLine/2 + setgap],
-                    [xb + w - setAsizeSize, y + setDoubleLine/2 + setgap + setAsizeSize/2]
+                    [xb + w - setAsizeSize, y + setDoubleLine / 2 + setgap - setAsizeSize / 2],
+                    [xb + w, y + setDoubleLine / 2 + setgap],
+                    [xb + w - setAsizeSize, y + setDoubleLine / 2 + setgap + setAsizeSize / 2],
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w/2, y + setDoubleLine/2 + setgap + setLineWeight, unitConvert);
+                var textInfo = specTextLabel(w, x + w / 2, y + setDoubleLine / 2 + setgap + setLineWeight, unitConvert);
                 textInfo.top += textInfo.height;
-                textInfo.left -= textInfo.width/2;
+                textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
                 topLines1.move(topGroup, ElementPlacement.PLACEATBEGINNING);
@@ -223,37 +224,37 @@ function label_Info() {
 
             if (where == "Bottom") {
                 var bottomGroup = specsLayer.groupItems.add();
-                bottomGroup.name = "下_" + labelGroupNames;
+                bottomGroup.name = "下";
 
                 // 创建标注线
                 var bottomLines1 = new Lineadd([
-                    [x, y - h - (setDoubleLine/2 + setgap)],
-                    [x + w, y - h - (setDoubleLine/2 + setgap)]
+                    [x, y - h - (setDoubleLine / 2 + setgap)],
+                    [x + w, y - h - (setDoubleLine / 2 + setgap)],
                 ]);
                 var bottomLines2 = new Lineadd([
                     [x, y - h - setDoubleLine - setgap],
-                    [x, y - h - setgap]
+                    [x, y - h - setgap],
                 ]);
                 var bottomLines3 = new Lineadd([
                     [x + w, y - h - setDoubleLine - setgap],
-                    [x + w, y - h - setgap]
+                    [x + w, y - h - setgap],
                 ]);
 
                 // 添加箭头
                 var bottomArrows1 = new arrowsAdd([
-                    [xa + setAsizeSize, y - h - (setDoubleLine/2 + setgap) - setAsizeSize/2],
-                    [xa, y - h - (setDoubleLine/2 + setgap)],
-                    [xa + setAsizeSize, y - h - (setDoubleLine/2 + setgap) + setAsizeSize/2]
+                    [xa + setAsizeSize, y - h - (setDoubleLine / 2 + setgap) - setAsizeSize / 2],
+                    [xa, y - h - (setDoubleLine / 2 + setgap)],
+                    [xa + setAsizeSize, y - h - (setDoubleLine / 2 + setgap) + setAsizeSize / 2],
                 ]);
                 var bottomArrows2 = new arrowsAdd([
-                    [xb + w - setAsizeSize, y - h - (setDoubleLine/2 + setgap) - setAsizeSize/2],
-                    [xb + w, y - h - (setDoubleLine/2 + setgap)],
-                    [xb + w - setAsizeSize, y - h - (setDoubleLine/2 + setgap) + setAsizeSize/2]
+                    [xb + w - setAsizeSize, y - h - (setDoubleLine / 2 + setgap) - setAsizeSize / 2],
+                    [xb + w, y - h - (setDoubleLine / 2 + setgap)],
+                    [xb + w - setAsizeSize, y - h - (setDoubleLine / 2 + setgap) + setAsizeSize / 2],
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w/2, y - h - setDoubleLine/2 - (setgap + setLineWeight), unitConvert);
-                textInfo.left -= textInfo.width/2;
+                var textInfo = specTextLabel(w, x + w / 2, y - h - setDoubleLine / 2 - (setgap + setLineWeight), unitConvert);
+                textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
                 bottomLines1.move(bottomGroup, ElementPlacement.PLACEATBEGINNING);
@@ -270,39 +271,39 @@ function label_Info() {
         if (h != 0) {
             if (where == "Left") {
                 var leftGroup = specsLayer.groupItems.add();
-                leftGroup.name = "左_" + labelGroupNames;
+                leftGroup.name = "左";
 
                 // 创建标注线
                 var leftLines1 = new Lineadd([
-                    [x - (setDoubleLine/2 + setgap), y],
-                    [x - (setDoubleLine/2 + setgap), y - h]
+                    [x - (setDoubleLine / 2 + setgap), y],
+                    [x - (setDoubleLine / 2 + setgap), y - h],
                 ]);
                 var leftLines2 = new Lineadd([
                     [x - setDoubleLine - setgap, y],
-                    [x - setgap, y]
+                    [x - setgap, y],
                 ]);
                 var leftLines3 = new Lineadd([
                     [x - setDoubleLine - setgap, y - h],
-                    [x - setgap, y - h]
+                    [x - setgap, y - h],
                 ]);
 
                 // 添加箭头
                 var leftArrows1 = new arrowsAdd([
-                    [x - (setDoubleLine/2 + setgap) - setAsizeSize/2, ya - setAsizeSize],
-                    [x - (setDoubleLine/2 + setgap), ya],
-                    [x - (setDoubleLine/2 + setgap) + setAsizeSize/2, ya - setAsizeSize]
+                    [x - (setDoubleLine / 2 + setgap) - setAsizeSize / 2, ya - setAsizeSize],
+                    [x - (setDoubleLine / 2 + setgap), ya],
+                    [x - (setDoubleLine / 2 + setgap) + setAsizeSize / 2, ya - setAsizeSize],
                 ]);
                 var leftArrows2 = new arrowsAdd([
-                    [x - (setDoubleLine/2 + setgap) - setAsizeSize/2, yb - h + setAsizeSize],
-                    [x - (setDoubleLine/2 + setgap), yb - h],
-                    [x - (setDoubleLine/2 + setgap) + setAsizeSize/2, yb - h + setAsizeSize]
+                    [x - (setDoubleLine / 2 + setgap) - setAsizeSize / 2, yb - h + setAsizeSize],
+                    [x - (setDoubleLine / 2 + setgap), yb - h],
+                    [x - (setDoubleLine / 2 + setgap) + setAsizeSize / 2, yb - h + setAsizeSize],
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x - (setDoubleLine/2 + setgap + setLineWeight), y - h/2, unitConvert);
+                var textInfo = specTextLabel(h, x - (setDoubleLine / 2 + setgap + setLineWeight), y - h / 2, unitConvert);
                 textInfo.rotate(-90, true, false, false, false, Transformation.BOTTOMLEFT);
                 textInfo.top += textInfo.width;
-                textInfo.top += textInfo.height/2;
+                textInfo.top += textInfo.height / 2;
                 textInfo.left -= textInfo.width;
 
                 // 组织元素
@@ -317,39 +318,39 @@ function label_Info() {
 
             if (where == "Right") {
                 var rightGroup = specsLayer.groupItems.add();
-                rightGroup.name = "右_" + labelGroupNames;
+                rightGroup.name = "右";
 
                 // 创建标注线
                 var rightLines1 = new Lineadd([
-                    [x + w + setDoubleLine/2 + setgap, y],
-                    [x + w + setDoubleLine/2 + setgap, y - h]
+                    [x + w + setDoubleLine / 2 + setgap, y],
+                    [x + w + setDoubleLine / 2 + setgap, y - h],
                 ]);
                 var rightLines2 = new Lineadd([
                     [x + w + setDoubleLine + setgap, y],
-                    [x + w + setgap, y]
+                    [x + w + setgap, y],
                 ]);
                 var rightLines3 = new Lineadd([
                     [x + w + setDoubleLine + setgap, y - h],
-                    [x + w + setgap, y - h]
+                    [x + w + setgap, y - h],
                 ]);
 
                 // 添加箭头
                 var rightArrows1 = new arrowsAdd([
-                    [x + w + setDoubleLine/2 + setgap - setAsizeSize/2, ya - setAsizeSize],
-                    [x + w + setDoubleLine/2 + setgap, ya],
-                    [x + w + setDoubleLine/2 + setgap + setAsizeSize/2, ya - setAsizeSize]
+                    [x + w + setDoubleLine / 2 + setgap - setAsizeSize / 2, ya - setAsizeSize],
+                    [x + w + setDoubleLine / 2 + setgap, ya],
+                    [x + w + setDoubleLine / 2 + setgap + setAsizeSize / 2, ya - setAsizeSize],
                 ]);
                 var rightArrows2 = new arrowsAdd([
-                    [x + w + setDoubleLine/2 + setgap - setAsizeSize/2, yb - h + setAsizeSize],
-                    [x + w + setDoubleLine/2 + setgap, yb - h],
-                    [x + w + setDoubleLine/2 + setgap + setAsizeSize/2, yb - h + setAsizeSize]
+                    [x + w + setDoubleLine / 2 + setgap - setAsizeSize / 2, yb - h + setAsizeSize],
+                    [x + w + setDoubleLine / 2 + setgap, yb - h],
+                    [x + w + setDoubleLine / 2 + setgap + setAsizeSize / 2, yb - h + setAsizeSize],
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x + w + setDoubleLine/2 + setgap + setLineWeight, y - h/2, unitConvert);
+                var textInfo = specTextLabel(h, x + w + setDoubleLine / 2 + setgap + setLineWeight, y - h / 2, unitConvert);
                 textInfo.rotate(-90, true, false, false, false, Transformation.BOTTOMLEFT);
                 textInfo.top += textInfo.width;
-                textInfo.top += textInfo.height/2;
+                textInfo.top += textInfo.height / 2;
 
                 // 组织元素
                 rightLines1.move(rightGroup, ElementPlacement.PLACEATBEGINNING);
@@ -468,10 +469,7 @@ function NO_CLIP_BOUNDS(the_obj) {
                 right.push(bounds[2]);
                 bottom.push(bounds[3]);
             }
-            return [Math.min.apply(null, left),
-                    Math.max.apply(null, top),
-                    Math.max.apply(null, right),
-                    Math.min.apply(null, bottom)];
+            return [Math.min.apply(null, left), Math.max.apply(null, top), Math.max.apply(null, right), Math.min.apply(null, bottom)];
         }
     } else {
         return the_obj.geometricBounds;
@@ -480,9 +478,7 @@ function NO_CLIP_BOUNDS(the_obj) {
 
 // 检查应用程序环境
 function check_app() {
-    if (app.name == "Adobe Illustrator" && 
-        app.documents.length > 0 && 
-        app.activeDocument.selection.length > 0) {
+    if (app.name == "Adobe Illustrator" && app.documents.length > 0 && app.activeDocument.selection.length > 0) {
         return true;
     } else {
         if (app.documents.length == 0) {
