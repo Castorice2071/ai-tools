@@ -1,5 +1,5 @@
-#target illustrator
-#targetengine main
+//@target illustrator
+//@targetengine main
 
 var scriptFile = File($.fileName);
 var scriptPath = scriptFile.parent.fsName;
@@ -25,7 +25,7 @@ var win = new Window("palette", "AI-TOOLS");
 var btnGroup = win.add("group");
 
 var btn1 = btnGroup.add("button", undefined, "标注尺寸");
-var btn2 = btnGroup.add("button", undefined, "测试");
+var btn2 = btnGroup.add("button", undefined, "获取物体信息");
 
 btn1.onClick = function () {
     try {
@@ -35,14 +35,14 @@ btn1.onClick = function () {
     }
 };
 
-btn2.onClick = function() {
+btn2.onClick = function () {
     try {
         // $.evalFile(File(scriptPath + "./dimension.jsx"));
-        alert('111')
+        alert("111");
     } catch (e) {
         alert(e);
     }
-}
+};
 
 win.show();
 
