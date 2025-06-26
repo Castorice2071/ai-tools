@@ -9,16 +9,9 @@
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "type": "commonjs",
+    "type": "module",
     "devDependencies": {
         "gulp": "^5.0.1",
         "prettier": "^3.6.0"
-    },
-    "prettier": {
-        "tabWidth": 4,
-        "printWidth": 180
-    },
-    "dependencies": {
-        "types-for-adobe": "^7.2.5"
     }
 }

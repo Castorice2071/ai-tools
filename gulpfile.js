@@ -1,5 +1,5 @@
-function defaultTask(cb) {
-    cb()
-}
+import { src, dest } from "gulp";
 
-exports.default = defaultTask
+export default () => {
+    return src("./src/dimension.jsx").pipe(dest("dist"));
+};

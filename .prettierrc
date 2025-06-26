@@ -1,0 +1,19 @@
+{
+    "tabWidth": 4,
+    "overrides": [
+        {
+            "files": "src/**/*.jsx",
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 120
+            }
+        },
+        {
+            "files": "illustrator-scripts/**/*.jsx",
+            "options": {
+                "tabWidth": 2,
+                "printWidth": 80
+            }
+        }
+    ]
+}
