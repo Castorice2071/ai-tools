@@ -2,13 +2,13 @@
 //@targetengine main
 
 // 脚本版本信息
-var VersionInfo = "v0.0.2";
+var VersionInfo = "v0.0.3";
 // 标注图层名称
 var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
 var color = new CMYKColor();
 
-var bit = 64; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
+var bit = 64; // AI软件系统位数，默认64位，如果点击按钮没有反应，可以将64改为32。
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
 
@@ -31,7 +31,7 @@ var bottomCheck = false;
 var leftCheck = false;
 
 // 标注样式默认值
-var setFontSize = 12; // 字号大小（默认12pt）
+var fontSize = 12; // 字号大小（默认12pt）
 var setDecimals = 2; // 小数位数（默认2位）
 var setLineWeight = 0.5; // 线条粗细（默认0.5pt）
 var setgap = 3; // 标注线与对象的间距（默认3pt）
@@ -81,6 +81,12 @@ var res =
             unitModeLabel: StaticText { text: '单位:' }, \
             unitModeList: DropDownList { alignment: 'fill', preferredSize: [150, -1] } \
         }, \
+        fontSizeGroup: Group { \
+            orientation: 'row', \
+            spacing: 10, \
+            label: StaticText { text: '字号大小:' }, \
+            value: EditText { characters: 4 }, \
+        }, \
         colorGroup: Group { \
             orientation: 'row', \
             spacing: 10, \
@@ -122,6 +128,8 @@ win.optionsPanel.colorGroup.magenta.text = color.magenta;
 win.optionsPanel.colorGroup.yellow.text = color.yellow;
 win.optionsPanel.colorGroup.black.text = color.black;
 
+win.optionsPanel.fontSizeGroup.value.text = fontSize;
+
 // 添加按钮事件
 win.buttonGroup.ok_button.onClick = function () {
     buildMsg("label_Info();");
@@ -151,6 +159,7 @@ function label_Info() {
 
     try {
         setCMKY();
+        setFontSize();
     } catch (error) {
         return alert(error);
     }
@@ -437,7 +446,7 @@ function label_Info() {
     // 创建标注文字函数
     function specTextLabel(val, x, y, wheres) {
         var textInfo = doc.textFrames.add();
-        textInfo.textRange.characterAttributes.size = setFontSize;
+        textInfo.textRange.characterAttributes.size = fontSize;
         textInfo.textRange.characterAttributes.fillColor = color;
         textInfo.textRange.characterAttributes.alignment = StyleRunAlignmentType.center;
 
@@ -462,7 +471,7 @@ function label_Info() {
                         break;
                     case RulerUnits.Inches:
                         value = new UnitValue(value, "pt").as("in");
-                        unitsInfo = " in";
+                        unitsInfo = " ″";
                         break;
                     case RulerUnits.Picas:
                         value = new UnitValue(value, "pt").as("pc");
@@ -497,7 +506,7 @@ function label_Info() {
                 break;
             case "in":
                 value = new UnitValue(value, "pt").as("in");
-                unitsInfo = " in";
+                unitsInfo = " ″";
                 break;
             case "ft":
                 value = new UnitValue(value, "pt").as("ft");
@@ -515,6 +524,16 @@ function label_Info() {
         if (wheres != "pc") {
             value = parseFloat(value).toFixed(setDecimals);
         }
+
+        // 如果小数位是0，则去掉小数点和0
+        var zeros = "";
+        for (var i = 0; i < setDecimals; i++) {
+            zeros += "0";
+        }
+        if (value.slice(-setDecimals) === zeros) {
+            value = value.slice(0, -setDecimals - 1);
+        }
+
         textInfo.contents = value + unitsInfo;
         textInfo.top = y;
         textInfo.left = x;
@@ -555,6 +574,13 @@ function setCMKY() {
         color.yellow = win.optionsPanel.colorGroup.yellow.text;
         color.black = win.optionsPanel.colorGroup.black.text;
     }
+}
+
+function setFontSize() {
+    if (!/^[0-9]{1,3}(\.[0-9]{1,3})?$/.test(win.optionsPanel.fontSizeGroup.value.text)) {
+        throw new Error("字号大小设置有误");
+    }
+    fontSize = win.optionsPanel.fontSizeGroup.value.text;
 }
 
 // 辅助函数：获取对象边界
