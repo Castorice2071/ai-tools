@@ -42,9 +42,9 @@ function main() {
     var ya = h < 0 ? y - h : y;
     var yb = h < 0 ? y : y;
 
-    var setAsizeSize = 6
-    var setDoubleLine = 8
-    var setgap = 3
+    var setAsizeSize = 6;
+    var setDoubleLine = 8;
+    var setgap = 3;
 
     // var topLines1 = new Lineadd(
     //     [
@@ -97,7 +97,12 @@ function NO_CLIP_BOUNDS(the_obj) {
                 right.push(bounds[2]);
                 bottom.push(bounds[3]);
             }
-            return [Math.min.apply(null, left), Math.max.apply(null, top), Math.max.apply(null, right), Math.min.apply(null, bottom)];
+            return [
+                Math.min.apply(null, left),
+                Math.max.apply(null, top),
+                Math.max.apply(null, right),
+                Math.min.apply(null, bottom),
+            ];
         }
     } else {
         return the_obj.geometricBounds;
@@ -118,14 +123,34 @@ function ArrowAdd(geoAR, layer) {
     var arrowName = layer.pathItems.add();
     arrowName.setEntirePath(geoAR);
     arrowName.stroked = true;
-    arrowName.strokeWidth = 1
+    arrowName.strokeWidth = 1;
     arrowName.filled = false;
     // arrowName.closed = true;
     return arrowName;
 }
 
+function textOnLinePath() {
+    var thisDoc = app.activeDocument;
+    var lineObj = thisDoc.pathItems.add();
+    lineObj.setEntirePath(Array(Array(275, -110), Array(525, -110)));
+    var linePathText = thisDoc.textFrames.pathText(lineObj);
+    linePathText.contents = "250 px";
+    applyTextFormats(linePathText);
+}
+
+var newRGBColor = new RGBColor();
+newRGBColor.red = 0;
+newRGBColor.green = 0;
+newRGBColor.blue = 0;
+function applyTextFormats(thisText) {
+    // thisText.spacing = 10;
+    thisText.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
+    thisText.textRange.characterAttributes.fillColor = newRGBColor;
+    thisText.textRange.characterAttributes.size = 14;
+}
+
 try {
-    main();
+    textOnLinePath();
 } catch (error) {
     alert(error);
 }

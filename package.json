@@ -1,6 +1,6 @@
 {
     "name": "ai-tools",
-    "version": "1.0.0",
+    "version": "0.0.3",
     "description": "",
     "main": "main.js",
     "scripts": {
@@ -12,6 +12,7 @@
     "type": "module",
     "devDependencies": {
         "gulp": "^5.0.1",
+        "gulp-rename": "^2.1.0",
         "prettier": "^3.6.0"
     }
 }
