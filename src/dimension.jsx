@@ -39,10 +39,10 @@ var setDoubleLine = 8; // 标注线两端的短线长度（默认8pt）
 var setAsizeSize = 6; // 箭头大小（默认6pt）
 
 // 标注颜色CMYK值
-color.cyan = 0; // 青色分量（默认0%）
-color.magenta = 100; // 品红分量（默认100%）
-color.yellow = 100; // 黄色分量（默认100%）
-color.black = 10; // 黑色分量（默认10%）
+color.cyan = 0; // 青色分量
+color.magenta = 0; // 品红分量
+color.yellow = 0; // 黄色分量
+color.black = 100; // 黑色分量
 
 // 创建主对话框窗口
 var res =
