@@ -40,3 +40,124 @@ function getSelectedWidth() {
 // $.writeln("px", new UnitValue(w, "pt").as("px"));
 // $.writeln("cm", new UnitValue(w, "pt").as("cm"));
 // $.writeln("in", new UnitValue(w, "pt").as("in"));
+
+
+
+var str =
+    "dialog { \
+    colorPanel: Panel { \
+        text: '标注颜色', \
+        orientation: 'column', \
+        alignChildren: 'right', \
+        cyan: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Cyan:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        magenta: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Magenta:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        yellow: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Yellow:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        black: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Black:' } \
+            value: EditText { characters: 4 } \
+        }, \
+    } \
+}";
+
+// 创建主对话框窗口
+var res =
+    "dialog { \
+    text: '标注尺寸 " +
+    VersionInfo +
+    "', \
+    closeButton: false, \
+    alignChildren: 'fill', \
+    spacing: 10, \
+    margins: 16, \
+    dimensionPanel: Panel { \
+        text: '选择标注边', \
+        orientation: 'column', \
+        alignChildren: 'center', \
+        margins: 16, \
+        spacing: 10, \
+        directionGroup: Group { \
+            orientation: 'row', \
+            spacing: 10, \
+            topCheckbox: Checkbox { text: '上边', value: false }, \
+            rightCheckbox: Checkbox { text: '右边', value: false }, \
+            bottomCheckbox: Checkbox { text: '下边', value: true }, \
+            leftCheckbox: Checkbox { text: '左边', value: true } \
+        } \
+    }, \
+    colorPanel: Panel { \
+        text: '标注颜色', \
+        orientation: 'row', \
+        alignChildren: 'right', \
+        cyan: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Cyan:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        magenta: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Magenta:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        yellow: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Yellow:' } \
+            value: EditText { characters: 4 } \
+        }, \
+        black: Group { \
+            orientation: 'row', \
+            label: StaticText { text: 'Black:' } \
+            value: EditText { characters: 4 } \
+        }, \
+    }, \
+    optionsPanel: Panel { \
+        text: '设置选项', \
+        orientation: 'column', \
+        alignChildren: 'left', \
+        margins: 16, \
+        spacing: 10, \
+        unitGroup: Group { \
+            orientation: 'row', \
+            spacing: 5, \
+            unitModeLabel: StaticText { text: '单位:' }, \
+            unitModeList: DropDownList { alignment: 'fill', preferredSize: [150, -1] } \
+        }, \
+    }, \
+    buttonGroup: Group { \
+        orientation: 'row', \
+        alignment: 'center', \
+        spacing: 10, \
+        ok_button: Button { text: '确定', name: 'ok' }, \
+        cancel_button: Button { text: '取消', name: 'cancel' } \
+    } \
+}";
+
+
+var res = `
+    
+
+`
+
+var win = new Window(res);
+// win.buttonGroup.ok_button.onClick = function () {
+//     alert("确定");
+//     win.close();
+// };
+// win.buttonGroup.cancel_button.onClick = function () {
+//     alert("取消");
+//     win.close();
+// };
+
+win.show();
