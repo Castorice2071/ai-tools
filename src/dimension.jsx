@@ -2,7 +2,7 @@
 //@targetengine main
 
 // 脚本版本信息
-var VersionInfo = "v0.0.1";
+var VersionInfo = "v0.0.2";
 // 标注图层名称
 var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
@@ -72,7 +72,7 @@ var res =
     optionsPanel: Panel { \
         text: '设置选项', \
         orientation: 'column', \
-        alignChildren: 'left', \
+        alignChildren: 'right', \
         margins: 16, \
         spacing: 10, \
         unitGroup: Group { \
@@ -80,6 +80,15 @@ var res =
             spacing: 5, \
             unitModeLabel: StaticText { text: '单位:' }, \
             unitModeList: DropDownList { alignment: 'fill', preferredSize: [150, -1] } \
+        }, \
+        colorGroup: Group { \
+            orientation: 'row', \
+            spacing: 10, \
+            label: StaticText { text: 'CMYK:' }, \
+            cyan: EditText { characters: 4 }, \
+            magenta: EditText { characters: 4 }, \
+            yellow: EditText { characters: 4 }, \
+            black: EditText { characters: 4 }, \
         } \
     }, \
     buttonGroup: Group { \
@@ -107,6 +116,12 @@ for (var j = 0; j < items.length; j += 1) {
 }
 win.optionsPanel.unitGroup.unitModeList.selection = 0;
 
+// 设置 CMYK 默认值
+win.optionsPanel.colorGroup.cyan.text = color.cyan;
+win.optionsPanel.colorGroup.magenta.text = color.magenta;
+win.optionsPanel.colorGroup.yellow.text = color.yellow;
+win.optionsPanel.colorGroup.black.text = color.black;
+
 // 添加按钮事件
 win.buttonGroup.ok_button.onClick = function () {
     buildMsg("label_Info();");
@@ -132,6 +147,12 @@ function label_Info() {
 
     if (!top && !left && !right && !bottom) {
         return alert("请至少选择一个标注边。");
+    }
+
+    try {
+        setCMKY();
+    } catch (error) {
+        return alert(error);
     }
 
     // 获取单位设置
@@ -240,7 +261,12 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w / 2, y + setDoubleLine / 2 + setgap + setLineWeight + 5, unitConvert);
+                var textInfo = specTextLabel(
+                    w,
+                    x + w / 2,
+                    y + setDoubleLine / 2 + setgap + setLineWeight + 5,
+                    unitConvert,
+                );
                 textInfo.top += textInfo.height;
                 textInfo.left -= textInfo.width / 2;
 
@@ -285,7 +311,12 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(w, x + w / 2, y - h - setDoubleLine / 2 - (setgap + setLineWeight + 5), unitConvert);
+                var textInfo = specTextLabel(
+                    w,
+                    x + w / 2,
+                    y - h - setDoubleLine / 2 - (setgap + setLineWeight + 5),
+                    unitConvert,
+                );
                 textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
@@ -332,7 +363,12 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x - (setDoubleLine / 2 + setgap + setLineWeight + 5), y - h / 2, unitConvert);
+                var textInfo = specTextLabel(
+                    h,
+                    x - (setDoubleLine / 2 + setgap + setLineWeight + 5),
+                    y - h / 2,
+                    unitConvert,
+                );
                 textInfo.top += textInfo.height / 2;
                 textInfo.left -= textInfo.width + 5;
 
@@ -377,7 +413,12 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(h, x + w + setDoubleLine / 2 + setgap + setLineWeight + 5, y - h / 2, unitConvert);
+                var textInfo = specTextLabel(
+                    h,
+                    x + w + setDoubleLine / 2 + setgap + setLineWeight + 5,
+                    y - h / 2,
+                    unitConvert,
+                );
                 textInfo.top += textInfo.height / 2;
                 textInfo.left += 5;
 
@@ -481,6 +522,41 @@ function label_Info() {
     }
 }
 
+/**
+ * 校验 CMKY
+ */
+function checkCMKY() {
+    var validCyanColor =
+        /^[0-9]{1,3}$/.test(win.optionsPanel.colorGroup.cyan.text) &&
+        parseInt(win.optionsPanel.colorGroup.cyan.text) >= 0 &&
+        parseInt(win.optionsPanel.colorGroup.cyan.text) <= 100;
+    var validMagentaColor =
+        /^[0-9]{1,3}$/.test(win.optionsPanel.colorGroup.magenta.text) &&
+        parseInt(win.optionsPanel.colorGroup.magenta.text) >= 0 &&
+        parseInt(win.optionsPanel.colorGroup.magenta.text) <= 100;
+    var validYellowColor =
+        /^[0-9]{1,3}$/.test(win.optionsPanel.colorGroup.yellow.text) &&
+        parseInt(win.optionsPanel.colorGroup.yellow.text) >= 0 &&
+        parseInt(win.optionsPanel.colorGroup.yellow.text) <= 100;
+    var validBlackColor =
+        /^[0-9]{1,3}$/.test(win.optionsPanel.colorGroup.black.text) &&
+        parseInt(win.optionsPanel.colorGroup.black.text) >= 0 &&
+        parseInt(win.optionsPanel.colorGroup.black.text) <= 100;
+
+    return validCyanColor && validMagentaColor && validYellowColor && validBlackColor;
+}
+
+function setCMKY() {
+    if (!checkCMKY()) {
+        throw new Error("CMKY 颜色设置有误");
+    } else {
+        color.cyan = win.optionsPanel.colorGroup.cyan.text;
+        color.magenta = win.optionsPanel.colorGroup.magenta.text;
+        color.yellow = win.optionsPanel.colorGroup.yellow.text;
+        color.black = win.optionsPanel.colorGroup.black.text;
+    }
+}
+
 // 辅助函数：获取对象边界
 function NO_CLIP_BOUNDS(the_obj) {
     if (the_obj.typename == "GroupItem") {
@@ -498,7 +574,12 @@ function NO_CLIP_BOUNDS(the_obj) {
                 right.push(bounds[2]);
                 bottom.push(bounds[3]);
             }
-            return [Math.min.apply(null, left), Math.max.apply(null, top), Math.max.apply(null, right), Math.min.apply(null, bottom)];
+            return [
+                Math.min.apply(null, left),
+                Math.max.apply(null, top),
+                Math.max.apply(null, right),
+                Math.min.apply(null, bottom),
+            ];
         }
     } else {
         return the_obj.geometricBounds;
