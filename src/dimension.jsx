@@ -2,7 +2,7 @@
 //@targetengine main
 
 // 脚本版本信息
-var VersionInfo = "v0.0.3";
+var VersionInfo = "v0.0.4";
 // 标注图层名称
 var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
@@ -270,14 +270,11 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(
-                    w,
-                    x + w / 2,
-                    y + setDoubleLine / 2 + setgap + setLineWeight + 5,
-                    unitConvert,
-                );
+                var textInfo = specTextLabel(w, x + w / 2, y + setDoubleLine / 2 + setgap + setLineWeight, unitConvert);
+                // 文字居中
+                textInfo.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
                 textInfo.top += textInfo.height;
-                textInfo.left -= textInfo.width / 2;
+                // textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
                 topLines1.move(topGroup, ElementPlacement.PLACEATBEGINNING);
@@ -323,10 +320,12 @@ function label_Info() {
                 var textInfo = specTextLabel(
                     w,
                     x + w / 2,
-                    y - h - setDoubleLine / 2 - (setgap + setLineWeight + 5),
+                    y - h - setDoubleLine / 2 - (setgap + setLineWeight + 3),
                     unitConvert,
                 );
-                textInfo.left -= textInfo.width / 2;
+                // 文字居中
+                textInfo.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
+                // textInfo.left -= textInfo.width / 2;
 
                 // 组织元素
                 bottomLines1.move(bottomGroup, ElementPlacement.PLACEATBEGINNING);
@@ -378,8 +377,10 @@ function label_Info() {
                     y - h / 2,
                     unitConvert,
                 );
+                 // 文字居中
+                textInfo.paragraphs[0].paragraphAttributes.justification = Justification.RIGHT;
                 textInfo.top += textInfo.height / 2;
-                textInfo.left -= textInfo.width + 5;
+                // textInfo.left -= textInfo.width + 5;
 
                 // 组织元素
                 leftLines1.move(leftGroup, ElementPlacement.PLACEATBEGINNING);
@@ -428,8 +429,9 @@ function label_Info() {
                     y - h / 2,
                     unitConvert,
                 );
+                 // 文字居中
+                textInfo.paragraphs[0].paragraphAttributes.justification = Justification.LEFT;
                 textInfo.top += textInfo.height / 2;
-                textInfo.left += 5;
 
                 // 组织元素
                 rightLines1.move(rightGroup, ElementPlacement.PLACEATBEGINNING);
