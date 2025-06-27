@@ -1,4 +1,3 @@
-//@target illustrator
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
 function main() {
@@ -8,6 +7,7 @@ function main() {
         },
         CFG = {
             color: getColor(255, 0, 0),
+            gap: 3, // 标注线与标注对象的间距
         };
 
     var doc = app.activeDocument;
@@ -30,8 +30,13 @@ function main() {
     $.writeln("y ", y);
 
     var bottomGeo = [
-        [x, y + h],
-        [x + w, y + h],
+        [x, y - h - CFG.gap],
+        [x + w, y - h - CFG.gap],
+    ];
+
+    var topGeo = [
+        [x, y],
+        [x + w, y],
     ];
 
     drawLine(bottomGeo);
@@ -56,6 +61,7 @@ function getColor(red, green, blue) {
 }
 try {
     main();
+    app.redraw(); // 刷新画布
 } catch (error) {
     alert(error);
 }
