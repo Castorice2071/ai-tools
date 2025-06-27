@@ -446,6 +446,9 @@ function label_Info() {
     // 创建标注文字函数
     function specTextLabel(val, x, y, wheres) {
         var textInfo = doc.textFrames.add();
+        try {
+            textInfo.textRange.characterAttributes.textFont = app.textFonts.getByName("ArialMT");
+        } catch (error) {}
         textInfo.textRange.characterAttributes.size = fontSize;
         textInfo.textRange.characterAttributes.fillColor = color;
         textInfo.textRange.characterAttributes.alignment = StyleRunAlignmentType.center;
@@ -471,7 +474,7 @@ function label_Info() {
                         break;
                     case RulerUnits.Inches:
                         value = new UnitValue(value, "pt").as("in");
-                        unitsInfo = " ″";
+                        unitsInfo = "″";
                         break;
                     case RulerUnits.Picas:
                         value = new UnitValue(value, "pt").as("pc");
@@ -506,7 +509,7 @@ function label_Info() {
                 break;
             case "in":
                 value = new UnitValue(value, "pt").as("in");
-                unitsInfo = " ″";
+                unitsInfo = "″";
                 break;
             case "ft":
                 value = new UnitValue(value, "pt").as("ft");
