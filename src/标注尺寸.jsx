@@ -1,21 +1,57 @@
 //@target illustrator
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
+function buildUI(SCRIPT) {
+    var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
+    win.orientation = "column";
+    win.alignChildren = ["fill", "fill"];
+
+    // 标注边
+    win.sidePanel = win.add("panel", undefined, "选择标注边");
+    win.sidePanel.orientation = "row";
+    win.sidePanel.spacing = 16;
+
+    win.sidePanel.topCheck = win.sidePanel.add("checkbox", undefined, "上边");
+    win.sidePanel.rightCheck = win.sidePanel.add("checkbox", undefined, "右边");
+    win.sidePanel.bottomCheck = win.sidePanel.add("checkbox", undefined, "下边");
+    win.sidePanel.leftCheck = win.sidePanel.add("checkbox", undefined, "左边");
+
+    var wrapper = win.add("group");
+    wrapper.orientation = "row";
+
+    win.unitPanel = wrapper.add("panel", undefined, "选择单位");
+    win.unitPanel.value = win.unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
+    win.unitPanel.value.selection = 0; // 默认选择 px
+    win.unitPanel.value.preferredSize = [80, -1];
+
+    win.sizePanel = wrapper.add("panel", undefined, "字号大小");
+    win.sizePanel.value = win.sizePanel.add("edittext", undefined, "12");
+    win.sizePanel.value.preferredSize = [80, -1];
+
+    return win;
+}
+
 function main() {
     var SCRIPT = {
-            name: "标注尺寸",
-            version: "v0.0.1",
-        },
-        CFG = {
-            rgb: [0, 0, 0],
-            cmyk: [0, 0, 0, 100],
-            color: getColor(255, 0, 0),
-            gap: 3, // 标注线与标注对象的间距
-        },
-        SETTINGS = {
-            name: SCRIPT.name + "_data.json",
-            folder: Folder.myDocuments + "/Adobe Scripts/",
-        };
+        name: "标注尺寸",
+        version: "v0.0.5",
+    };
+    var CFG = {
+        rgb: [0, 0, 0],
+        cmyk: [0, 0, 0, 100],
+        color: getColor(255, 0, 0),
+        gap: 3, // 标注线与标注对象的间距
+    };
+    var SETTINGS = {
+        name: SCRIPT.name + "_data.json",
+        folder: Folder.myDocuments + "/Adobe Scripts/",
+    };
+
+    var win = buildUI(SCRIPT);
+
+    win.show();
+
+    return;
 
     var doc = app.activeDocument;
     var sel = doc.selection;
@@ -27,6 +63,23 @@ function main() {
     if (!obj) {
         throw new Error("请先选择标注对象！");
     }
+
+    // DIALOG
+    var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
+    win.orientation = "column";
+
+    // 标注边
+    var sidePanel = win.add("panel", undefined, "选择标注边");
+    sidePanel.orientation = "row";
+    sidePanel.spacing = 16;
+
+    var topCheck = sidePanel.add("checkbox", undefined, "上边");
+    var rightCheck = sidePanel.add("checkbox", undefined, "右边");
+    var bottomCheck = sidePanel.add("checkbox", undefined, "下边");
+    var leftCheck = sidePanel.add("checkbox", undefined, "左边");
+
+    win.show();
+    return;
 
     var bounds = obj.geometricBounds;
     var x = bounds[0];
