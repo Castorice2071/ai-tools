@@ -7,26 +7,32 @@ function buildUI(SCRIPT) {
     win.alignChildren = ["fill", "fill"];
 
     // 标注边
-    win.sidePanel = win.add("panel", undefined, "选择标注边");
-    win.sidePanel.orientation = "row";
-    win.sidePanel.spacing = 16;
-
-    win.sidePanel.topCheck = win.sidePanel.add("checkbox", undefined, "上边");
-    win.sidePanel.rightCheck = win.sidePanel.add("checkbox", undefined, "右边");
-    win.sidePanel.bottomCheck = win.sidePanel.add("checkbox", undefined, "下边");
-    win.sidePanel.leftCheck = win.sidePanel.add("checkbox", undefined, "左边");
+    var sidePanel = win.add("panel", undefined, "选择标注边");
+    sidePanel.orientation = "row";
+    sidePanel.spacing = 16;
+    win.topCheck = sidePanel.add("checkbox", undefined, "上边");
+    win.rightCheck = sidePanel.add("checkbox", undefined, "右边");
+    win.bottomCheck = sidePanel.add("checkbox", undefined, "下边");
+    win.leftCheck = sidePanel.add("checkbox", undefined, "左边");
 
     var wrapper = win.add("group");
     wrapper.orientation = "row";
+    wrapper.alignChildren = ["fill", "fill"];
 
-    win.unitPanel = wrapper.add("panel", undefined, "选择单位");
-    win.unitPanel.value = win.unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
-    win.unitPanel.value.selection = 0; // 默认选择 px
-    win.unitPanel.value.preferredSize = [80, -1];
+    var unitPanel = wrapper.add("panel", undefined, "选择单位");
+    win.unit = unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
+    win.unit.selection = 0; // 默认选择 px
+    win.unit.preferredSize = [80, -1];
 
-    win.sizePanel = wrapper.add("panel", undefined, "字号大小");
-    win.sizePanel.value = win.sizePanel.add("edittext", undefined, "12");
-    win.sizePanel.value.preferredSize = [80, -1];
+    var sizePanel = wrapper.add("panel", undefined, "字号大小");
+    win.fontSize = sizePanel.add("edittext", undefined, "12");
+    win.fontSize.preferredSize = [80, -1];
+
+    var buttonGroup = win.add("group");
+    buttonGroup.alignChildren = ["center", "fill"];
+
+    win.okButton = buttonGroup.add("button", undefined, "确定");
+    win.cancelButton = buttonGroup.add("button", undefined, "取消");
 
     return win;
 }
@@ -48,6 +54,16 @@ function main() {
     };
 
     var win = buildUI(SCRIPT);
+
+    loadSettings(SETTINGS);
+
+    win.okButton.onClick = function () {
+        saveSettings(SETTINGS);
+        // alert(1);
+    };
+    win.cancelButton.onClick = function () {
+        win.close();
+    };
 
     win.show();
 
@@ -141,12 +157,13 @@ function main() {
         var data = {};
         data.win_x = win.location.x;
         data.win_y = win.location.y;
-        data.mode = isOneAngle.value;
-        data.side1 = side1Inp.text;
-        data.side2 = side2Inp.text;
-        data.angle1 = angle1Inp.text;
-        data.angle2 = angle2Inp.text;
-        data.legend = isAddInfo.value;
+        data.fontSize = win.fontSize.text;
+        data.unit = win.unit.selection.index;
+        data.topCheck = win.topCheck.value;
+        data.rightCheck = win.rightCheck.value;
+        data.bottomCheck = win.bottomCheck.value;
+        data.leftCheck = win.leftCheck.value;
+        alert(win.topCheck.value);
 
         f.write(stringify(data));
         f.close();
@@ -173,17 +190,12 @@ function main() {
 
             if (typeof data != "undefined") {
                 win.location = [data.win_x ? parseInt(data.win_x) : 100, data.win_y ? parseInt(data.win_y) : 100];
-                side1Inp.text = parseFloat(data.side1) + " " + CFG.units;
-                side2Inp.text = parseFloat(data.side2) + " " + CFG.units;
-                angle1Inp.text = data.angle1;
-                angle2Inp.text = data.angle2;
-                if (data.mode) {
-                    isOneAngle.value = data.mode === "true";
-                    isTwoAngle.value = data.mode === "false";
-                    side2Inp.enabled = isOneAngle.value;
-                    angle2Inp.enabled = !isOneAngle.value;
-                }
-                isAddInfo.value = data.legend === "true";
+                win.fontSize.text = data.fontSize;
+                win.unit.selection = data.unit;
+                win.topCheck.value = data.topCheck === "true";
+                win.rightCheck.value = data.rightCheck === "true";
+                win.bottomCheck.value = data.bottomCheck === "true";
+                win.leftCheck.value = data.leftCheck === "true";
             }
         } catch (err) {
             return;
@@ -216,6 +228,23 @@ function createColor(CFG) {
         color.black = CFG.cmyk[3];
     }
     return color;
+}
+
+/**
+ * Serialize a JavaScript plain object into a JSON-like string
+ * @param {Object} obj - The object to serialize
+ * @returns {string} - A JSON-like string representation of the object
+ */
+function stringify(obj) {
+    var json = [];
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            var value = obj[key].toString();
+            value = value.replace(/\t/g, "\\t").replace(/\r/g, "\\r").replace(/\n/g, "\\n").replace(/"/g, '\\"');
+            json.push('"' + key + '":"' + value + '"');
+        }
+    }
+    return "{" + json.join(",") + "}";
 }
 
 try {
