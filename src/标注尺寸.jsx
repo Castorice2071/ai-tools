@@ -1,42 +1,6 @@
 //@target illustrator
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
-function buildUI(SCRIPT) {
-    var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
-    win.orientation = "column";
-    win.alignChildren = ["fill", "fill"];
-
-    // 标注边
-    var sidePanel = win.add("panel", undefined, "选择标注边");
-    sidePanel.orientation = "row";
-    sidePanel.spacing = 16;
-    win.topCheck = sidePanel.add("checkbox", undefined, "上边");
-    win.rightCheck = sidePanel.add("checkbox", undefined, "右边");
-    win.bottomCheck = sidePanel.add("checkbox", undefined, "下边");
-    win.leftCheck = sidePanel.add("checkbox", undefined, "左边");
-
-    var wrapper = win.add("group");
-    wrapper.orientation = "row";
-    wrapper.alignChildren = ["fill", "fill"];
-
-    var unitPanel = wrapper.add("panel", undefined, "选择单位");
-    win.unit = unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
-    win.unit.selection = 0; // 默认选择 px
-    win.unit.preferredSize = [80, -1];
-
-    var sizePanel = wrapper.add("panel", undefined, "字号大小");
-    win.fontSize = sizePanel.add("edittext", undefined, "12");
-    win.fontSize.preferredSize = [80, -1];
-
-    var buttonGroup = win.add("group");
-    buttonGroup.alignChildren = ["center", "fill"];
-
-    win.okButton = buttonGroup.add("button", undefined, "确定");
-    win.cancelButton = buttonGroup.add("button", undefined, "取消");
-
-    return win;
-}
-
 function main() {
     var SCRIPT = {
         name: "标注尺寸",
@@ -163,7 +127,6 @@ function main() {
         data.rightCheck = win.rightCheck.value;
         data.bottomCheck = win.bottomCheck.value;
         data.leftCheck = win.leftCheck.value;
-        alert(win.topCheck.value);
 
         f.write(stringify(data));
         f.close();
@@ -228,6 +191,42 @@ function createColor(CFG) {
         color.black = CFG.cmyk[3];
     }
     return color;
+}
+
+function buildUI(SCRIPT) {
+    var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
+    win.orientation = "column";
+    win.alignChildren = ["fill", "fill"];
+
+    // 标注边
+    var sidePanel = win.add("panel", undefined, "选择标注边");
+    sidePanel.orientation = "row";
+    sidePanel.spacing = 16;
+    win.topCheck = sidePanel.add("checkbox", undefined, "上边");
+    win.rightCheck = sidePanel.add("checkbox", undefined, "右边");
+    win.bottomCheck = sidePanel.add("checkbox", undefined, "下边");
+    win.leftCheck = sidePanel.add("checkbox", undefined, "左边");
+
+    var wrapper = win.add("group");
+    wrapper.orientation = "row";
+    wrapper.alignChildren = ["fill", "fill"];
+
+    var unitPanel = wrapper.add("panel", undefined, "选择单位");
+    win.unit = unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
+    win.unit.selection = 0; // 默认选择 px
+    win.unit.preferredSize = [80, -1];
+
+    var sizePanel = wrapper.add("panel", undefined, "字号大小");
+    win.fontSize = sizePanel.add("edittext", undefined, "12");
+    win.fontSize.preferredSize = [80, -1];
+
+    var buttonGroup = win.add("group");
+    buttonGroup.alignChildren = ["center", "fill"];
+
+    win.okButton = buttonGroup.add("button", undefined, "确定");
+    win.cancelButton = buttonGroup.add("button", undefined, "取消");
+
+    return win;
 }
 
 /**
