@@ -10,6 +10,7 @@ function main() {
         rgb: [0, 0, 0],
         cmyk: [0, 0, 0, 100],
         color: getColor(255, 0, 0),
+        lineWidth: 0.5, // 标注线宽度
         gap: 3, // 标注线与标注对象的间距
     };
     var SETTINGS = {
@@ -49,12 +50,19 @@ function main() {
             var w = bounds[2] - bounds[0];
             var h = bounds[1] - bounds[3];
 
+            for (var key in CFG) {
+                if (CFG.hasOwnProperty(key)) {
+                    $.writeln(key + ": " + CFG[key]);
+                }
+            }
+
             if (top) {
                 drawLine(
                     [
                         [x, y + CFG.gap],
                         [x + w, y + CFG.gap],
                     ],
+                    CFG.lineWidth,
                     color,
                 );
             }
@@ -65,6 +73,7 @@ function main() {
                         [x - CFG.gap, y],
                         [x - CFG.gap, y - h],
                     ],
+                    CFG.lineWidth,
                     color,
                 );
             }
@@ -75,6 +84,7 @@ function main() {
                         [x + w + CFG.gap, y],
                         [x + w + CFG.gap, y - h],
                     ],
+                    CFG.lineWidth,
                     color,
                 );
             }
@@ -85,6 +95,7 @@ function main() {
                         [x, y - h - CFG.gap],
                         [x + w, y - h - CFG.gap],
                     ],
+                    CFG.lineWidth,
                     color,
                 );
             }
@@ -123,6 +134,8 @@ function main() {
         data.rightCheck = win.rightCheck.value;
         data.bottomCheck = win.bottomCheck.value;
         data.leftCheck = win.leftCheck.value;
+        data.gap = CFG.gap = parseFloat(win.gap.text);
+        data.lineWidth = CFG.lineWidth = parseFloat(win.lineWidth.text);
 
         f.write(stringify(data));
         f.close();
@@ -155,6 +168,8 @@ function main() {
                 win.rightCheck.value = data.rightCheck === "true";
                 win.bottomCheck.value = data.bottomCheck === "true";
                 win.leftCheck.value = data.leftCheck === "true";
+                win.gap.text = data.gap ? data.gap : CFG.gap;
+                win.lineWidth.text = data.lineWidth ? data.lineWidth : CFG.lineWidth;
             }
         } catch (err) {
             return;
@@ -201,22 +216,45 @@ function buildUI(SCRIPT) {
     win.bottomCheck = sidePanel.add("checkbox", undefined, "下边");
     win.leftCheck = sidePanel.add("checkbox", undefined, "左边");
 
-    var wrapper = win.add("group");
-    wrapper.orientation = "row";
-    wrapper.alignChildren = ["fill", "fill"];
+    // 设置选项面板
+    var optionPanel = win.add("panel", undefined, "设置选项");
+    optionPanel.orientation = "row";
+    optionPanel.alignChildren = ["fill", "top"];
 
-    var unitPanel = wrapper.add("panel", undefined, "选择单位");
-    win.unit = unitPanel.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
-    win.unit.selection = 0; // 默认选择 px
+    // 左列
+    var col1 = optionPanel.add("group");
+    col1.orientation = "column";
+    col1.alignChildren = ["left", "center"];
+
+    var unitGroup = col1.add("group");
+    unitGroup.add("statictext", undefined, "选择单位:");
+    win.unit = unitGroup.add("dropdownlist", undefined, ["px", "mm", "cm", "in"]);
+    win.unit.selection = 0;
     win.unit.preferredSize = [80, -1];
 
-    var sizePanel = wrapper.add("panel", undefined, "字号大小");
-    win.fontSize = sizePanel.add("edittext", undefined, "12");
+    var fontSizeGroup = col1.add("group");
+    fontSizeGroup.add("statictext", undefined, "字号大小:");
+    win.fontSize = fontSizeGroup.add("edittext", undefined, "12");
     win.fontSize.preferredSize = [80, -1];
 
+    // 右列
+    var col2 = optionPanel.add("group");
+    col2.orientation = "column";
+    col2.alignChildren = ["left", "center"];
+
+    var lineWidthGroup = col2.add("group");
+    lineWidthGroup.add("statictext", undefined, "标线宽度:");
+    win.lineWidth = lineWidthGroup.add("edittext", undefined, "0.5");
+    win.lineWidth.preferredSize = [80, -1];
+
+    var gapGroup = col2.add("group");
+    gapGroup.add("statictext", undefined, "标线间距:");
+    win.gap = gapGroup.add("edittext", undefined, "3");
+    win.gap.preferredSize = [80, -1];
+
+    // 按钮
     var buttonGroup = win.add("group");
     buttonGroup.alignChildren = ["center", "fill"];
-
     win.okButton = buttonGroup.add("button", undefined, "确定");
     win.cancelButton = buttonGroup.add("button", undefined, "取消");
 
@@ -235,12 +273,12 @@ function stringify(obj) {
     return "{" + json.join(",") + "}";
 }
 
-function drawLine(geo, color) {
+function drawLine(geo, strokeWidth, strokeColor) {
     var lineObj = activeDocument.pathItems.add();
     lineObj.setEntirePath(geo);
     lineObj.stroked = true;
-    lineObj.strokeWidth = 1;
-    lineObj.strokeColor = color;
+    lineObj.strokeWidth = strokeWidth;
+    lineObj.strokeColor = strokeColor;
     lineObj.filled = false;
     lineObj.strokeCap = StrokeCap.BUTTENDCAP;
 
