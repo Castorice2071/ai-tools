@@ -10,7 +10,8 @@ function main() {
         rgb: [0, 0, 0],
         cmyk: [0, 0, 0, 100],
         lineWidth: 0.5,
-        gap: 3,
+        doubleLineLength: 4, // 两端线段长度
+        gap: 2,
     };
     var SETTINGS = {
         name: SCRIPT.name + "_data.json",
@@ -18,7 +19,8 @@ function main() {
     };
 
     var doc = app.activeDocument;
-    var win = buildUI(SCRIPT);
+    var win = buildUI(SCRIPT, CFG);
+    var color = createColor(CFG);
 
     loadSettings(SETTINGS);
 
@@ -42,44 +44,74 @@ function main() {
                 y = bounds[1],
                 w = bounds[2] - bounds[0],
                 h = bounds[1] - bounds[3];
-            var color = createColor(CFG);
 
-            if (top)
-                drawLine(
-                    [
-                        [x, y + CFG.gap],
-                        [x + w, y + CFG.gap],
-                    ],
-                    CFG.lineWidth,
-                    color,
-                );
-            if (left)
-                drawLine(
-                    [
-                        [x - CFG.gap, y],
-                        [x - CFG.gap, y - h],
-                    ],
-                    CFG.lineWidth,
-                    color,
-                );
-            if (right)
-                drawLine(
-                    [
-                        [x + w + CFG.gap, y],
-                        [x + w + CFG.gap, y - h],
-                    ],
-                    CFG.lineWidth,
-                    color,
-                );
-            if (bottom)
-                drawLine(
-                    [
-                        [x, y - h - CFG.gap],
-                        [x + w, y - h - CFG.gap],
-                    ],
-                    CFG.lineWidth,
-                    color,
-                );
+            if (top) {
+                drawLine([
+                    [x, y + CFG.gap],
+                    [x, y + CFG.gap + CFG.doubleLineLength],
+                ]);
+
+                drawLine([
+                    [x + w, y + CFG.gap],
+                    [x + w, y + CFG.gap + CFG.doubleLineLength],
+                ]);
+
+                drawLine([
+                    [x, y + CFG.gap + CFG.doubleLineLength / 2],
+                    [x + w, y + CFG.gap + CFG.doubleLineLength / 2],
+                ]);
+            }
+
+            if (left) {
+                drawLine([
+                    [x - CFG.gap - CFG.doubleLineLength, y],
+                    [x - CFG.gap, y],
+                ]);
+
+                drawLine([
+                    [x - CFG.gap - CFG.doubleLineLength, y - h],
+                    [x - CFG.gap, y - h],
+                ]);
+
+                drawLine([
+                    [x - CFG.gap - CFG.doubleLineLength / 2, y],
+                    [x - CFG.gap - CFG.doubleLineLength / 2, y - h],
+                ]);
+            }
+
+            if (right) {
+                drawLine([
+                    [x + w + CFG.gap, y],
+                    [x + w + CFG.gap + CFG.doubleLineLength, y],
+                ]);
+
+                drawLine([
+                    [x + w + CFG.gap, y - h],
+                    [x + w + CFG.gap + CFG.doubleLineLength, y - h],
+                ]);
+
+                drawLine([
+                    [x + w + CFG.gap + CFG.doubleLineLength / 2, y],
+                    [x + w + CFG.gap + CFG.doubleLineLength / 2, y - h],
+                ]);
+            }
+
+            if (bottom) {
+                drawLine([
+                    [x, y - h - CFG.gap],
+                    [x, y - h - CFG.gap - CFG.doubleLineLength],
+                ]);
+
+                drawLine([
+                    [x + w, y - h - CFG.gap],
+                    [x + w, y - h - CFG.gap - CFG.doubleLineLength],
+                ]);
+
+                drawLine([
+                    [x, y - h - CFG.gap - CFG.doubleLineLength / 2],
+                    [x + w, y - h - CFG.gap - CFG.doubleLineLength / 2],
+                ]);
+            }
 
             saveSettings(SETTINGS);
             app.redraw();
@@ -93,6 +125,24 @@ function main() {
     };
     win.show();
 
+    /**
+     * 绘制线条
+     * @param {Array} geo - 线条的坐标数组
+     */
+    function drawLine(geo) {
+        var lineObj = app.activeDocument.pathItems.add();
+        lineObj.setEntirePath(geo);
+        lineObj.stroked = true;
+        lineObj.strokeWidth = CFG.lineWidth;
+        lineObj.strokeColor = color;
+        lineObj.filled = false;
+        lineObj.strokeCap = StrokeCap.BUTTENDCAP;
+        return lineObj;
+    }
+
+    /**
+     * 保存设置到文件
+     */
     function saveSettings(prefs) {
         if (!Folder(prefs.folder).exists) Folder(prefs.folder).create();
         var f = new File(prefs.folder + prefs.name);
@@ -114,6 +164,9 @@ function main() {
         f.close();
     }
 
+    /**
+     * 加载设置从文件
+     */
     function loadSettings(prefs) {
         var f = File(prefs.folder + prefs.name);
         if (!f.exists) return;
@@ -140,14 +193,6 @@ function main() {
     }
 }
 
-function getColor(red, green, blue) {
-    var color = new RGBColor();
-    color.red = red;
-    color.green = green;
-    color.blue = blue;
-    return color;
-}
-
 function createColor(CFG) {
     var color;
     if (/rgb/i.test(app.activeDocument.documentColorSpace)) {
@@ -165,7 +210,7 @@ function createColor(CFG) {
     return color;
 }
 
-function buildUI(SCRIPT) {
+function buildUI(SCRIPT, CFG) {
     var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
     win.orientation = "column";
     win.alignChildren = ["fill", "fill"];
@@ -173,6 +218,7 @@ function buildUI(SCRIPT) {
     // 标注边
     var sidePanel = win.add("panel", undefined, "选择标注边");
     sidePanel.orientation = "row";
+    sidePanel.alignChildren = ["center", "center"];
     sidePanel.spacing = 16;
     win.topCheck = sidePanel.add("checkbox", undefined, "上边");
     win.rightCheck = sidePanel.add("checkbox", undefined, "右边");
@@ -207,12 +253,12 @@ function buildUI(SCRIPT) {
 
     var lineWidthGroup = col2.add("group");
     lineWidthGroup.add("statictext", undefined, "标线宽度:");
-    win.lineWidth = lineWidthGroup.add("edittext", undefined, "0.5");
+    win.lineWidth = lineWidthGroup.add("edittext", undefined, CFG.lineWidth.toString());
     win.lineWidth.preferredSize = [80, -1];
 
     var gapGroup = col2.add("group");
     gapGroup.add("statictext", undefined, "标线间距:");
-    win.gap = gapGroup.add("edittext", undefined, "3");
+    win.gap = gapGroup.add("edittext", undefined, CFG.gap.toString());
     win.gap.preferredSize = [80, -1];
 
     // 按钮
@@ -234,20 +280,6 @@ function stringify(obj) {
         }
     }
     return "{" + json.join(",") + "}";
-}
-
-function drawLine(geo, strokeWidth, strokeColor) {
-    if (!(geo && geo.length === 2 && typeof strokeWidth === "number" && strokeColor)) {
-        throw new Error("drawLine 参数错误");
-    }
-    var lineObj = app.activeDocument.pathItems.add();
-    lineObj.setEntirePath(geo);
-    lineObj.stroked = true;
-    lineObj.strokeWidth = strokeWidth;
-    lineObj.strokeColor = strokeColor;
-    lineObj.filled = false;
-    lineObj.strokeCap = StrokeCap.BUTTENDCAP;
-    return lineObj;
 }
 
 try {
