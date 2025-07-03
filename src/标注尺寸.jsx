@@ -1,5 +1,5 @@
 //@target illustrator
-app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
+app.preferences.setBooleanPreference("ShowExternalJSXWarning", false);
 
 function main() {
     var SCRIPT = {
@@ -9,54 +9,42 @@ function main() {
     var CFG = {
         rgb: [0, 0, 0],
         cmyk: [0, 0, 0, 100],
-        color: getColor(255, 0, 0),
-        lineWidth: 0.5, // 标注线宽度
-        gap: 3, // 标注线与标注对象的间距
+        lineWidth: 0.5,
+        gap: 3,
     };
     var SETTINGS = {
         name: SCRIPT.name + "_data.json",
         folder: Folder.myDocuments + "/Adobe Scripts/",
     };
 
-    // GLOBAL VARIABLES
     var doc = app.activeDocument;
-    var sel = doc.selection;
-    var color = createColor(CFG);
-
     var win = buildUI(SCRIPT);
 
     loadSettings(SETTINGS);
 
     win.okButton.onClick = function () {
         try {
-            saveSettings(SETTINGS);
-            if (!sel || sel.length <= 0) {
-                throw new Error("请先选择标注对象！");
-            }
+            // 参数同步与类型转换
+            CFG.gap = parseFloat(win.gap.text);
+            CFG.lineWidth = parseFloat(win.lineWidth.text);
 
-            // 获取标注边的选择状态
-            var top = win.topCheck.value;
-            var left = win.leftCheck.value;
-            var right = win.rightCheck.value;
-            var bottom = win.bottomCheck.value;
+            var sel = doc.selection;
+            if (!sel || sel.length <= 0) throw new Error("请先选择标注对象！");
 
-            if (!(top || left || right || bottom)) {
-                throw new Error("请至少选择一个标注边。");
-            }
+            var top = win.topCheck.value,
+                left = win.leftCheck.value,
+                right = win.rightCheck.value,
+                bottom = win.bottomCheck.value;
+            if (!(top || left || right || bottom)) throw new Error("请至少选择一个标注边。");
 
             var bounds = sel[0].geometricBounds;
-            var x = bounds[0];
-            var y = bounds[1];
-            var w = bounds[2] - bounds[0];
-            var h = bounds[1] - bounds[3];
+            var x = bounds[0],
+                y = bounds[1],
+                w = bounds[2] - bounds[0],
+                h = bounds[1] - bounds[3];
+            var color = createColor(CFG);
 
-            for (var key in CFG) {
-                if (CFG.hasOwnProperty(key)) {
-                    $.writeln(key + ": " + CFG[key]);
-                }
-            }
-
-            if (top) {
+            if (top)
                 drawLine(
                     [
                         [x, y + CFG.gap],
@@ -65,9 +53,7 @@ function main() {
                     CFG.lineWidth,
                     color,
                 );
-            }
-
-            if (left) {
+            if (left)
                 drawLine(
                     [
                         [x - CFG.gap, y],
@@ -76,9 +62,7 @@ function main() {
                     CFG.lineWidth,
                     color,
                 );
-            }
-
-            if (right) {
+            if (right)
                 drawLine(
                     [
                         [x + w + CFG.gap, y],
@@ -87,9 +71,7 @@ function main() {
                     CFG.lineWidth,
                     color,
                 );
-            }
-
-            if (bottom) {
+            if (bottom)
                 drawLine(
                     [
                         [x, y - h - CFG.gap],
@@ -98,78 +80,59 @@ function main() {
                     CFG.lineWidth,
                     color,
                 );
-            }
 
-            app.redraw(); // 刷新画布
+            saveSettings(SETTINGS);
+            app.redraw();
         } catch (e) {
-            alert(e.message);
+            alert(e && e.message ? e.message : e);
         }
     };
 
     win.cancelButton.onClick = function () {
         win.close();
     };
-
     win.show();
 
-    /**
-     * Save UI options to a file
-     * @param {object} prefs - Object containing preferences
-     */
     function saveSettings(prefs) {
-        if (!Folder(prefs.folder).exists) {
-            Folder(prefs.folder).create();
-        }
-
+        if (!Folder(prefs.folder).exists) Folder(prefs.folder).create();
         var f = new File(prefs.folder + prefs.name);
         f.encoding = "UTF-8";
         f.open("w");
-
-        var data = {};
-        data.win_x = win.location.x;
-        data.win_y = win.location.y;
-        data.fontSize = win.fontSize.text;
-        data.unit = win.unit.selection.index;
-        data.topCheck = win.topCheck.value;
-        data.rightCheck = win.rightCheck.value;
-        data.bottomCheck = win.bottomCheck.value;
-        data.leftCheck = win.leftCheck.value;
-        data.gap = CFG.gap = parseFloat(win.gap.text);
-        data.lineWidth = CFG.lineWidth = parseFloat(win.lineWidth.text);
-
+        var data = {
+            win_x: win.location.x,
+            win_y: win.location.y,
+            fontSize: win.fontSize.text,
+            unit: win.unit.selection.index,
+            topCheck: win.topCheck.value,
+            rightCheck: win.rightCheck.value,
+            bottomCheck: win.bottomCheck.value,
+            leftCheck: win.leftCheck.value,
+            gap: win.gap.text,
+            lineWidth: win.lineWidth.text,
+        };
         f.write(stringify(data));
         f.close();
     }
 
-    /**
-     * Load options from a file
-     * @param {object} prefs - Object containing preferences
-     */
     function loadSettings(prefs) {
         var f = File(prefs.folder + prefs.name);
         if (!f.exists) return;
-
         try {
             f.encoding = "UTF-8";
             f.open("r");
             var json = f.readln();
-            try {
-                var data = new Function("return (" + json + ")")();
-            } catch (err) {
-                return;
-            }
+            var data = new Function("return (" + json + ")")();
             f.close();
-
             if (typeof data != "undefined") {
-                win.location = [data.win_x ? parseInt(data.win_x) : 100, data.win_y ? parseInt(data.win_y) : 100];
+                win.location = [parseInt(data.win_x) || 100, parseInt(data.win_y) || 100];
                 win.fontSize.text = data.fontSize;
                 win.unit.selection = data.unit;
-                win.topCheck.value = data.topCheck === "true";
-                win.rightCheck.value = data.rightCheck === "true";
-                win.bottomCheck.value = data.bottomCheck === "true";
-                win.leftCheck.value = data.leftCheck === "true";
-                win.gap.text = data.gap ? data.gap : CFG.gap;
-                win.lineWidth.text = data.lineWidth ? data.lineWidth : CFG.lineWidth;
+                win.topCheck.value = data.topCheck === "true" || data.topCheck === true;
+                win.rightCheck.value = data.rightCheck === "true" || data.rightCheck === true;
+                win.bottomCheck.value = data.bottomCheck === "true" || data.bottomCheck === true;
+                win.leftCheck.value = data.leftCheck === "true" || data.leftCheck === true;
+                win.gap.text = data.gap || CFG.gap;
+                win.lineWidth.text = data.lineWidth || CFG.lineWidth;
             }
         } catch (err) {
             return;
@@ -274,20 +237,22 @@ function stringify(obj) {
 }
 
 function drawLine(geo, strokeWidth, strokeColor) {
-    var lineObj = activeDocument.pathItems.add();
+    if (!(geo && geo.length === 2 && typeof strokeWidth === "number" && strokeColor)) {
+        throw new Error("drawLine 参数错误");
+    }
+    var lineObj = app.activeDocument.pathItems.add();
     lineObj.setEntirePath(geo);
     lineObj.stroked = true;
     lineObj.strokeWidth = strokeWidth;
     lineObj.strokeColor = strokeColor;
     lineObj.filled = false;
     lineObj.strokeCap = StrokeCap.BUTTENDCAP;
-
     return lineObj;
 }
 
 try {
     main();
 } catch (error) {
-    $.writeln("Error: " + error.message);
-    alert(error);
+    $.writeln("Error: " + (error && error.message ? error.message : error));
+    alert(error && error.message ? error.message : error);
 }
