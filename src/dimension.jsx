@@ -2,7 +2,7 @@
 //@targetengine main
 
 // 脚本版本信息
-var VersionInfo = "v0.0.4";
+var VersionInfo = "v0.0.5";
 // 标注图层名称
 var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
@@ -168,15 +168,16 @@ function label_Info() {
     var unitConvert = win.optionsPanel.unitGroup.unitModeList.selection.toString().replace(/[^a-zA-Z]/g, "");
 
     // 处理标注图层
-    try {
-        var specsLayer = doc.layers[layName];
-        specsLayer.locked = false;
-        specsLayer.visible = true;
-    } catch (err) {
-        var specsLayer = doc.layers.add();
-        specsLayer.name = layName;
-    }
+    // try {
+    //     var specsLayer = doc.layers[layName];
+    //     specsLayer.locked = false;
+    //     specsLayer.visible = true;
+    // } catch (err) {
+    //     var specsLayer = doc.layers.add();
+    //     specsLayer.name = layName;
+    // }
 
+    var specsLayer = doc.activeLayer
     var itemsGroup = specsLayer.groupItems.add();
 
     // 处理单体标注
