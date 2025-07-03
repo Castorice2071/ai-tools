@@ -17,93 +17,89 @@ function main() {
         folder: Folder.myDocuments + "/Adobe Scripts/",
     };
 
+    // GLOBAL VARIABLES
+    var doc = app.activeDocument;
+    var sel = doc.selection;
+    var color = createColor(CFG);
+
     var win = buildUI(SCRIPT);
 
     loadSettings(SETTINGS);
 
     win.okButton.onClick = function () {
-        saveSettings(SETTINGS);
-        // alert(1);
+        try {
+            saveSettings(SETTINGS);
+            if (!sel || sel.length <= 0) {
+                throw new Error("请先选择标注对象！");
+            }
+
+            // 获取标注边的选择状态
+            var top = win.topCheck.value;
+            var left = win.leftCheck.value;
+            var right = win.rightCheck.value;
+            var bottom = win.bottomCheck.value;
+
+            if (!(top || left || right || bottom)) {
+                throw new Error("请至少选择一个标注边。");
+            }
+
+            var bounds = sel[0].geometricBounds;
+            var x = bounds[0];
+            var y = bounds[1];
+            var w = bounds[2] - bounds[0];
+            var h = bounds[1] - bounds[3];
+
+            if (top) {
+                drawLine(
+                    [
+                        [x, y + CFG.gap],
+                        [x + w, y + CFG.gap],
+                    ],
+                    color,
+                );
+            }
+
+            if (left) {
+                drawLine(
+                    [
+                        [x - CFG.gap, y],
+                        [x - CFG.gap, y - h],
+                    ],
+                    color,
+                );
+            }
+
+            if (right) {
+                drawLine(
+                    [
+                        [x + w + CFG.gap, y],
+                        [x + w + CFG.gap, y - h],
+                    ],
+                    color,
+                );
+            }
+
+            if (bottom) {
+                drawLine(
+                    [
+                        [x, y - h - CFG.gap],
+                        [x + w, y - h - CFG.gap],
+                    ],
+                    color,
+                );
+            }
+
+            app.redraw(); // 刷新画布
+        } catch (e) {
+            alert(e.message);
+        }
     };
+
     win.cancelButton.onClick = function () {
         win.close();
     };
 
     win.show();
-
-    return;
-
-    var doc = app.activeDocument;
-    var sel = doc.selection;
-    var obj = sel[0];
-
-    // Create color
-    var color = createColor(CFG);
-
-    if (!obj) {
-        throw new Error("请先选择标注对象！");
-    }
-
-    // DIALOG
-    var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
-    win.orientation = "column";
-
-    // 标注边
-    var sidePanel = win.add("panel", undefined, "选择标注边");
-    sidePanel.orientation = "row";
-    sidePanel.spacing = 16;
-
-    var topCheck = sidePanel.add("checkbox", undefined, "上边");
-    var rightCheck = sidePanel.add("checkbox", undefined, "右边");
-    var bottomCheck = sidePanel.add("checkbox", undefined, "下边");
-    var leftCheck = sidePanel.add("checkbox", undefined, "左边");
-
-    win.show();
-    return;
-
-    var bounds = obj.geometricBounds;
-    var x = bounds[0];
-    var y = bounds[1];
-    var w = bounds[2] - bounds[0];
-    var h = bounds[1] - bounds[3];
-
-    $.writeln("w ", w);
-    $.writeln("h ", h);
-    $.writeln("x ", x);
-    $.writeln("y ", y);
-
-    var bottomGeo = [
-        [x, y - h - CFG.gap],
-        [x + w, y - h - CFG.gap],
-    ];
-
-    var topGeo = [
-        [x, y],
-        [x + w, y],
-    ];
-
-    drawLine(topGeo);
-
-    function drawLine(geo) {
-        var lineObj = doc.pathItems.add();
-        lineObj.setEntirePath(geo);
-        lineObj.stroked = true;
-        lineObj.strokeWidth = 1;
-        lineObj.strokeColor = color;
-        lineObj.filled = false;
-        lineObj.strokeCap = StrokeCap.BUTTENDCAP;
-
-        // 计算文本位置（示例：线段中点）
-        var x = (geo[0][0] + geo[1][0]) / 2;
-        var y = (geo[0][1] + geo[1][1]) / 2;
-
-        var textObj = doc.textFrames.add();
-        textObj.contents = "250 px";
-        textObj.left = x;
-        textObj.top -= y;
-
-        return lineObj;
-    }
 
     /**
      * Save UI options to a file
@@ -164,8 +160,6 @@ function main() {
             return;
         }
     }
-
-    function draw() {}
 }
 
 function getColor(red, green, blue) {
@@ -229,11 +223,6 @@ function buildUI(SCRIPT) {
     return win;
 }
 
-/**
- * Serialize a JavaScript plain object into a JSON-like string
- * @param {Object} obj - The object to serialize
- * @returns {string} - A JSON-like string representation of the object
- */
 function stringify(obj) {
     var json = [];
     for (var key in obj) {
@@ -246,9 +235,21 @@ function stringify(obj) {
     return "{" + json.join(",") + "}";
 }
 
+function drawLine(geo, color) {
+    var lineObj = activeDocument.pathItems.add();
+    lineObj.setEntirePath(geo);
+    lineObj.stroked = true;
+    lineObj.strokeWidth = 1;
+    lineObj.strokeColor = color;
+    lineObj.filled = false;
+    lineObj.strokeCap = StrokeCap.BUTTENDCAP;
+
+    return lineObj;
+}
+
 try {
     main();
-    app.redraw(); // 刷新画布
 } catch (error) {
+    $.writeln("Error: " + error.message);
     alert(error);
 }
