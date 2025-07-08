@@ -79,3 +79,5 @@ function addAreaText(doc, left, top, width, height, content) {
 }
 
 addAreaText(app.activeDocument, 100, -100, 66, 24, "Crafts");
+addAreaText(app.activeDocument, 100, -100 - 25, 66, 24, "Material");
+addAreaText(app.activeDocument, 100, -100 - 25 - 25, 66, 24, "Plating");
