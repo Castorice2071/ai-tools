@@ -10,21 +10,12 @@
 
 (function () {
     try {
-        // if (app.documents.length === 0) {
-        //     alert("请先打开一个文档。");
-        //     return;
-        // }
-        // var doc = app.activeDocument;
-        // if (doc.selection.length === 0) {
-        //     alert("请先选择对象。");
-        //     return;
-        // }
         // 先扩展外观
-        // app.executeMenuCommand("expandStyle");
-        // 再扩展两次
-        // app.executeMenuCommand("expand");
-
-        app.doScript("动作1", "动作集1", false);
+        app.executeMenuCommand("expandStyle");
+        app.doScript("执行扩展", "扩展扩展", false);
+        app.doScript("路径操作", "扩展扩展", false);
+        app.doScript("缩放", "扩展扩展", false);
+        alert(1)
     } catch (error) {
         alert("Error: " + error.message);
     }
