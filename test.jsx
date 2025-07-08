@@ -13,7 +13,7 @@
         // 先扩展外观
         app.executeMenuCommand("expandStyle");
         app.doScript("执行扩展", "扩展扩展", false);
-        app.doScript("路径操作", "扩展扩展", false);
+        app.doScript("路径操作", "扩展扩展", false); 
         app.doScript("缩放", "扩展扩展", false);
         alert(1)
     } catch (error) {
