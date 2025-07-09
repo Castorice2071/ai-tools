@@ -22,15 +22,12 @@ function main() {
     };
 
     win.btn2.onClick = function () {
-        buildMsg("btn2Click();");
+        load_jsxbin(SCRIPT.path + "./标注颜色.jsxbin");
+        buildMsg("app.redraw();");
     };
 
     win.btn3.onClick = function () {
-        buildMsg("btn3Click();");
-    };
-
-    win.btn4.onClick = function () {
-        load_jsxbin(SCRIPT.path + "./我的天.jsxbin");
+        load_jsxbin(SCRIPT.path + "./对象排列.jsxbin");
         buildMsg("app.redraw();");
     };
 
@@ -40,10 +37,12 @@ function main() {
 function buildUI(SCRIPT, CFG) {
     var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
 
-    win.btn1 = win.add("button", undefined, "标注尺寸");
-    win.btn2 = win.add("button", undefined, "标注颜色");
-    win.btn3 = win.add("button", undefined, "对象排列");
-    win.btn4 = win.add("button", undefined, "测试测试");
+    var group1 = win.add('group')
+    group1.orientation = "row"
+
+    win.btn1 = group1.add("button", undefined, "标注尺寸");
+    win.btn2 = group1.add("button", undefined, "标注颜色");
+    win.btn3 = group1.add("button", undefined, "对象排列");
 
     return win;
 }
@@ -94,8 +93,6 @@ function btn2Click() {
     if (sel.length <= 0) {
         return alert("请先选择标注对象！");
     }
-    load_jsxbin(SCRIPT.path + "./标注颜色.jsxbin");
-    buildMsg("app.redraw();");
 }
 
 function btn3Click() {
@@ -104,8 +101,6 @@ function btn3Click() {
     if (sel.length <= 0) {
         return alert("请先选择标注对象！");
     }
-    load_jsxbin(SCRIPT.path + "./对象排列.jsxbin");
-    buildMsg("app.redraw();");
 }
 
 function btn4Click() {
