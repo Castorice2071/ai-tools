@@ -21,13 +21,15 @@ function main() {
     if (sel.length <= 0) {
         return alert("请先选择一个对象。");
     }
-    var colors = getSelectedColors(sel);
-    if (colors.length === 0) {
-        return alert("未检测到任何颜色。");
-    }
+
+    // var colors = getSelectedColors(sel[0]);
+    // if (colors.length === 0) {
+    //     return alert("未检测到任何颜色。");
+    // }
 
     for (var i = 0; i < sel.length; i++) {
         var bounds = sel[i].geometricBounds;
+        var colors = getSelectedColors(sel[i]);
         var x = bounds[0],
             y = bounds[1],
             w = bounds[2] - bounds[0],
@@ -38,11 +40,9 @@ function main() {
             drawColorBlockWithLabel(color, x, y - h - CFG.gap - (CFG.size + 10) * j, CFG.size);
         }
     }
-
-    output(colors);
 }
 
-function getSelectedColors(selection) {
+function getSelectedColors(the_obj) {
     var colors = [];
 
     function collectColors(item) {
@@ -53,22 +53,25 @@ function getSelectedColors(selection) {
         } else {
             if (item.filled && item.fillColor) {
                 var color = item.fillColor;
-                if (color.typename === "RGBColor") {
-                    colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-                } else if (color.typename === "CMYKColor") {
-                    colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-                } else if (color.typename === "GrayColor") {
-                    colors.push("Gray(" + color.gray + ")");
-                } else if (color.typename === "SpotColor") {
+                // if (color.typename === "RGBColor") {
+                //     colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+                // } else if (color.typename === "CMYKColor") {
+                //     colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+                // } else if (color.typename === "GrayColor") {
+                //     colors.push("Gray(" + color.gray + ")");
+                // } else if (color.typename === "SpotColor") {
+                //     colors.push("SpotColor(" + color.spot.name + ")");
+                // }
+
+                // 只要专色
+                if (color.typename === "SpotColor") {
                     colors.push("SpotColor(" + color.spot.name + ")");
                 }
             }
         }
     }
 
-    for (var i = 0; i < selection.length; i++) {
-        collectColors(selection[i]);
-    }
+    collectColors(the_obj);
 
     // 去重
     var uniqueColors = {};
@@ -120,7 +123,7 @@ function drawColorBlockWithLabel(color, left, top, size) {
 
     // 解析 color 字符串，生成对应的颜色对象
     var fillColor = null;
-    var contents = color
+    var contents = color;
     if (/^RGB\(/.test(color)) {
         // 解析 RGB
         var rgb = color.match(/RGB\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -151,7 +154,7 @@ function drawColorBlockWithLabel(color, left, top, size) {
             fillColor = grayColor;
         }
     } else if (/^SpotColor\(/.test(color)) {
-        contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1")
+        contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
 
         // 解析 SpotColor
         var spot = color.match(/SpotColor\((.+)\)/);
@@ -187,6 +190,11 @@ function drawColorBlockWithLabel(color, left, top, size) {
     label.contents = contents;
     label.left = left + size + 3; // 方块右侧留 3pt间距
     label.top = top; // 垂直居中微调
+
+    var group = doc.groupItems.add();
+    group.name = contents;
+    rect.move(group, ElementPlacement.INSIDE);
+    label.move(group, ElementPlacement.INSIDE);
 }
 
 function output(data) {
@@ -203,10 +211,6 @@ function output(data) {
     } else {
         $.writeln("Value: " + data);
     }
-}
-
-function GET_BOUNDS(the_obj) {
-    return the_obj.geometricBounds;
 }
 
 function createRGBColor(rgb) {
