@@ -4250,6 +4250,7 @@ if (
     activeDocument.selection.length > 0 &&
     activeDocument.selection[0].fillColor != null
 ) {
+    $.writeln("有对象被选中，正在获取颜色...");
     //and it's the right kind of object:
     if (activeDocument.selection[0].fillColor.typename == "CMYKColor") {
         fil = activeDocument.selection[0].fillColor;
@@ -4271,6 +4272,7 @@ if (
         getCols();
     }
 } else {
+    $.writeln("如果没有选择对象，则提示用户输入...");
     // if no object was selected prompt user for input:
     inpt = getManual();
     getCols();
