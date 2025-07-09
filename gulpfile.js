@@ -12,14 +12,23 @@ function updateVersion() {
     return pkg.version;
 }
 
+// export default () => {
+//     const version = updateVersion();
+//     console.log(version);
+//     return src("./src/dimension.jsx")
+//         .pipe(
+//             rename((path) => {
+//                 path.basename += `-${version}`;
+//             }),
+//         )
+//         .pipe(dest("./dist"));
+// };
+
 export default () => {
-    const version = updateVersion();
-    console.log(version);
-    return src("./src/dimension.jsx")
-        .pipe(
-            rename((path) => {
-                path.basename += `-${version}`;
-            }),
-        )
-        .pipe(dest("./dist"));
+    return src([
+        "./src/main.jsx",
+        "./src/标注尺寸.jsxbin",
+        "./src/标注颜色.jsxbin",
+        "./src/对象排列.jsxbin",
+    ]).pipe(dest("./dist"));
 };

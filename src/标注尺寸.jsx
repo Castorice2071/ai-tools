@@ -90,7 +90,14 @@ var res =
     } \
 }";
 
+
 var win = new Window(res);
+var doc = app.activeDocument;
+var sel = doc.selection;
+
+if (sel.length <= 0) {
+    return alert("请先选择标注对象！");
+}
 
 // 定义可选单位列表
 var items = new Array("自动-auto", "毫米-mm", "厘米-cm", "米-m", "磅-pt", "像素-px", "英寸-in", "英尺-ft", "派卡-pc");
