@@ -120,6 +120,7 @@ function drawColorBlockWithLabel(color, left, top, size) {
 
     // 解析 color 字符串，生成对应的颜色对象
     var fillColor = null;
+    var contents = color
     if (/^RGB\(/.test(color)) {
         // 解析 RGB
         var rgb = color.match(/RGB\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -150,6 +151,8 @@ function drawColorBlockWithLabel(color, left, top, size) {
             fillColor = grayColor;
         }
     } else if (/^SpotColor\(/.test(color)) {
+        contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1")
+
         // 解析 SpotColor
         var spot = color.match(/SpotColor\((.+)\)/);
         if (spot) {
@@ -171,14 +174,19 @@ function drawColorBlockWithLabel(color, left, top, size) {
     rect.filled = true;
     rect.fillColor = fillColor || new GrayColor(); // 若解析失败则用灰色
     rect.stroked = true;
+    rect.strokeColor = createRGBColor([0, 0, 0]);
     rect.strokeWidth = 0.5;
 
     // 绘制文字
     var label = doc.textFrames.add();
-    label.contents = color;
-    label.left = left + size + 8; // 方块右侧留8pt间距
-    label.top = top - size / 2 + 5; // 垂直居中微调
-    label.textRange.characterAttributes.size = 10;
+    try {
+        textInfo.textRange.characterAttributes.textFont = app.textFonts.getByName("ArialMT");
+    } catch (error) {}
+    label.textRange.characterAttributes.size = 8;
+
+    label.contents = contents;
+    label.left = left + size + 3; // 方块右侧留 3pt间距
+    label.top = top; // 垂直居中微调
 }
 
 function output(data) {
@@ -199,6 +207,14 @@ function output(data) {
 
 function GET_BOUNDS(the_obj) {
     return the_obj.geometricBounds;
+}
+
+function createRGBColor(rgb) {
+    var color = new RGBColor();
+    color.red = rgb[0];
+    color.green = rgb[1];
+    color.blue = rgb[2];
+    return color;
 }
 
 try {
