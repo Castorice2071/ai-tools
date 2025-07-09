@@ -4,11 +4,12 @@ app.preferences.setBooleanPreference("ShowExternalJSXWarning", false);
 var bit = 64; // AI软件系统位数，默认64位，如果点击合集面板按钮没有反应，可以将64改为32。
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
+var doc = app.activeDocument;
 
 function main() {
     var SCRIPT = {
             name: "AI-TOOLS",
-            version: "v0.0.1",
+            version: "v1.0.0",
             path: new File($.fileName).path, // 获取脚本所在目录
         },
         CFG = {};
@@ -16,15 +17,30 @@ function main() {
     var win = buildUI(SCRIPT, CFG);
 
     win.btn1.onClick = function () {
+        var sel = doc.selection;
+        if (sel.length <= 0) {
+            return alert("请先选择标注对象！");
+        }
         load_jsxbin(SCRIPT.path + "./标注尺寸.jsxbin");
+        buildMsg("app.redraw();");
     };
 
     win.btn2.onClick = function () {
+        var sel = doc.selection;
+        if (sel.length <= 0) {
+            return alert("请先选择标注对象！");
+        }
         load_jsxbin(SCRIPT.path + "./标注颜色.jsxbin");
+        buildMsg("app.redraw();");
     };
 
     win.btn3.onClick = function () {
+        var sel = doc.selection;
+        if (sel.length <= 0) {
+            return alert("请先选择标注对象！");
+        }
         load_jsxbin(SCRIPT.path + "./对象排列.jsxbin");
+        buildMsg("app.redraw();");
     };
 
     win.show();

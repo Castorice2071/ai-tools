@@ -8,22 +8,6 @@ var layName = "尺寸标注层";
 // 标注颜色（CMYK模式）
 var color = new CMYKColor();
 
-var bit = 64; // AI软件系统位数，默认64位，如果点击按钮没有反应，可以将64改为32。
-var aiVersion = app.version.split(".")[0];
-var vs = "illustrator-" + aiVersion + ".0" + bit;
-
-// 实际代码建立 buildMsg(code) 函数传送代码
-function buildMsg(code) {
-    try {
-        var bt = new BridgeTalk();
-        bt.target = vs;
-        bt.body = code;
-        bt.send();
-    } catch (e) {
-        alert(e);
-    }
-}
-
 // 标注位置默认值
 var topCheck = false;
 var rightCheck = false;
@@ -46,7 +30,7 @@ color.black = 100; // 黑色分量
 
 // 创建主对话框窗口
 var res =
-    "palette { \
+    "dialog { \
     text: '标注尺寸 " +
     VersionInfo +
     "', \
@@ -132,7 +116,8 @@ win.optionsPanel.fontSizeGroup.value.text = fontSize;
 
 // 添加按钮事件
 win.buttonGroup.ok_button.onClick = function () {
-    buildMsg("label_Info();");
+    label_Info();
+    win.close();
 };
 win.buttonGroup.cancel_button.onClick = function () {
     win.close();
@@ -177,7 +162,7 @@ function label_Info() {
     //     specsLayer.name = layName;
     // }
 
-    var specsLayer = doc.activeLayer
+    var specsLayer = doc.activeLayer;
     var itemsGroup = specsLayer.groupItems.add();
 
     // 处理单体标注
@@ -318,12 +303,7 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(
-                    w,
-                    x + w / 2,
-                    y - h - setDoubleLine / 2 - (setgap + setLineWeight + 3),
-                    unitConvert,
-                );
+                var textInfo = specTextLabel(w, x + w / 2, y - h - setDoubleLine / 2 - (setgap + setLineWeight + 3), unitConvert);
                 // 文字居中
                 textInfo.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
                 // textInfo.left -= textInfo.width / 2;
@@ -372,13 +352,8 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(
-                    h,
-                    x - (setDoubleLine / 2 + setgap + setLineWeight + 5),
-                    y - h / 2,
-                    unitConvert,
-                );
-                 // 文字居中
+                var textInfo = specTextLabel(h, x - (setDoubleLine / 2 + setgap + setLineWeight + 5), y - h / 2, unitConvert);
+                // 文字居中
                 textInfo.paragraphs[0].paragraphAttributes.justification = Justification.RIGHT;
                 textInfo.top += textInfo.height / 2;
                 // textInfo.left -= textInfo.width + 5;
@@ -424,13 +399,8 @@ function label_Info() {
                 ]);
 
                 // 创建文字
-                var textInfo = specTextLabel(
-                    h,
-                    x + w + setDoubleLine / 2 + setgap + setLineWeight + 5,
-                    y - h / 2,
-                    unitConvert,
-                );
-                 // 文字居中
+                var textInfo = specTextLabel(h, x + w + setDoubleLine / 2 + setgap + setLineWeight + 5, y - h / 2, unitConvert);
+                // 文字居中
                 textInfo.paragraphs[0].paragraphAttributes.justification = Justification.LEFT;
                 textInfo.top += textInfo.height / 2;
 
@@ -606,12 +576,7 @@ function NO_CLIP_BOUNDS(the_obj) {
                 right.push(bounds[2]);
                 bottom.push(bounds[3]);
             }
-            return [
-                Math.min.apply(null, left),
-                Math.max.apply(null, top),
-                Math.max.apply(null, right),
-                Math.min.apply(null, bottom),
-            ];
+            return [Math.min.apply(null, left), Math.max.apply(null, top), Math.max.apply(null, right), Math.min.apply(null, bottom)];
         }
     } else {
         return the_obj.geometricBounds;
