@@ -53,20 +53,20 @@ function getSelectedColors(the_obj) {
         } else {
             if (item.filled && item.fillColor) {
                 var color = item.fillColor;
-                // if (color.typename === "RGBColor") {
-                //     colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-                // } else if (color.typename === "CMYKColor") {
-                //     colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-                // } else if (color.typename === "GrayColor") {
-                //     colors.push("Gray(" + color.gray + ")");
-                // } else if (color.typename === "SpotColor") {
-                //     colors.push("SpotColor(" + color.spot.name + ")");
-                // }
-
-                // 只要专色
-                if (color.typename === "SpotColor") {
+                if (color.typename === "RGBColor") {
+                    colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+                } else if (color.typename === "CMYKColor") {
+                    colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+                } else if (color.typename === "GrayColor") {
+                    colors.push("Gray(" + color.gray + ")");
+                } else if (color.typename === "SpotColor") {
                     colors.push("SpotColor(" + color.spot.name + ")");
                 }
+
+                // // 只要专色
+                // if (color.typename === "SpotColor") {
+                //     colors.push("SpotColor(" + color.spot.name + ")");
+                // }
             }
         }
     }
