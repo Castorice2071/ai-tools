@@ -101,8 +101,8 @@ var res =
         orientation: 'row', \
         alignment: 'center', \
         spacing: 10, \
-        ok_button: Button { text: '确定', name: 'ok' }, \
-        cancel_button: Button { text: '取消', name: 'cancel' } \
+        cancel_button: Button { text: '取消', name: 'cancel' }, \
+        ok_button: Button { text: '确定', name: 'ok' } \
     } \
 }";
 

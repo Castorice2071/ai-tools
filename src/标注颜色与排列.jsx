@@ -1,12 +1,13 @@
 ﻿/**
  * 标注颜色与排列
  * Author: liwei
- * 
+ *
  * Release notes:
  * 0.0.1    Initial version
  */
 
 //@target illustrator
+//@targetengine main
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
 var bit = 64; // AI软件系统位数，默认64位，如果点击按钮没有反应，可以将64改为32。
@@ -28,19 +29,19 @@ var SETTINGS = {
     folder: Folder.myDocuments + "/Adobe Scripts/",
 };
 
-var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
-win.orientation = "column";
-win.alignChildren = ["fill", "fill"];
+var win2 = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
+win2.orientation = "column";
+win2.alignChildren = ["fill", "fill"];
 
-var panel = win.add("panel", undefined, "参数设置");
+var panel = win2.add("panel", undefined, "参数设置");
 panel.orientation = "column";
 panel.alignChildren = "fill";
 panel.margins = 20;
 var groupColumns = panel.add("group");
 groupColumns.orientation = "row";
 var captionColumns = groupColumns.add("statictext", undefined, "列数:");
-win.valueColumns = groupColumns.add("edittext", undefined, 2);
-win.valueColumns.preferredSize = [100, -1];
+win2.valueColumns = groupColumns.add("edittext", undefined, 2);
+win2.valueColumns.preferredSize = [100, -1];
 
 var groupGutter = panel.add("group");
 groupGutter.orientation = "row";
@@ -49,27 +50,27 @@ groupGutter.alignChildren = ["fill", "fill"];
 var groupGutterX = groupGutter.add("group");
 groupGutterX.orientation = "row";
 var captionGutterX = groupGutterX.add("statictext", undefined, "水平间距");
-win.valueGutterX = groupGutterX.add("edittext", undefined, 10);
-win.valueGutterX.preferredSize = [50, -1];
+win2.valueGutterX = groupGutterX.add("edittext", undefined, 10);
+win2.valueGutterX.preferredSize = [50, -1];
 
 var groupGutterY = groupGutter.add("group");
 groupGutterY.orientation = "row";
 var captionGutterY = groupGutterY.add("statictext", undefined, "垂直间距");
-win.valueGutterY = groupGutterY.add("edittext", undefined, 4);
-win.valueGutterY.preferredSize = [50, -1];
+win2.valueGutterY = groupGutterY.add("edittext", undefined, 4);
+win2.valueGutterY.preferredSize = [50, -1];
 
-var winButtons = win.add("group");
+var winButtons = win2.add("group");
 winButtons.orientation = "row";
 winButtons.alignChildren = ["center", "center"];
 winButtons.margins = 0;
 
-win.colorBtn = winButtons.add("button", undefined, "标注颜色");
-win.okBtn = winButtons.add("button", undefined, "确定", { name: "ok" });
+win2.colorBtn = winButtons.add("button", undefined, "标注颜色");
+win2.okBtn = winButtons.add("button", undefined, "确定", { name: "ok" });
 
-win.colorBtn.onClick = function () {
+win2.colorBtn.onClick = function () {
     buildMsg("markColor();");
 };
-win.okBtn.onClick = function () {
+win2.okBtn.onClick = function () {
     buildMsg("startAction();");
 };
 
@@ -173,13 +174,13 @@ function markColor() {
     for (var i = 0; i < sel.length; i++) {
         var bounds = sel[i].geometricBounds;
         var colors = getSelectedColors(sel[i]);
-        sel[i].selected = false
+        sel[i].selected = false;
 
         var x = bounds[0],
             y = bounds[1],
             w = bounds[2] - bounds[0],
             h = bounds[1] - bounds[3];
-        
+
         for (var j = 0; j < colors.length; j++) {
             var color = colors[j];
             drawColorBlockWithLabel(color, x, y - h - CFG.gap - (CFG.size + 10) * j, CFG.size);
@@ -327,12 +328,12 @@ function startAction() {
     var l = items.length;
     var __rows = 0;
     var gutter = {
-        x: parseFloat(win.valueGutterX.text),
-        y: parseFloat(win.valueGutterY.text),
+        x: parseFloat(win2.valueGutterX.text),
+        y: parseFloat(win2.valueGutterY.text),
     };
     var __posXValue = "左对齐";
     var __posYValue = "顶对齐";
-    var columns = parseInt(win.valueColumns.text);
+    var columns = parseInt(win2.valueColumns.text);
     var bnds = selectionBounds(bounds);
 
     function __align(__pos, __bnds) {
@@ -363,4 +364,4 @@ function startAction() {
     }
 }
 
-win.show();
+win2.show();
