@@ -8,19 +8,63 @@ app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix dr
         version: "v0.1",
     };
 
+    var METALCOLOR = new RGBColor();
+    METALCOLOR.red = 0;
+    METALCOLOR.green = 0;
+    METALCOLOR.blue = 0;
+
     var win = new Window("dialog", SCRIPT.name + " " + SCRIPT.version);
     win.orientation = "column";
 
     var buttonGroup = win.add("group");
-    win.btn1 = buttonGroup.add("button", undefined, "获取选中对象的颜色并隐藏");
-    win.btn2 = buttonGroup.add("button", undefined, "隐藏白色");
+    win.btn1 = buttonGroup.add("button", undefined, "隐藏金属色并导出 PSD");
+    win.btn2 = buttonGroup.add("button", undefined, "隐藏非金属色并导出 PSD");
+    win.btn3 = buttonGroup.add("button", undefined, "测试");
 
     win.btn1.onClick = function () {
-        var selectedColor = getColorBySelected(); // 获取选中对象的颜色
-        if (!selectedColor) return;
+        // var selectedColor = getColorBySelected(); // 获取选中对象的颜色
+        // if (!selectedColor) return;
 
-        $.writeln("Selected color: " + selectedColor);
-        hideColor(selectedColor); // 调用隐藏颜色的函数
+        // 调用隐藏颜色的函数
+        hideColor(targetColor);
+
+        // 导出为 psd 文件
+        exportToPSD();
+
+        // 撤销隐藏操作
+        app.undo();
+
+        // 刷新页面
+        app.redraw();
+    };
+
+    win.btn2.onClick = function () {
+        // var selectedColor = getColorBySelected(); // 获取选中对象的颜色
+        // if (!selectedColor) return;
+
+        // 设置要隐藏的颜色 【非金属色】
+        var targetColor = new RGBColor();
+        targetColor.red = 255;
+        targetColor.green = 255;
+        targetColor.blue = 255;
+
+        // 调用隐藏颜色的函数
+        hideColor(targetColor);
+
+        // 导出为 psd 文件
+        exportToPSD();
+    };
+
+    win.btn3.onClick = function () {
+        hideNotMetalColor();
+        exportToPSD("图.psd");
+        app.undo();
+        app.redraw();
+
+        hideMetalColor();
+        exportToPSD("色.psd");
+        app.undo();
+        app.redraw();
     };
 
     function isColorMatch(color1, color2) {
@@ -56,16 +100,53 @@ app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix dr
         }
     }
 
-    function hideColor(targetColor) {
+    /**
+     * 隐藏金属色
+     */
+    function hideMetalColor() {
         // 获取当前文档
         var doc = app.activeDocument;
 
         // 遍历路径项并隐藏指定颜色
         for (var i = 0; i < doc.pathItems.length; i++) {
             var pathItem = doc.pathItems[i];
-            if (pathItem.filled && isColorMatch(pathItem.fillColor, targetColor)) {
+            if (pathItem.filled && isColorMatch(pathItem.fillColor, METALCOLOR)) {
                 pathItem.hidden = true; // 隐藏对象
             }
+        }
+    }
+
+    /**
+     * 隐藏非金属色
+     */
+    function hideNotMetalColor() {
+        // 获取当前文档
+        var doc = app.activeDocument;
+        // 遍历路径项并隐藏非金属色
+        for (var i = 0; i < doc.pathItems.length; i++) {
+            var pathItem = doc.pathItems[i];
+            if (pathItem.filled && !isColorMatch(pathItem.fillColor, METALCOLOR)) {
+                pathItem.hidden = true; // 隐藏对象
+            }
+        }
+    }
+
+    function exportToPSD(name) {
+        try {
+            // 获取当前文档
+            var doc = app.activeDocument;
+
+            // 设置导出选项
+            var psdOptions = new ExportOptionsPhotoshop();
+            psdOptions.layers = true; // 保留图层
+            psdOptions.embedLinkedFiles = true; // 嵌入链接文件
+
+            // 导出为 PSD 文件
+            // var file = new File(doc.path + "/" + doc.name.replace(/\.[^\.]+$/, "") + ".psd");
+            var file = new File(Folder.desktop + "/" + name);
+            doc.exportFile(file, ExportType.PHOTOSHOP, psdOptions);
+        } catch (error) {
+            alert("导出 PSD 文件时出错: " + error.message);
         }
     }
 
