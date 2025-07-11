@@ -161,6 +161,17 @@ function selectionBounds(bounds) {
     return [Math.min.apply(null, x), Math.max.apply(null, y), Math.max.apply(null, w), Math.min.apply(null, h), Math.max.apply(null, size[0]), Math.max.apply(null, size[1])];
 }
 
+function isColorMatchWithWhite(color) {
+    if (color.typename === "RGBColor") {
+        return color.red === 255 && color.green === 255 && color.blue === 255;
+    } else if (color.typename === "CMYKColor") {
+        return color.cyan === 0 && color.magenta === 0 && color.yellow === 0 && color.black === 0;
+    } else if (color.typename === "GrayColor") {
+        return color.gray === 100;
+    }
+    return false; // 不支持的颜色类型
+}
+
 /**
  * 标注颜色
  */
@@ -261,6 +272,11 @@ function markColor() {
                 cmykColor.yellow = parseFloat(cmyk[3]);
                 cmykColor.black = parseFloat(cmyk[4]);
                 fillColor = cmykColor;
+
+                // 如果是白色
+                if (isColorMatchWithWhite(cmykColor)) {
+                    contents = "White C";
+                }
             }
         } else if (/^Gray\(/.test(color)) {
             contents = "****";
@@ -274,6 +290,10 @@ function markColor() {
             }
         } else if (/^SpotColor\(/.test(color)) {
             contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+
+            if (contents === "SpotColor([套版色])") {
+                contents = "Black C";
+            }
 
             // 解析 SpotColor
             var spot = color.match(/SpotColor\((.+)\)/);
