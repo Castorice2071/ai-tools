@@ -20,7 +20,7 @@ var SCRIPT = {
 };
 
 var CFG = {
-    gap: 20, // 对象与颜色块之间的间距
+    gap: 40, // 对象与颜色块之间的间距
     size: 10, // 颜色块的大小
 };
 
@@ -302,7 +302,7 @@ function markColor() {
         // 绘制文字
         var label = doc.textFrames.add();
         try {
-            textInfo.textRange.characterAttributes.textFont = app.textFonts.getByName("ArialMT");
+            label.textRange.characterAttributes.textFont = app.textFonts.getByName("ArialMT");
         } catch (error) {}
         label.textRange.characterAttributes.size = 8;
 
