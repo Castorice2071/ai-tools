@@ -65,7 +65,7 @@ winButtons.alignChildren = ["center", "center"];
 winButtons.margins = 0;
 
 win2.colorBtn = winButtons.add("button", undefined, "标注颜色");
-win2.okBtn = winButtons.add("button", undefined, "确定", { name: "ok" });
+win2.okBtn = winButtons.add("button", undefined, "对象排列", { name: "ok" });
 
 win2.colorBtn.onClick = function () {
     buildMsg("markColor();");
