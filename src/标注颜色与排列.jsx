@@ -252,7 +252,7 @@ function markColor() {
             contents = "****";
 
             // 解析 RGB
-            var rgb = color.match(/RGB\((\d+),\s*(\d+),\s*(\d+)\)/);
+            var rgb = color.match(/RGB\(([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/);
             if (rgb) {
                 var rgbColor = new RGBColor();
                 rgbColor.red = parseInt(rgb[1], 10);

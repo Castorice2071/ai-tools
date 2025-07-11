@@ -2,10 +2,7 @@
  *
  */
 
-function main() {
-    drawColorBlockWithLabel("CMYK(19.7818, 43.473, 52.5811, 0)", 100, -100, 20)
-    drawColorBlockWithLabel("SpotColor(PANTONE 479 C)", 100, -130, 20)
-}
+drawColorBlockWithLabel("RGB(88.0000023543835, 97.0000018179417, 104.000001400709)", 100, -100, 50);
 
 function drawColorBlockWithLabel(color, left, top, size) {
     var doc = app.activeDocument;
@@ -14,16 +11,21 @@ function drawColorBlockWithLabel(color, left, top, size) {
     var fillColor = null;
     var contents = color;
     if (/^RGB\(/.test(color)) {
+        // contents = "****";
+
         // 解析 RGB
-        var rgb = color.match(/RGB\((\d+),\s*(\d+),\s*(\d+)\)/);
+        var rgb = color.match(/RGB\(([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/);
+        $.writeln("RGB match: " + rgb);
         if (rgb) {
             var rgbColor = new RGBColor();
-            rgbColor.red = parseInt(rgb[1], 10);
-            rgbColor.green = parseInt(rgb[2], 10);
-            rgbColor.blue = parseInt(rgb[3], 10);
+            rgbColor.red = parseFloat(rgb[1]);
+            rgbColor.green = parseFloat(rgb[2]);
+            rgbColor.blue = parseFloat(rgb[3]);
             fillColor = rgbColor;
         }
     } else if (/^CMYK\(/.test(color)) {
+        contents = "****";
+
         // 解析 CMYK
         var cmyk = color.match(
             /CMYK\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/,
@@ -37,6 +39,8 @@ function drawColorBlockWithLabel(color, left, top, size) {
             fillColor = cmykColor;
         }
     } else if (/^Gray\(/.test(color)) {
+        contents = "****";
+
         // 解析 Gray
         var gray = color.match(/Gray\(([\d.]+)\)/);
         if (gray) {
@@ -46,6 +50,10 @@ function drawColorBlockWithLabel(color, left, top, size) {
         }
     } else if (/^SpotColor\(/.test(color)) {
         contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+
+        if (contents === "SpotColor([套版色])") {
+            contents = "Black C";
+        }
 
         // 解析 SpotColor
         var spot = color.match(/SpotColor\((.+)\)/);
@@ -74,7 +82,7 @@ function drawColorBlockWithLabel(color, left, top, size) {
     // 绘制文字
     var label = doc.textFrames.add();
     try {
-        textInfo.textRange.characterAttributes.textFont =
+        label.textRange.characterAttributes.textFont =
             app.textFonts.getByName("ArialMT");
     } catch (error) {}
     label.textRange.characterAttributes.size = 8;
@@ -87,8 +95,13 @@ function drawColorBlockWithLabel(color, left, top, size) {
     group.name = contents;
     rect.move(group, ElementPlacement.INSIDE);
     label.move(group, ElementPlacement.INSIDE);
+    group.selected = true;
 }
 
-try {
-    main();
-} catch (error) {}
+function createRGBColor(rgb) {
+    var color = new RGBColor();
+    color.red = rgb[0];
+    color.green = rgb[1];
+    color.blue = rgb[2];
+    return color;
+}
