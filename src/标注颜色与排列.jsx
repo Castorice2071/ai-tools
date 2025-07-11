@@ -4,6 +4,7 @@
  *
  * Release notes:
  * 0.0.1    Initial version
+ * 0.0.2    修复了字体问题
  */
 
 //@target illustrator
@@ -16,7 +17,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "标注颜色与排列",
-    version: "v0.0.1",
+    version: "v0.0.2",
 };
 
 var CFG = {
