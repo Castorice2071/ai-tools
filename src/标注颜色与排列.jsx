@@ -259,6 +259,11 @@ function markColor() {
                 rgbColor.green = parseInt(rgb[2], 10);
                 rgbColor.blue = parseInt(rgb[3], 10);
                 fillColor = rgbColor;
+
+                 // 如果是白色
+                if (isColorMatchWithWhite(rgbColor)) {
+                    contents = "White C";
+                }
             }
         } else if (/^CMYK\(/.test(color)) {
             contents = "****";
