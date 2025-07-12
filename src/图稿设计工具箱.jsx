@@ -22,17 +22,7 @@ function buildMsg(code) {
         bt.target = vs;
         bt.body = code;
         bt.send();
-    } catch (error) {}
-}
-
-function buildMsgFn(code) {
-    try {
-        var bt = new BridgeTalk();
-        var body = "var fn = " + code + ";fn();";
-        bt.target = vs;
-        bt.body = body;
-        bt.send();
-    } catch (error) {}
+    } catch (error) { }
 }
 
 function output(data) {
@@ -211,7 +201,7 @@ function exportToAI(name) {
     try {
         // 获取当前文档
         var doc = app.activeDocument;
-        
+
         // 导出为 AI 文件
         var file = new File(Folder.desktop + "/" + name);
         doc.saveAs(file);
@@ -254,26 +244,11 @@ function analyzeColorsAndExportPSD() {
         }
 
         // 处理文件名
-        var fileName = colorStr;
-        var spotMatch = /^SpotColor\(PANTONE (.+)\)/.exec(colorStr);
-        var rgbMatch = /^RGB\((.+)\)/.exec(colorStr);
-        var cmykMatch = /^CMYK\((.+)\)/.exec(colorStr);
-        var grayMatch = /^Gray\((.+)\)/.exec(colorStr);
-
-        if (spotMatch) {
-            fileName = spotMatch[1];
-            
-            alert("fileName: " + fileName);
-        } else if (rgbMatch) {
-            fileName = rgbMatch[1];
-        } else if (cmykMatch) {
-            fileName = cmykMatch[1];
-        } else if (grayMatch) {
-            fileName = grayMatch[1];
-        }
-
-        // 清理文件名中的特殊字符
-        fileName = fileName.replace(/[\(\),\s]/g, "_");
+        var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+        fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
+        fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
+        fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
+        fileName = fileName.replace(/[,]/g, "_");
         exportToPSD(fileName + ".psd");
 
         // 恢复所有项的显示状态
@@ -286,7 +261,7 @@ function analyzeColorsAndExportPSD() {
  * 识别颜色并导出AI
  */
 function analyzeColorsAndExportAI() {
-        var colors = getAllColors();
+    var colors = getAllColors();
     // 遍历所有颜色
     for (var i = 0; i < colors.length; i++) {
         var colorStr = colors[i];
@@ -315,13 +290,12 @@ function analyzeColorsAndExportAI() {
             }
         }
 
-        // 导出当前颜色的PSD
-        var colorName = colorStr.replace(/[\(\),\s]/g, "_");
         // 处理文件名
         var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
         fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
         fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
         fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
+        fileName = fileName.replace(/[,]/g, "_");
         exportToAI(fileName + ".ai");
 
         // 恢复所有项的显示状态
@@ -355,10 +329,10 @@ PA.orientation = "row";
 PA.BTN1 = PA.add("button", undefined, "识别颜色并导出 - PSD");
 PA.BTN2 = PA.add("button", undefined, "识别颜色并导出 - AI");
 PA.BTN1.onClick = function () {
-    buildMsgFn(analyzeColorsAndExportPSD.toString());
+    buildMsg("analyzeColorsAndExportPSD();");
 };
 PA.BTN2.onClick = function () {
-    buildMsgFn(analyzeColorsAndExportAI.toString());
+    buildMsg("analyzeColorsAndExportAI();");
 };
 
 var PB = win.add("panel");
