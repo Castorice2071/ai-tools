@@ -11,7 +11,7 @@
 //@targetengine main
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
-var bit = 32; // AI软件系统位数，默认64位，如果点击按钮没有反应，可以将64改为32。
+var bit = 64; // AI软件系统位数，默认64位，如果点击按钮没有反应，可以将64改为32。
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
 
