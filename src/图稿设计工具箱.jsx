@@ -253,13 +253,27 @@ function analyzeColorsAndExportPSD() {
             }
         }
 
-        // 导出当前颜色的PSD
-        var colorName = colorStr.replace(/[\(\),\s]/g, "_");
         // 处理文件名
-        var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
-        fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
-        fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
-        fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
+        var fileName = colorStr;
+        var spotMatch = /^SpotColor\(PANTONE (.+)\)/.exec(colorStr);
+        var rgbMatch = /^RGB\((.+)\)/.exec(colorStr);
+        var cmykMatch = /^CMYK\((.+)\)/.exec(colorStr);
+        var grayMatch = /^Gray\((.+)\)/.exec(colorStr);
+
+        if (spotMatch) {
+            fileName = spotMatch[1];
+            
+            alert("fileName: " + fileName);
+        } else if (rgbMatch) {
+            fileName = rgbMatch[1];
+        } else if (cmykMatch) {
+            fileName = cmykMatch[1];
+        } else if (grayMatch) {
+            fileName = grayMatch[1];
+        }
+
+        // 清理文件名中的特殊字符
+        fileName = fileName.replace(/[\(\),\s]/g, "_");
         exportToPSD(fileName + ".psd");
 
         // 恢复所有项的显示状态
@@ -332,7 +346,7 @@ function exportBtnFn() {
     app.redraw();
 }
 
-// 创建窗口
+// 创建窗口 palette or dialog
 var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
 win.alignChildren = ["fill", "fill"];
 
