@@ -324,10 +324,13 @@ function exportBtnFn() {
 var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
 win.alignChildren = ["fill", "fill"];
 
-var PA = win.add("panel");
+var PA = win.add("panel", undefined, "识别颜色并导出");
 PA.orientation = "row";
-PA.BTN1 = PA.add("button", undefined, "识别颜色并导出 - PSD");
-PA.BTN2 = PA.add("button", undefined, "识别颜色并导出 - AI");
+PA.alignChildren = ["fill", "fill"];
+PA.margins = 16;
+PA.spacing = 8;
+PA.BTN1 = PA.add("button", undefined, "PSD");
+PA.BTN2 = PA.add("button", undefined, "AI");
 PA.BTN1.onClick = function () {
     buildMsg("analyzeColorsAndExportPSD();");
 };
