@@ -104,7 +104,41 @@ function getAllColors() {
     var doc = app.activeDocument;
     var colors = [];
 
+    function processLayer(layerOrGroupItem) {
+        $.writeln("layerOrGroupItem.name: " + layerOrGroupItem.name);
+        $.writeln("layerOrGroupItem.locked: " + layerOrGroupItem.locked);
+        $.writeln("layerOrGroupItem.visible: " + layerOrGroupItem.visible);
+
+        // 如果图层被锁定或隐藏，跳过
+        if (layerOrGroupItem.locked || layerOrGroupItem.hidden) return;
+
+        // 遍历 layerOrGroupItem 的子元素
+        for (var i = 0; i < layerOrGroupItem.pageItems.length; i++) {
+            var item = layerOrGroupItem.pageItems[i];
+            $.writeln("item.name: " + item.name);
+            $.writeln("item.typename: " + item.typename);
+
+            // 如果当前对象是 Group 或者 Layer，继续递归
+            if (item.typename === "GroupItem" || item.typename === "Layer") {
+                processLayer(item);
+            } else {
+                collectColors(item);
+            }
+        }
+
+        // // 处理当前图层中的所有项目
+        // for (var i = 0; i < layer.pageItems.length; i++) {
+        //     collectColors(layer.pageItems[i]);
+        // }
+
+        // // 递归处理子图层
+        // for (var j = 0; j < layer.layers.length; j++) {
+        //     processLayer(layer.layers[j]);
+        // }
+    }
+
     function collectColors(item) {
+        $.writeln("collectColors item.typename: " + item.typename);
         if (item.typename === "GroupItem") {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
@@ -126,14 +160,15 @@ function getAllColors() {
         }
     }
 
-    // 遍历所有页面项目
-    if (doc && doc.pageItems.length > 0) {
-        for (var i = 0; i < doc.pageItems.length; i++) {
-            collectColors(doc.pageItems[i]);
+    // 检查文档是否存在且有图层
+    if (doc && doc.layers.length > 0) {
+        // 遍历所有图层
+        for (var i = 0; i < doc.layers.length; i++) {
+            processLayer(doc.layers[i]);
         }
     }
 
-    // 用对象实现去重
+    // 去重处理
     var uniqueColors = {};
     var result = [];
     for (var j = 0; j < colors.length; j++) {
@@ -187,8 +222,8 @@ function exportToPSD(filePath) {
 
         // 设置导出选项
         var psdOptions = new ExportOptionsPhotoshop();
-        psdOptions.layers = true; // 保留图层
-        psdOptions.embedLinkedFiles = true; // 嵌入链接文件
+        // psdOptions.layers = true; // 保留图层
+        // psdOptions.embedLinkedFiles = true; // 嵌入链接文件
 
         // 导出为 PSD 文件
         // var file = new File(doc.path + "/" + doc.name.replace(/\.[^\.]+$/, "") + ".psd");
@@ -426,9 +461,9 @@ PB.alignChildren = ["fill", "fill"];
 
 PB.strokeWidth = PB.add("editText", undefined, "0.1");
 PB.strokeWidth.addEventListener("keydown", function (kd) {
-    $.writeln(kd.keyName)
+    $.writeln(kd.keyName);
     if (kd.keyName == "Enter") {
-       buildMsg("metalEdging();");
+        buildMsg("metalEdging();");
     }
 });
 PB.BTN1 = PB.add("button", undefined, "确定");

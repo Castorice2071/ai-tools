@@ -3,21 +3,18 @@ function getAllColors() {
     var colors = [];
 
     function processLayer(layerOrGroupItem) {
-        $.writeln("layerOrGroupItem.name: " + layerOrGroupItem.name);
-        $.writeln("layerOrGroupItem.locked: " + layerOrGroupItem.locked);
-        $.writeln("layerOrGroupItem.visible: " + layerOrGroupItem.visible);
-
         // 如果图层被锁定或隐藏，跳过
         if (layerOrGroupItem.locked || !layerOrGroupItem.visible) return;
 
         // 遍历 layerOrGroupItem 的子元素
-        for (var i = 0; i < layerOrGroupItem.pageItems.length; i++) {
+        for (var i = layerOrGroupItem.pageItems.length - 1; i >= 0; i--) {
             var item = layerOrGroupItem.pageItems[i];
-            $.writeln("item.name: " + item.name);
-            $.writeln("item.typename: " + item.typename);
+
+            // 打印/处理当前对象
+            $.writeln(indent + item.typename + ' : ' + item.name);
 
             // 如果当前对象是 Group 或者 Layer，继续递归
-            if (item.typename === "GroupItem" || item.typename === "Layer") {
+            if (item.typename === 'GroupItem' || item.typename === 'Layer') {
                 processLayer(item);
             } else {
                 collectColors(item);
@@ -36,7 +33,6 @@ function getAllColors() {
     }
 
     function collectColors(item) {
-        $.writeln("collectColors item.typename: " + item.typename);
         if (item.typename === "GroupItem") {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
