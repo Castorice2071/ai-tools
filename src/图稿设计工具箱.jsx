@@ -367,6 +367,9 @@ function metalEdging() {
                 item.strokeCap = StrokeCap.ROUNDENDCAP;
                 item.strokeJoin = StrokeJoin.ROUNDENDJOIN;
 
+                // 置于顶层
+                item.zOrder(ZOrderMethod.BRINGTOFRONT);
+
                 $.writeln("已设置描边: " + item.stroked + ", 宽度: " + item.strokeWidth);
             }
         }
