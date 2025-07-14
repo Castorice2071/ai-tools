@@ -425,6 +425,12 @@ PB.orientation = "row";
 PB.alignChildren = ["fill", "fill"];
 
 PB.strokeWidth = PB.add("editText", undefined, "0.1");
+PB.strokeWidth.addEventListener("keydown", function (kd) {
+    $.writeln(kd.keyName)
+    if (kd.keyName == "Enter") {
+       buildMsg("metalEdging();");
+    }
+});
 PB.BTN1 = PB.add("button", undefined, "确定");
 PB.BTN1.onClick = function () {
     buildMsg("metalEdging();");
