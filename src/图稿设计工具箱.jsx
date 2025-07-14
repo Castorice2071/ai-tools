@@ -276,6 +276,7 @@ function analyzeColorsAndExportPSD() {
     $.gc(); // 触发垃圾回收
     $.gc();
 
+    // 上面的释放与gc，本意是避免文件夹被占用不能删除，结果一直没有生效。反而下面的alert可以满足
     alert("导出完成")
 }
 
