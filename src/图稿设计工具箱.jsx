@@ -11,6 +11,10 @@ var SCRIPT = {
     version: "v1.0.0",
 };
 
+var CFG = {
+    folderName: 0,
+};
+
 var METALCOLOR = new RGBColor();
 METALCOLOR.red = 0;
 METALCOLOR.green = 0;
@@ -22,7 +26,7 @@ function buildMsg(code) {
         bt.target = vs;
         bt.body = code;
         bt.send();
-    } catch (error) { }
+    } catch (error) {}
 }
 
 function output(data) {
@@ -175,7 +179,7 @@ function hideNotMetalColor() {
 /**
  * 导出 PSD
  */
-function exportToPSD(name) {
+function exportToPSD(filePath) {
     try {
         // 获取当前文档
         var doc = app.activeDocument;
@@ -187,7 +191,8 @@ function exportToPSD(name) {
 
         // 导出为 PSD 文件
         // var file = new File(doc.path + "/" + doc.name.replace(/\.[^\.]+$/, "") + ".psd");
-        var file = new File(Folder.desktop + "/" + name);
+
+        var file = new File(filePath);
         doc.exportFile(file, ExportType.PHOTOSHOP, psdOptions);
     } catch (error) {
         alert("导出 PSD 文件时出错: " + error.message);
@@ -215,6 +220,14 @@ function exportToAI(name) {
  */
 function analyzeColorsAndExportPSD() {
     var colors = getAllColors();
+    
+    // 创建文件夹
+    CFG.folderName++;
+    var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
+    if (!Folder(fileFolder).exists) {
+        Folder(fileFolder).create();
+    }
+
     // 遍历所有颜色
     for (var i = 0; i < colors.length; i++) {
         var colorStr = colors[i];
@@ -249,7 +262,8 @@ function analyzeColorsAndExportPSD() {
         fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
         fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
         fileName = fileName.replace(/[,]/g, "_");
-        exportToPSD(fileName + ".psd");
+
+        exportToPSD(fileFolder + fileName + ".psd");
 
         // 恢复所有项的显示状态
         app.undo();
