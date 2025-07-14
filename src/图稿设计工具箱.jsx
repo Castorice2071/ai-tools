@@ -220,7 +220,7 @@ function exportToAI(name) {
  */
 function analyzeColorsAndExportPSD() {
     var colors = getAllColors();
-    
+
     // 创建文件夹
     CFG.folderName++;
     var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
@@ -269,6 +269,14 @@ function analyzeColorsAndExportPSD() {
         app.undo();
         app.redraw();
     }
+
+    // 释放文件夹引用
+    folder = null;
+    fileFolder = null;
+    $.gc(); // 触发垃圾回收
+    $.gc();
+
+    alert("导出完成")
 }
 
 /**
@@ -318,6 +326,17 @@ function analyzeColorsAndExportAI() {
     }
 }
 
+/**
+ * 重置文件夹
+ */
+function resetFolder() {
+    $.gc();
+    $.gc();
+    CFG.folderName = 0;
+
+    alert("重置文件夹成功")
+}
+
 function fn1() {
     alert("内部 fn1");
 }
@@ -345,11 +364,15 @@ PA.margins = 16;
 PA.spacing = 8;
 PA.BTN1 = PA.add("button", undefined, "PSD");
 PA.BTN2 = PA.add("button", undefined, "AI");
+PA.BTN3 = PA.add("button", undefined, "重置文件夹");
 PA.BTN1.onClick = function () {
     buildMsg("analyzeColorsAndExportPSD();");
 };
 PA.BTN2.onClick = function () {
     buildMsg("analyzeColorsAndExportAI();");
+};
+PA.BTN3.onClick = function () {
+    buildMsg("resetFolder();");
 };
 
 var PB = win.add("panel");
@@ -397,5 +420,9 @@ fontSizePanel.margins = 16;
 fontSizePanel.spacing = 8;
 var fontSizeControl = fontSizePanel.add("editText", undefined, "10");
 fontSizeControl.preferredSize = [80, -1];
+
+win.onClose = function() {
+    // alert('关闭')
+}
 
 win.show();
