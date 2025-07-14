@@ -364,7 +364,8 @@ function metalEdging() {
                 item.stroked = true;
 
                 // 最后设置描边样式
-                item.strokeCap = StrokeCap.BUTTENDCAP;
+                item.strokeCap = StrokeCap.ROUNDENDCAP;
+                item.strokeJoin = StrokeJoin.ROUNDENDJOIN;
 
                 $.writeln("已设置描边: " + item.stroked + ", 宽度: " + item.strokeWidth);
             }
@@ -420,7 +421,7 @@ var PB = win.add("panel", undefined, "金属描边");
 PB.orientation = "row";
 PB.alignChildren = ["fill", "fill"];
 
-PB.strokeWidth = PB.add("editText", undefined, "10");
+PB.strokeWidth = PB.add("editText", undefined, "0.1");
 PB.BTN1 = PB.add("button", undefined, "确定");
 PB.BTN1.onClick = function () {
     buildMsg("metalEdging();");
