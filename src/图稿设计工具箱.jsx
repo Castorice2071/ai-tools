@@ -15,10 +15,11 @@ var CFG = {
     folderName: 0,
 };
 
+// 金属颜色
 var METALCOLOR = new RGBColor();
-METALCOLOR.red = 0;
-METALCOLOR.green = 0;
-METALCOLOR.blue = 0;
+METALCOLOR.red = 211;
+METALCOLOR.green = 211;
+METALCOLOR.blue = 211;
 
 function buildMsg(code) {
     try {
@@ -277,7 +278,7 @@ function analyzeColorsAndExportPSD() {
     $.gc();
 
     // 上面的释放与gc，本意是避免文件夹被占用不能删除，结果一直没有生效。反而下面的alert可以满足
-    alert("导出完成")
+    alert("导出完成");
 }
 
 /**
@@ -335,7 +336,42 @@ function resetFolder() {
     $.gc();
     CFG.folderName = 0;
 
-    alert("重置文件夹成功")
+    alert("重置文件夹成功");
+}
+
+/**
+ * 给金属描边
+ */
+function metalEdging() {
+    try {
+        var items = app.activeDocument.pathItems;
+
+        var strokeWidth = parseFloat(PB.strokeWidth.text);
+
+        for (var i = 0; i < items.length; i++) {
+            // items[i].fillColor = color;
+            var item = items[i];
+            // 检查是否为有效的路径对象
+            if (item.typename !== "PathItem") continue;
+            if (item.filled && isColorMatch(item.fillColor, METALCOLOR)) {
+                $.writeln("发现匹配的颜色项：" + item.typename);
+
+                // 先设置描边颜色和宽度
+                item.strokeColor = METALCOLOR;
+                item.strokeWidth = new UnitValue(strokeWidth, "mm").as("pt"); // 明确指定单位
+
+                // 然后启用描边
+                item.stroked = true;
+
+                // 最后设置描边样式
+                item.strokeCap = StrokeCap.BUTTENDCAP;
+
+                $.writeln("已设置描边: " + item.stroked + ", 宽度: " + item.strokeWidth);
+            }
+        }
+    } catch (error) {
+        alert("出错了: " + error.message);
+    }
 }
 
 function fn1() {
@@ -358,6 +394,8 @@ function exportBtnFn() {
 var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
 win.alignChildren = ["fill", "fill"];
 
+// 识别颜色并导出
+// =======
 var PA = win.add("panel", undefined, "识别颜色并导出");
 PA.orientation = "row";
 PA.alignChildren = ["fill", "fill"];
@@ -376,10 +414,23 @@ PA.BTN3.onClick = function () {
     buildMsg("resetFolder();");
 };
 
-var PB = win.add("panel");
+// 金属描边加粗
+// =======
+var PB = win.add("panel", undefined, "金属描边");
+PB.orientation = "row";
 PB.alignChildren = ["fill", "fill"];
 
-var sidePanel = PB.add("panel", undefined, "选择标注边");
+PB.strokeWidth = PB.add("editText", undefined, "10");
+PB.BTN1 = PB.add("button", undefined, "确定");
+PB.BTN1.onClick = function () {
+    buildMsg("metalEdging();");
+};
+
+// 标注尺寸
+// =======
+var PC = win.add("panel");
+PC.alignChildren = ["fill", "fill"];
+var sidePanel = PC.add("panel", undefined, "选择标注边");
 sidePanel.orientation = "row";
 sidePanel.margins = 16;
 sidePanel.spacing = 8;
@@ -390,7 +441,7 @@ var leftCheckbox = sidePanel.add("checkbox", undefined, "左边");
 bottomCheckbox.value = true;
 leftCheckbox.value = true;
 
-var unitPanelAndFontSizePanelGroup = PB.add("group");
+var unitPanelAndFontSizePanelGroup = PC.add("group");
 unitPanelAndFontSizePanelGroup.orientation = "row";
 
 var unitPanel = unitPanelAndFontSizePanelGroup.add("panel", undefined, "选择单位");
@@ -422,8 +473,8 @@ fontSizePanel.spacing = 8;
 var fontSizeControl = fontSizePanel.add("editText", undefined, "10");
 fontSizeControl.preferredSize = [80, -1];
 
-win.onClose = function() {
+win.onClose = function () {
     // alert('关闭')
-}
+};
 
 win.show();
