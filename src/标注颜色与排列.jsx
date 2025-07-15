@@ -207,24 +207,24 @@ function markColor() {
                 for (var i = 0; i < item.pageItems.length; i++) {
                     collectColors(item.pageItems[i]);
                 }
+            } else if (item.typename === "CompoundPathItem" && item.pathItems[0].fillColor) {
+                addColor(item.pathItems[0].fillColor);
             } else {
                 if (item.filled && item.fillColor) {
-                    var color = item.fillColor;
-                    if (color.typename === "RGBColor") {
-                        colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-                    } else if (color.typename === "CMYKColor") {
-                        colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-                    } else if (color.typename === "GrayColor") {
-                        colors.push("Gray(" + color.gray + ")");
-                    } else if (color.typename === "SpotColor") {
-                        colors.push("SpotColor(" + color.spot.name + ")");
-                    }
-
-                    // // 只要专色
-                    // if (color.typename === "SpotColor") {
-                    //     colors.push("SpotColor(" + color.spot.name + ")");
-                    // }
+                    addColor(item.fillColor);
                 }
+            }
+        }
+
+        function addColor(color) {
+            if (color.typename === "RGBColor") {
+                colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+            } else if (color.typename === "CMYKColor") {
+                colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+            } else if (color.typename === "GrayColor") {
+                colors.push("Gray(" + color.gray + ")");
+            } else if (color.typename === "SpotColor") {
+                colors.push("SpotColor(" + color.spot.name + ")");
             }
         }
 
@@ -261,7 +261,7 @@ function markColor() {
                 rgbColor.blue = parseInt(rgb[3], 10);
                 fillColor = rgbColor;
 
-                 // 如果是白色
+                // 如果是白色
                 if (isColorMatchWithWhite(rgbColor)) {
                     contents = "White C";
                 }
