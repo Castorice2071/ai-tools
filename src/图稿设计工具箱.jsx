@@ -69,19 +69,30 @@ function getSelectedColors(the_obj) {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
-        } else {
-            if (item.filled && item.fillColor) {
-                var color = item.fillColor;
-                if (color.typename === "RGBColor") {
-                    colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-                } else if (color.typename === "CMYKColor") {
-                    colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-                } else if (color.typename === "GrayColor") {
-                    colors.push("Gray(" + color.gray + ")");
-                } else if (color.typename === "SpotColor") {
-                    colors.push("SpotColor(" + color.spot.name + ")");
+        } else if (item.typename === "CompoundPathItem") {
+            // 处理复合路径中的每个路径项
+            for (var i = 0; i < item.pathItems.length; i++) {
+                var pathItem = item.pathItems[i];
+                if (pathItem.filled && pathItem.fillColor) {
+                    addColor(pathItem.fillColor);
                 }
             }
+        } else {
+            if (item.filled && item.fillColor) {
+                addColor(item.fillColor);
+            }
+        }
+    }
+
+    function addColor(color) {
+        if (color.typename === "RGBColor") {
+            colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+        } else if (color.typename === "CMYKColor") {
+            colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+        } else if (color.typename === "GrayColor") {
+            colors.push("Gray(" + color.gray + ")");
+        } else if (color.typename === "SpotColor") {
+            colors.push("SpotColor(" + color.spot.name + ")");
         }
     }
 
@@ -100,6 +111,9 @@ function getSelectedColors(the_obj) {
     return result;
 }
 
+/**
+ * 获取文档中所有的颜色
+ */
 function getAllColors() {
     var doc = app.activeDocument;
     var colors = [];
@@ -111,8 +125,6 @@ function getAllColors() {
         // 遍历 layerOrGroupItem 的子元素
         for (var i = 0; i < layerOrGroupItem.pageItems.length; i++) {
             var item = layerOrGroupItem.pageItems[i];
-            $.writeln("item.name: " + item.name);
-            $.writeln("item.typename: " + item.typename);
 
             // 如果当前对象是 Group 或者 Layer，继续递归
             if (item.typename === "GroupItem" || item.typename === "Layer") {
@@ -129,20 +141,30 @@ function getAllColors() {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
-        } else {
-            // 处理填充颜色
-            if (item.filled && item.fillColor) {
-                var color = item.fillColor;
-                if (color.typename === "RGBColor") {
-                    colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-                } else if (color.typename === "CMYKColor") {
-                    colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-                } else if (color.typename === "GrayColor") {
-                    colors.push("Gray(" + color.gray + ")");
-                } else if (color.typename === "SpotColor") {
-                    colors.push("SpotColor(" + color.spot.name + ")");
+        } else if (item.typename === "CompoundPathItem") {
+            // 处理复合路径中的每个路径项
+            for (var i = 0; i < item.pathItems.length; i++) {
+                var pathItem = item.pathItems[i];
+                if (pathItem.filled && pathItem.fillColor) {
+                    addColor(pathItem.fillColor);
                 }
             }
+        } else {
+            if (item.filled && item.fillColor) {
+                addColor(item.fillColor);
+            }
+        }
+    }
+
+    function addColor(color) {
+        if (color.typename === "RGBColor") {
+            colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+        } else if (color.typename === "CMYKColor") {
+            colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+        } else if (color.typename === "GrayColor") {
+            colors.push("Gray(" + color.gray + ")");
+        } else if (color.typename === "SpotColor") {
+            colors.push("SpotColor(" + color.spot.name + ")");
         }
     }
 
