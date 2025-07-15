@@ -13,6 +13,20 @@ var SCRIPT = {
 
 var CFG = {
     folderName: 0,
+    // 凸起的金色颜色集合
+    metalColors: [
+        [88, 97, 104],
+        [222, 203, 144],
+        [253, 233, 156],
+        [176, 174, 132],
+        [211, 211, 211],
+        [178, 178, 178],
+        [170, 88, 61],
+        [44, 45, 45],
+        [212, 154, 100],
+        [242, 192, 179],
+        [205, 194, 118],
+    ],
 };
 
 // 金属颜色
@@ -416,22 +430,7 @@ function metalEdging() {
     }
 }
 
-function fn1() {
-    alert("内部 fn1");
-}
-
-function exportBtnFn() {
-    hideNotMetalColor();
-    exportToPSD("图.psd");
-    app.undo();
-    app.redraw();
-
-    hideMetalColor();
-    exportToPSD("色.psd");
-    app.undo();
-    app.redraw();
-}
-
+// =========================
 // 创建窗口 palette or dialog
 var win = new Window("palette", SCRIPT.name + " " + SCRIPT.version);
 win.alignChildren = ["fill", "fill"];
