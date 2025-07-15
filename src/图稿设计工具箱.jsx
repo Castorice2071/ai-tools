@@ -1064,6 +1064,26 @@ function label_Info() {
     }
 }
 
+function selectionBounds(bounds) {
+    bounds = typeof bounds === "string" && bounds.length && bounds.slice(0, 1) === "v" ? "visibleBounds" : "geometricBounds";
+    var arr = app.selection;
+    var x = [];
+    var y = [];
+    var w = [];
+    var h = [];
+    var size = [[], []];
+    var i = arr.length;
+    while (i--) {
+        x.push(arr[i][bounds][0]);
+        y.push(arr[i][bounds][1]);
+        w.push(arr[i][bounds][2]);
+        h.push(arr[i][bounds][3]);
+        size[0].push(arr[i][bounds][2] - arr[i][bounds][0]);
+        size[1].push(arr[i][bounds][1] - arr[i][bounds][3]);
+    }
+    return [Math.min.apply(null, x), Math.max.apply(null, y), Math.max.apply(null, w), Math.min.apply(null, h), Math.max.apply(null, size[0]), Math.max.apply(null, size[1])];
+}
+
 function isColorMatchWithWhite(color) {
     if (color.typename === "RGBColor") {
         return color.red === 255 && color.green === 255 && color.blue === 255;

@@ -1,4 +1,4 @@
-function getAllColors() {
+﻿function getAllColors() {
     var doc = app.activeDocument;
     var colors = [];
 
@@ -29,6 +29,7 @@ function getAllColors() {
         } else {
             $.writeln("collectColors item.filled: " + item.filled);
             $.writeln("collectColors item.fillColor: " + item.fillColor);
+            $.writeln("collectColors item.fillColor.typename: " + item.fillColor.typename);
             // 处理填充颜色
             if (item.filled && item.fillColor) {
                 var color = item.fillColor;
