@@ -27,6 +27,9 @@ var CFG = {
         [242, 192, 179],
         [205, 194, 118],
     ],
+
+    markColorGap: 40, // 对象与颜色块之间的间距
+    markColorSize: 10, // 颜色块的大小
 };
 
 // 金属颜色
@@ -502,7 +505,7 @@ win.alignChildren = ["fill", "fill"];
 var PA = win.add("panel", undefined, "识别颜色并导出");
 PA.orientation = "row";
 PA.alignChildren = ["fill", "fill"];
-PA.margins = 16;
+PA.margins = 20;
 PA.spacing = 8;
 PA.BTN1 = PA.add("button", undefined, "PSD");
 PA.BTN2 = PA.add("button", undefined, "AI");
@@ -522,6 +525,8 @@ PA.BTN3.onClick = function () {
 var PB = win.add("panel", undefined, "金属描边");
 PB.orientation = "row";
 PB.alignChildren = ["fill", "fill"];
+PB.margins = 20;
+PB.spacing = 8;
 
 PB.strokeWidth = PB.add("editText", undefined, "0.1");
 PB.strokeWidth.addEventListener("keydown", function (kd) {
@@ -539,8 +544,12 @@ PB.BTN1.onClick = function () {
 // =======
 var PC = win.add("panel", undefined, "标注尺寸");
 PC.alignChildren = ["fill", "fill"];
+PC.margins = 20;
+PC.spacing = 8;
+
 var sidePanel = PC.add("panel", undefined, "选择标注边");
 sidePanel.orientation = "row";
+sidePanel.alignChildren = ["fill", "fill"];
 sidePanel.margins = 16;
 sidePanel.spacing = 8;
 PC.topCheckbox = sidePanel.add("checkbox", undefined, "上边");
@@ -552,6 +561,7 @@ PC.leftCheckbox.value = true;
 
 var unitPanelAndFontSizePanelGroup = PC.add("group");
 unitPanelAndFontSizePanelGroup.orientation = "row";
+unitPanelAndFontSizePanelGroup.alignChildren = ["fill", "fill"];
 
 var unitPanel = unitPanelAndFontSizePanelGroup.add("panel", undefined, "选择单位");
 unitPanel.orientation = "row";
@@ -584,12 +594,52 @@ PC.BTN1.onClick = function () {
     buildMsg("label_Info();");
 };
 
-win.onClose = function () {
-    // alert('关闭')
+// 标注颜色与排列
+// =======
+var PD = win.add("panel", undefined, "标注颜色与排列");
+PD.alignChildren = ["fill", "fill"];
+PD.margins = 20;
+
+var groupColumns = PD.add("group");
+groupColumns.orientation = "row";
+var captionColumns = groupColumns.add("statictext", undefined, "列数:");
+PD.valueColumns = groupColumns.add("edittext", undefined, 2);
+PD.valueColumns.preferredSize = [100, -1];
+
+var groupGutter = PD.add("group");
+groupGutter.orientation = "row";
+groupGutter.alignChildren = ["fill", "fill"];
+
+var groupGutterX = groupGutter.add("group");
+groupGutterX.orientation = "row";
+var captionGutterX = groupGutterX.add("statictext", undefined, "水平间距");
+PD.valueGutterX = groupGutterX.add("edittext", undefined, 10);
+PD.valueGutterX.preferredSize = [50, -1];
+
+var groupGutterY = groupGutter.add("group");
+groupGutterY.orientation = "row";
+var captionGutterY = groupGutterY.add("statictext", undefined, "垂直间距");
+PD.valueGutterY = groupGutterY.add("edittext", undefined, 4);
+PD.valueGutterY.preferredSize = [50, -1];
+
+var winButtons = PD.add("group");
+winButtons.orientation = "row";
+winButtons.margins = [0, 16, 0, 0];
+winButtons.alignChildren = ["center", "center"];
+PD.BTN1 = winButtons.add("button", undefined, "标注颜色");
+PD.BTN2 = winButtons.add("button", undefined, "对象排列");
+
+PD.BTN1.onClick = function () {
+    buildMsg("markColor();");
+};
+
+PD.BTN2.onClick = function () {
+    buildMsg("startAction();");
 };
 
 win.show();
 
+// =============================================================
 /**
  * 创建一个 RGB 颜色
  */
@@ -1009,5 +1059,187 @@ function label_Info() {
         textInfo.top = y;
         textInfo.left = x;
         return textInfo;
+    }
+}
+
+/**
+ * 标注颜色
+ */
+function markColor() {
+    try {
+        var doc = app.activeDocument;
+        var sel = doc.selection;
+        if (sel.length <= 0) {
+            return alert("请先选择标注对象！");
+        }
+
+        for (var i = 0; i < sel.length; i++) {
+            var bounds = sel[i].geometricBounds;
+            var colors = getSelectedColors(sel[i]);
+            $.writeln("colors: " + colors);
+            sel[i].selected = false;
+
+            var x = bounds[0],
+                y = bounds[1],
+                w = bounds[2] - bounds[0],
+                h = bounds[1] - bounds[3];
+
+            for (var j = 0; j < colors.length; j++) {
+                var color = colors[j];
+                drawColorBlockWithLabel(color, x, y - h - CFG.markColorGap - (CFG.markColorSize + 10) * j, CFG.markColorSize);
+            }
+        }
+
+        function drawColorBlockWithLabel(color, left, top, size) {
+            var doc = app.activeDocument;
+
+            // 解析 color 字符串，生成对应的颜色对象
+            var fillColor = null;
+            var contents = color;
+            if (/^RGB\(/.test(color)) {
+                contents = "****";
+
+                // 解析 RGB
+                var rgb = color.match(/RGB\(([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/);
+                if (rgb) {
+                    var rgbColor = new RGBColor();
+                    rgbColor.red = parseInt(rgb[1], 10);
+                    rgbColor.green = parseInt(rgb[2], 10);
+                    rgbColor.blue = parseInt(rgb[3], 10);
+                    fillColor = rgbColor;
+
+                    // 如果是白色
+                    if (isColorMatchWithWhite(rgbColor)) {
+                        contents = "White C";
+                    }
+                }
+            } else if (/^CMYK\(/.test(color)) {
+                contents = "****";
+
+                // 解析 CMYK
+                var cmyk = color.match(/CMYK\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/);
+                if (cmyk) {
+                    var cmykColor = new CMYKColor();
+                    cmykColor.cyan = parseFloat(cmyk[1]);
+                    cmykColor.magenta = parseFloat(cmyk[2]);
+                    cmykColor.yellow = parseFloat(cmyk[3]);
+                    cmykColor.black = parseFloat(cmyk[4]);
+                    fillColor = cmykColor;
+
+                    // 如果是白色
+                    if (isColorMatchWithWhite(cmykColor)) {
+                        contents = "White C";
+                    }
+                }
+            } else if (/^Gray\(/.test(color)) {
+                contents = "****";
+
+                // 解析 Gray
+                var gray = color.match(/Gray\(([\d.]+)\)/);
+                if (gray) {
+                    var grayColor = new GrayColor();
+                    grayColor.gray = parseFloat(gray[1]);
+                    fillColor = grayColor;
+                }
+            } else if (/^SpotColor\(/.test(color)) {
+                contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+
+                if (contents === "SpotColor([套版色])") {
+                    contents = "Black C";
+                }
+
+                // 解析 SpotColor
+                var spot = color.match(/SpotColor\((.+)\)/);
+                if (spot) {
+                    try {
+                        var spotColor = new SpotColor();
+                        spotColor.spot = doc.spots.getByName(spot[1]);
+                        fillColor = spotColor;
+                    } catch (e) {
+                        // SpotColor 不存在时，默认灰色
+                        var fallback = new GrayColor();
+                        fallback.gray = 50;
+                        fillColor = fallback;
+                    }
+                }
+            }
+
+            // 绘制方块
+            var rect = doc.pathItems.rectangle(top, left, size, size);
+            rect.filled = true;
+            rect.fillColor = fillColor || new GrayColor(); // 若解析失败则用灰色
+            rect.stroked = true;
+            rect.strokeColor = createRGBColor([0, 0, 0]);
+            rect.strokeWidth = 0.5;
+
+            // 绘制文字
+            var label = doc.textFrames.add();
+            try {
+                label.textRange.characterAttributes.textFont = app.textFonts.getByName("ArialMT");
+            } catch (error) {}
+            label.textRange.characterAttributes.size = 8;
+
+            label.contents = contents;
+            label.left = left + size + 3; // 方块右侧留 3pt间距
+            label.top = top; // 垂直居中微调
+
+            var group = doc.groupItems.add();
+            group.name = contents;
+            rect.move(group, ElementPlacement.INSIDE);
+            label.move(group, ElementPlacement.INSIDE);
+            group.selected = true;
+        }
+    } catch (error) {
+        alert("标注颜色出错了: " + error.message);
+    }
+}
+
+/**
+ * 对象排列
+ */
+function startAction() {
+    try {
+        var bounds = "visibleBounds";
+        var items = app.selection;
+
+        var l = items.length;
+        var __rows = 0;
+        var gutter = {
+            x: parseFloat(PD.valueGutterX.text),
+            y: parseFloat(PD.valueGutterY.text),
+        };
+        var __posXValue = "左对齐";
+        var __posYValue = "顶对齐";
+        var columns = parseInt(PD.valueColumns.text);
+        var bnds = selectionBounds(bounds);
+
+        function __align(__pos, __bnds) {
+            if (__pos === "水平居中") {
+                return (bnds[5] - (__bnds[1] - __bnds[3])) / 2;
+            } else if (__pos === "底对齐") {
+                return bnds[5] - (__bnds[1] - __bnds[3]);
+            } else if (__pos === "垂直居中") {
+                return (bnds[4] - (__bnds[2] - __bnds[0])) / 2;
+            } else if (__pos === "右对齐") {
+                return bnds[4] - (__bnds[2] - __bnds[0]);
+            } else {
+                return 0;
+            }
+        }
+
+        if (l > 1) {
+            for (var i = (j = 0); i < l; i++, j++) {
+                if (j === columns) {
+                    __rows++;
+                    j = 0;
+                }
+                items[i].left = bnds[0] + (bnds[4] + gutter.x) * j + __align(__posXValue, items[i][bounds]);
+                items[i].top = bnds[1] - (bnds[5] + gutter.y) * __rows - __align(__posYValue, items[i][bounds]);
+            }
+        } else {
+            isUndo = false;
+        }
+    } catch (error) {
+        alert("对象排列出错了: " + error.message);
     }
 }
