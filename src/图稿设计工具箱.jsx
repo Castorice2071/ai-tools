@@ -1064,6 +1064,17 @@ function label_Info() {
     }
 }
 
+function isColorMatchWithWhite(color) {
+    if (color.typename === "RGBColor") {
+        return color.red === 255 && color.green === 255 && color.blue === 255;
+    } else if (color.typename === "CMYKColor") {
+        return color.cyan === 0 && color.magenta === 0 && color.yellow === 0 && color.black === 0;
+    } else if (color.typename === "GrayColor") {
+        return color.gray === 100;
+    }
+    return false; // 不支持的颜色类型
+}
+
 /**
  * 标注颜色
  */
