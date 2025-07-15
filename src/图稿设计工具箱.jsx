@@ -86,7 +86,7 @@ function getSelectedColors(the_obj) {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
-        } else if (item.typename === "CompoundPathItem" && item.pathItems[0].fillColor) {
+        } else if (item.typename === "CompoundPathItem" && item.pathItems[0].filled && item.pathItems[0].fillColor) {
             addColor(item.pathItems[0].fillColor);
         } else {
             if (item.filled && item.fillColor) {
@@ -154,7 +154,7 @@ function getAllColors() {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
-        } else if (item.typename === "CompoundPathItem" && item.pathItems[0].fillColor) {
+        } else if (item.typename === "CompoundPathItem" && item.pathItems[0].filled && item.pathItems[0].fillColor) {
             addColor(item.pathItems[0].fillColor);
             // // 处理复合路径中的每个路径项
             // for (var i = 0; i < item.pathItems.length; i++) {
