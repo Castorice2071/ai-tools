@@ -1,4 +1,4 @@
-var CFG = {
+﻿var CFG = {
     // 凸起的金色颜色集合
     metalColors: [
         [88, 97, 104],
@@ -52,12 +52,20 @@ function getAllColors() {
     }
 
     function collectColors(item) {
+        $.writeln("collectColors item.typename: " + item.typename);
         if (item.typename === "GroupItem") {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
         } else if (item.typename === "CompoundPathItem" && item.pathItems[0].fillColor) {
             addColor(item.pathItems[0].fillColor);
+            // // 处理复合路径中的每个路径项
+            // for (var i = 0; i < item.pathItems.length; i++) {
+            //     var pathItem = item.pathItems[i];
+            //     if (pathItem.filled && pathItem.fillColor) {
+
+            //     }
+            // }
         } else {
             if (item.filled && item.fillColor) {
                 addColor(item.fillColor);
@@ -103,40 +111,47 @@ function getAllColors() {
  */
 function getMetalColors() {
     try {
+        var items = app.activeDocument.pathItems;
         var metalColors = [];
 
-        // 1. 获取所有颜色
-        var allColores = getAllColors();
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            // 检查是否有填充色
+            if (item.filled) {
+                var fillColor = item.fillColor;
+                // 检查是否为RGB颜色
+                if (fillColor.typename === "RGBColor") {
+                    var rgb = [Math.round(fillColor.red), Math.round(fillColor.green), Math.round(fillColor.blue)];
 
-        // 2. 遍历所有颜色
-        for (var i = 0; i < allColores.length; i++) {
-            var color = allColores[i];
-            // 3. 检查是否为RGB颜色
-            if (color.indexOf("RGB") !== -1) {
-                // 4. 提取RGB值
-                var rgb = color.match(/RGB\(([\d.]+),\s*([\d.]+),\s*([\d.]+)\)/);
-
-                // 5. 检查是否为预定义的金属色
-                for (var j = 0; j < CFG.metalColors.length; j++) {
-                    var metalColor = CFG.metalColors[j];
-                    if (Math.abs(rgb[1] - metalColor[0]) === 0 && Math.abs(rgb[2] - metalColor[1]) === 0 && Math.abs(rgb[3] - metalColor[2]) === 0) {
-                        metalColors.push(color);
-                        break;
+                    // 检查是否为预定义的金属色
+                    for (var j = 0; j < CFG.metalColors.length; j++) {
+                        var metalColor = CFG.metalColors[j];
+                        if (Math.abs(rgb[0] - metalColor[0]) === 0 && Math.abs(rgb[1] - metalColor[1]) === 0 && Math.abs(rgb[2] - metalColor[2]) === 0) {
+                            metalColors.push(rgb);
+                            break;
+                        }
                     }
                 }
             }
         }
 
-        return metalColors;
+        // 去重处理
+        var uniqueColors = {};
+        var result = [];
+        for (var j = 0; j < metalColors.length; j++) {
+            var c = metalColors[j];
+            if (!uniqueColors[c]) {
+                uniqueColors[c] = true;
+                result.push(c);
+            }
+        }
+
+        return result;
     } catch (error) {
         alert("获取当前图稿中的金属色: " + error.message);
         return [];
     }
 }
-
-// var colors = getMetalColors()
-// $.writeln("金属 colors: " + colors);
-// $.writeln("金属 colors.length: " + colors.length);
 
 /**
  * 给金属描边
@@ -144,7 +159,6 @@ function getMetalColors() {
 function metalEdging() {
     try {
         var metalColors = getMetalColors();
-        $.writeln("metalColors: " + metalColors);
         if (metalColors.length <= 0) {
             return alert("没有匹配的金属颜色");
         }

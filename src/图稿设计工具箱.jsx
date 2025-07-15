@@ -392,10 +392,72 @@ function resetFolder() {
 }
 
 /**
+ * 获取当前图稿中的金属色
+ */
+function getMetalColors() {
+    try {
+        var items = app.activeDocument.pathItems;
+        var metalColors = [];
+
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            // 检查是否有填充色
+            if (item.filled) {
+                var fillColor = item.fillColor;
+                // 检查是否为RGB颜色
+                if (fillColor.typename === "RGBColor") {
+                    var rgb = [Math.round(fillColor.red), Math.round(fillColor.green), Math.round(fillColor.blue)];
+
+                    // 检查是否为预定义的金属色
+                    for (var j = 0; j < CFG.metalColors.length; j++) {
+                        var metalColor = CFG.metalColors[j];
+                        if (Math.abs(rgb[0] - metalColor[0]) === 0 && Math.abs(rgb[1] - metalColor[1]) === 0 && Math.abs(rgb[2] - metalColor[2]) === 0) {
+                            metalColors.push(rgb);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 去重处理
+        var uniqueColors = {};
+        var result = [];
+        for (var j = 0; j < metalColors.length; j++) {
+            var c = metalColors[j];
+            if (!uniqueColors[c]) {
+                uniqueColors[c] = true;
+                result.push(c);
+            }
+        }
+
+        return result;
+    } catch (error) {
+        alert("获取当前图稿中的金属色: " + error.message);
+        return [];
+    }
+}
+
+/**
  * 给金属描边
  */
 function metalEdging() {
     try {
+        var metalColors = getMetalColors();
+        if (metalColors.length <= 0) {
+            return alert("没有匹配的金属颜色");
+        }
+
+        if (metalColors.length >= 2) {
+            return alert("金属颜色超过1种");
+        }
+
+        // 金属颜色
+        var METALCOLOR = new RGBColor();
+        METALCOLOR.red = metalColors[0][0];
+        METALCOLOR.green = metalColors[0][1];
+        METALCOLOR.blue = metalColors[0][2];
+
         var items = app.activeDocument.pathItems;
 
         var strokeWidth = parseFloat(PB.strokeWidth.text);
