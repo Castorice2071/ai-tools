@@ -105,10 +105,6 @@ function getAllColors() {
     var colors = [];
 
     function processLayer(layerOrGroupItem) {
-        $.writeln("layerOrGroupItem.name: " + layerOrGroupItem.name);
-        $.writeln("layerOrGroupItem.locked: " + layerOrGroupItem.locked);
-        $.writeln("layerOrGroupItem.visible: " + layerOrGroupItem.visible);
-
         // 如果图层被锁定或隐藏，跳过
         if (layerOrGroupItem.locked || layerOrGroupItem.hidden) return;
 
@@ -125,16 +121,6 @@ function getAllColors() {
                 collectColors(item);
             }
         }
-
-        // // 处理当前图层中的所有项目
-        // for (var i = 0; i < layer.pageItems.length; i++) {
-        //     collectColors(layer.pageItems[i]);
-        // }
-
-        // // 递归处理子图层
-        // for (var j = 0; j < layer.layers.length; j++) {
-        //     processLayer(layer.layers[j]);
-        // }
     }
 
     function collectColors(item) {
