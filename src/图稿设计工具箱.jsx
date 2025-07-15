@@ -104,6 +104,8 @@ function getSelectedColors(the_obj) {
             colors.push("Gray(" + color.gray + ")");
         } else if (color.typename === "SpotColor") {
             colors.push("SpotColor(" + color.spot.name + ")");
+        } else if (color.typename === "PatternColor") {
+            colors.push("PatternColor(" + color.pattern.name + ")");
         }
     }
 
@@ -1155,6 +1157,23 @@ function markColor() {
                         var spotColor = new SpotColor();
                         spotColor.spot = doc.spots.getByName(spot[1]);
                         fillColor = spotColor;
+                    } catch (e) {
+                        // SpotColor 不存在时，默认灰色
+                        var fallback = new GrayColor();
+                        fallback.gray = 50;
+                        fillColor = fallback;
+                    }
+                }
+            } else if (/^PatternColor\(/.test(color)) {
+                contents = color.replace(/^PatternColor\((.+)\)/, "$1");
+
+                // 解析 PatternColor
+                var pattern = color.match(/PatternColor\((.+)\)/);
+                if (pattern) {
+                    try {
+                        var patternColor = new PatternColor();
+                        patternColor.pattern = doc.patterns.getByName(patternColor[1]);
+                        fillColor = patternColor;
                     } catch (e) {
                         // SpotColor 不存在时，默认灰色
                         var fallback = new GrayColor();
