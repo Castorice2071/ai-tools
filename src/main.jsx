@@ -1,102 +1,57 @@
-$.writeln("Running main.jsx script...");
+//@include "./utils.jsx"
 
-/**
- * 获取颜色
- * @param {*} obj
- * @returns
- */
-function getColors(obj) {
-    var colors = [];
+analyzeColorsAndExportPSD();
 
-    function collectColors(item) {
-        if (item.typename === "GroupItem") {
-            for (var i = 0; i < item.pageItems.length; i++) {
-                collectColors(item.pageItems[i]);
+function analyzeColorsAndExportPSD() {
+    var colors = getSelectionColors();
+
+    // 获取当前文档
+    var doc = app.activeDocument;
+    // 获取所有路径项
+    var pathItems = doc.pathItems;
+
+    $.writeln("colors.length: " + colors.length);
+    $.writeln("colors: " + colors.join(", "));
+
+    // 遍历所有颜色
+    for (var i = 0; i < colors.length; i++) {
+        $.writeln("Processing color: " + colors[i]);
+        var colorStr = colors[i];
+
+        // 创建新组
+        var newGroup = app.activeDocument.groupItems.add();
+        newGroup.name = "Color_Group_" + (i + 1);
+
+        $.writeln("pathItems.length: " + pathItems.length);
+        var length = pathItems.length
+
+        // 遍历选择中的所有路径项
+        for (var j = 0; j < length; j++) {
+            var item = pathItems[j];
+            // 跳过新建组中的项，避免死循环
+            if (item.parent && item.parent.name && item.parent.name.indexOf("Color_Group_") === 0) {
+                continue;
             }
-        } else if (item.typename === "CompoundPathItem") {
-            for (var i = 0; i < item.pathItems.length; i++) {
-                collectColors(item.pathItems[i]);
-            }
-        } else {
             if (item.filled && item.fillColor) {
-                addColor(item.fillColor);
+                var itemColorStr = "";
+                var color = item.fillColor;
+
+                if (color.typename === "RGBColor") {
+                    itemColorStr = "RGB(" + color.red + ", " + color.green + ", " + color.blue + ")";
+                } else if (color.typename === "CMYKColor") {
+                    itemColorStr = "CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")";
+                } else if (color.typename === "GrayColor") {
+                    itemColorStr = "Gray(" + color.gray + ")";
+                } else if (color.typename === "SpotColor") {
+                    itemColorStr = "SpotColor(" + color.spot.name + ")";
+                }
+
+                // 如果颜色匹配，则复制到新组
+                if (itemColorStr === colorStr) {
+                    $.writeln("Duplicating item: " + item.name + " with color: " + itemColorStr);
+                    var duplicate = item.duplicate(newGroup);
+                }
             }
         }
     }
-
-    function addColor(color) {
-        if (color.typename === "RGBColor") {
-            colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
-        } else if (color.typename === "CMYKColor") {
-            colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
-        } else if (color.typename === "GrayColor") {
-            colors.push("Gray(" + color.gray + ")");
-        } else if (color.typename === "SpotColor") {
-            colors.push("SpotColor(" + color.spot.name + ")");
-        } else if (color.typename === "PatternColor") {
-            colors.push("PatternColor(" + color.pattern.name + ")");
-        }
-    }
-
-    collectColors(obj);
-
-    return uniqueArray(colors);
 }
-
-/**
- *
- * @returns
- */
-function getSelectionColors() {
-    var items = app.selection;
-    if (items.length === 0) {
-        alert("No items selected.");
-        return [];
-    }
-
-    var allColors = [];
-    for (var i = 0; i < items.length; i++) {
-        var colors = getColors(items[i]);
-        allColors = allColors.concat(colors);
-    }
-
-    return uniqueArray(allColors);
-}
-
-/**
- * 数组去重
- * @param {Array} arr
- */
-function uniqueArray(arr) {
-    var unique = {};
-    var result = [];
-    for (var j = 0; j < arr.length; j++) {
-        var c = arr[j];
-        if (!unique[c]) {
-            unique[c] = true;
-            result.push(c);
-        }
-    }
-    return result;
-}
-
-function main() {
-    try {
-        var win = new Window("dialog", "Hello World");
-        var BTN1 = win.add("button", undefined, "Click Me");
-
-        BTN1.onClick = function () {
-            var colors = getSelectionColors();
-
-            $.writeln("colors.length: " + colors.length);
-            $.writeln("colors: " + colors.join(", "));
-        };
-        $.writeln("Dialog displayed successfully.");
-
-        win.show();
-    } catch (error) {
-        alert("An error occurred: " + error.message);
-    }
-}
-
-main();
