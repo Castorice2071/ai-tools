@@ -63,16 +63,47 @@ function output(data) {
     }
 }
 
-function isColorMatch(color1, color2) {
-    if (color1.typename !== color2.typename) return false;
-    if (color1.typename === "CMYKColor") {
-        return color1.cyan === color2.cyan && color1.magenta === color2.magenta && color1.yellow === color2.yellow && color1.black === color2.black;
-    } else if (color1.typename === "RGBColor") {
-        return color1.red === color2.red && color1.green === color2.green && color1.blue === color2.blue;
-    } else if (color1.typename === "GrayColor") {
-        return color1.gray === color2.gray;
+function isColorMatch(color1, color2, tolerance) {
+    // 添加空值检查
+    if (!color1 || !color2) return false;
+
+    // 设置默认容差值
+    tolerance = tolerance || 0;
+
+    // 检查颜色类型
+    if (color1.typename !== color2.typename) {
+        // 如果是专色，获取其实际颜色进行比较
+        if (color1.typename === "SpotColor") {
+            return isColorMatch(color1.spot.color, color2, tolerance);
+        }
+        if (color2.typename === "SpotColor") {
+            return isColorMatch(color1, color2.spot.color, tolerance);
+        }
+        return false;
     }
-    return false; // 不支持的颜色类型
+
+    // 根据颜色类型进行比较
+    switch (color1.typename) {
+        case "CMYKColor":
+            return (
+                Math.abs(color1.cyan - color2.cyan) <= tolerance &&
+                Math.abs(color1.magenta - color2.magenta) <= tolerance &&
+                Math.abs(color1.yellow - color2.yellow) <= tolerance &&
+                Math.abs(color1.black - color2.black) <= tolerance
+            );
+
+        case "RGBColor":
+            return Math.abs(color1.red - color2.red) <= tolerance && Math.abs(color1.green - color2.green) <= tolerance && Math.abs(color1.blue - color2.blue) <= tolerance;
+
+        case "GrayColor":
+            return Math.abs(color1.gray - color2.gray) <= tolerance;
+
+        case "SpotColor":
+            return isColorMatch(color1.spot.color, color2.spot.color, tolerance);
+
+        default:
+            return false;
+    }
 }
 
 /**
@@ -449,6 +480,9 @@ function getMetalColors() {
 function metalEdging() {
     try {
         var metalColors = getMetalColors();
+        $.writeln("金属颜色数量: " + metalColors.length);
+        $.writeln("金属颜色: " + metalColors);
+        $.writeln(metalColors instanceof Array);
         if (metalColors.length <= 0) {
             return alert("没有匹配的金属颜色");
         }
@@ -464,15 +498,23 @@ function metalEdging() {
         METALCOLOR.blue = metalColors[0][2];
 
         var items = app.activeDocument.pathItems;
+        $.writeln("items.length: " + items.length);
 
         var strokeWidth = parseFloat(PB.strokeWidth.text);
 
         for (var i = 0; i < items.length; i++) {
-            // items[i].fillColor = color;
             var item = items[i];
+            $.writeln("item.name: " + item.name);
+            $.writeln("item.typename: " + item.typename);
+            $.writeln("item.filled: " + item.filled);
+            $.writeln("item.fillColor: " + item.fillColor);
+            $.writeln("item.fillColor.typename: " + item.fillColor.typename);
+            $.writeln("item.fillColor.red: " + item.fillColor.red);
+            $.writeln("item.fillColor.green: " + item.fillColor.green);
+            $.writeln("item.fillColor.blue: " + item.fillColor.blue);
             // 检查是否为有效的路径对象
             if (item.typename !== "PathItem") continue;
-            if (item.filled && isColorMatch(item.fillColor, METALCOLOR)) {
+            if (item.filled && isColorMatch(item.fillColor, METALCOLOR, 1)) {
                 $.writeln("发现匹配的颜色项：" + item.typename);
 
                 // 先设置描边颜色和宽度
