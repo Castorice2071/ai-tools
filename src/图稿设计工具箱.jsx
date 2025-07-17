@@ -1,4 +1,6 @@
-﻿app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
+﻿//@target illustrator
+//@targetengine main
+app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
 var bit = 32;
 var aiVersion = app.version.split(".")[0];
