@@ -1,74 +1,100 @@
-function analyzeColorsAndExportPSD() {
-    var colors = getAllColors();
-
-    // 创建文件夹
-    CFG.folderName++;
-    var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
-    if (!Folder(fileFolder).exists) {
-        Folder(fileFolder).create();
+/**
+ * 复制选区形状，合并为单一黑色形状，去除无用路径（自动处理 GroupItem）
+ */
+function copyAndMergeSelectionToBlack() {
+    var items = app.activeDocument.selection;
+    if (items.length === 0) {
+        alert("No items selected.");
+        return;
     }
 
-    // 遍历所有颜色
-    for (var i = 0; i < colors.length; i++) {
-        var colorStr = colors[i];
+    // 复制并粘贴
+    app.copy();
+    app.paste();
 
-        // 获取当前文档
-        var doc = app.activeDocument;
+    // 获取新选区
+    var newItems = app.activeDocument.selection;
 
-        function processItem(item) {
+    // 如果只有一个对象，且是 GroupItem，递归处理组内所有路径
+    if (newItems.length === 1 && newItems[0].typename === "GroupItem") {
+        var group = newItems[0];
+        var black = new RGBColor();
+        black.red = 0;
+        black.green = 0;
+        black.blue = 0;
+
+        function fillGroupItems(item) {
             if (item.typename === "GroupItem") {
                 for (var i = 0; i < item.pageItems.length; i++) {
-                    processItem(item.pageItems[i]);
+                    fillGroupItems(item.pageItems[i]);
                 }
-            } else if (item.typename === "CompoundPathItem") {
-                // 处理复合路径中的每个路径项
-                for (var i = 0; i < item.pathItems.length; i++) {
-                    var pathItem = item.pathItems[i];
-                    if (pathItem.filled && pathItem.fillColor) {
-                        var itemColorStr = getColorString(pathItem.fillColor);
-                        pathItem.hidden = itemColorStr !== colorStr;
-                    }
-                }
-            } else if (item.filled && item.fillColor) {
-                var itemColorStr = getColorString(item.fillColor);
-                item.hidden = itemColorStr !== colorStr;
+            } else if (item.typename === "PathItem" || item.typename === "CompoundPathItem") {
+                item.filled = true;
+                item.fillColor = black;
+                item.stroked = false;
             }
         }
+        fillGroupItems(group);
+        return;
+    }
 
-        function getColorString(color) {
-            if (color.typename === "RGBColor") {
-                return "RGB(" + color.red + ", " + color.green + ", " + color.blue + ")";
-            } else if (color.typename === "CMYKColor") {
-                return "CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")";
-            } else if (color.typename === "GrayColor") {
-                return "Gray(" + color.gray + ")";
-            } else if (color.typename === "SpotColor") {
-                return "SpotColor(" + color.spot.name + ")";
-            }
-            return "";
+    // 如果只有一个对象且不是组，直接填充黑色
+    if (newItems.length === 1) {
+        var item = newItems[0];
+        var black = new RGBColor();
+        black.red = 0;
+        black.green = 0;
+        black.blue = 0;
+        item.filled = true;
+        item.fillColor = black;
+        item.stroked = false;
+        return;
+    }
+
+    // 多对象时，尝试解除编组和展开外观
+    app.executeMenuCommand("ungroup");
+    app.executeMenuCommand("expandStyle");
+
+    // 再次获取选区
+    newItems = app.activeDocument.selection;
+
+    // 再次确认数量
+    if (newItems.length < 2) {
+        alert("合并操作需要至少两个对象。");
+        return;
+    }
+
+    // 路径查找器合并
+    app.executeMenuCommand("Live Pathfinder Merge");
+    app.executeMenuCommand("expandStyle");
+    app.executeMenuCommand("ungroup");
+
+    // 获取合并后的选区
+    var mergedItems = app.activeDocument.selection;
+    if (!mergedItems || mergedItems.length === 0) {
+        alert("合并后未检测到对象，请检查选区类型。");
+        return;
+    }
+
+    // 只处理第一个对象（通常为主形状）
+    var mainItem = mergedItems[0];
+    var black = new RGBColor();
+    black.red = 0;
+    black.green = 0;
+    black.blue = 0;
+
+    if (mainItem.typename === "CompoundPathItem" || mainItem.typename === "PathItem") {
+        mainItem.filled = true;
+        mainItem.fillColor = black;
+        mainItem.stroked = false;
+    } else if (mainItem.typename === "GroupItem" || mainItem.typename === "Group") {
+        for (var i = 0; i < mainItem.pageItems.length; i++) {
+            var item = mainItem.pageItems[i];
+            if (item.filled !== undefined) item.filled = true;
+            if (item.fillColor !== undefined) item.fillColor = black;
+            if (item.stroked !== undefined) item.stroked = false;
         }
-
-        // 遍历所有图层
-        for (var j = 0; j < doc.layers.length; j++) {
-            var layer = doc.layers[j];
-            if (!layer.locked && layer.visible) {
-                for (var k = 0; k < layer.pageItems.length; k++) {
-                    processItem(layer.pageItems[k]);
-                }
-            }
-        }
-
-        // 处理文件名
-        var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
-        fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
-        fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
-        fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
-        fileName = fileName.replace(/[,]/g, "_");
-
-        exportToPSD(fileFolder + fileName + ".psd");
-
-        // 恢复所有项的显示状态
-        app.undo();
-        app.redraw();
     }
 }
+
+copyAndMergeSelectionToBlack();

@@ -166,6 +166,31 @@ var UTILS = {
     },
 
     /**
+     * 设置颜色
+     * @param {*} obj 对象
+     * @param {*} color 颜色
+     */
+    setColor: function (obj, color) {
+        function collectColors(item) {
+            if (item.typename === "GroupItem") {
+                for (var i = 0; i < item.pageItems.length; i++) {
+                    collectColors(item.pageItems[i]);
+                }
+            } else if (item.typename === "CompoundPathItem") {
+                for (var i = 0; i < item.pathItems.length; i++) {
+                    collectColors(item.pathItems[i]);
+                }
+            } else {
+                item.filled = true; // 确保填充为true
+                item.fillColor = color; // 设置填充颜色
+                item.stroked = false; // 确保不描边
+            }
+        }
+
+        collectColors(obj);
+    },
+
+    /**
      * 获取选区的颜色
      */
     getSelectionColors: function () {
@@ -271,5 +296,5 @@ function polyfills() {
             }
         }
         return keys;
-    }
+    };
 }

@@ -110,6 +110,36 @@ var UTILS = {
     },
 
     /**
+     * 获取颜色文本
+     * @param {*} color
+     */
+    getColorText: function (color) {
+        if (color.typename === "RGBColor") {
+            return "RGB(" + color.red + ", " + color.green + ", " + color.blue + ")";
+        } else if (color.typename === "CMYKColor") {
+            return "CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")";
+        } else if (color.typename === "GrayColor") {
+            return "Gray(" + color.gray + ")";
+        } else if (color.typename === "SpotColor") {
+            return "SpotColor(" + color.spot.name + ")";
+        } else if (color.typename === "PatternColor") {
+            return "PatternColor(" + color.pattern.name + ")";
+        }
+
+        return null;
+    },
+
+    /**
+     * 输出对象所有属性
+     * @param {*} obj
+     */
+    printProperties: function (obj) {
+        for (var prop in obj) {
+            $.writeln(prop + ": " + obj[prop]);
+        }
+    },
+
+    /**
      * 获取颜色
      * @param {*} obj 对象
      * @returns {Array} 颜色数组
@@ -150,6 +180,31 @@ var UTILS = {
         collectColors(obj);
 
         return UTILS.uniqueArray(colors);
+    },
+
+    /**
+     * 设置颜色
+     * @param {*} obj 对象
+     * @param {*} color 颜色
+     */
+    setColor: function (obj, color) {
+        function collectColors(item) {
+            if (item.typename === "GroupItem") {
+                for (var i = 0; i < item.pageItems.length; i++) {
+                    collectColors(item.pageItems[i]);
+                }
+            } else if (item.typename === "CompoundPathItem") {
+                for (var i = 0; i < item.pathItems.length; i++) {
+                    collectColors(item.pathItems[i]);
+                }
+            } else {
+                item.filled = true; // 确保填充为true
+                item.fillColor = color; // 设置填充颜色
+                item.stroked = false; // 确保不描边
+            }
+        }
+
+        collectColors(obj);
     },
 
     /**
@@ -210,6 +265,52 @@ var UTILS = {
         });
 
         return selectedMetalColors;
+    },
+
+    /**
+     * 获取选区的颜色分组
+     */
+    getSelectionColorGroups: function () {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return null;
+        }
+        var colorGroups = {};
+
+        for (var i = 0; i < items.length; i++) {
+            handle(items[i]);
+        }
+
+        function handle(item) {
+            if (item.typename === "GroupItem") {
+                for (var j = 0; j < item.pageItems.length; j++) {
+                    handle(item.pageItems[j]);
+                }
+            } else if (item.typename === "CompoundPathItem" && item.pathItems[0].filled && item.pathItems[0].fillColor) {
+                // 对于复合路径，处理第一个路径项
+                var firstPathItem = item.pathItems[0];
+                var colorKey = UTILS.getColorText(firstPathItem.fillColor);
+                if (colorKey) {
+                    if (!colorGroups[colorKey]) {
+                        colorGroups[colorKey] = [];
+                    }
+                    colorGroups[colorKey].push(item);
+                }
+            } else if (item.typename === "PathItem") {
+                if (item.filled && item.fillColor) {
+                    var colorKey = UTILS.getColorText(item.fillColor);
+                    if (colorKey) {
+                        if (!colorGroups[colorKey]) {
+                            colorGroups[colorKey] = [];
+                        }
+                        colorGroups[colorKey].push(item);
+                    }
+                }
+            }
+        }
+
+        return colorGroups;
     },
 };
 
