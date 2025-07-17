@@ -11,19 +11,29 @@ var SCRIPT = {
 
 var CFG = {
     folderName: 0,
-    // 凸起的金色颜色集合
     metalColors: [
-        [88, 97, 104],
-        [222, 203, 144],
-        [253, 233, 156],
-        [176, 174, 132],
-        [211, 211, 211],
-        [178, 178, 178],
-        [170, 88, 61],
-        [44, 45, 45],
-        [212, 154, 100],
-        [242, 192, 179],
-        [205, 194, 118],
+        { label: "黑镍凸起", name: "Raised  Black  Nickel  Metal", isRaised: true },
+        { label: "黑镍凹下", name: "Recessed  Black  Nickel  Metal" },
+        { label: "古金凸起", name: "Raised Antique  Gold Metal", isRaised: true },
+        { label: "古金凹下", name: "Recessed  Antique Gold Metal" },
+        { label: "镀金凸起", name: "Raised  Gold Metal", isRaised: true },
+        { label: "镀金凹下", name: "Recessed  Gold Metal" },
+        { label: "古青铜凸起", name: "Raised Antique Brass Metal", isRaised: true },
+        { label: "古青铜凹下", name: "Recessed  Antique Brass Metal" },
+        { label: "镀镍凸起", name: "Raised silver Metal", isRaised: true },
+        { label: "镀镍凹下", name: "Recessed silver Metal" },
+        { label: "古银凸起", name: "Raised Antique (silver) Metal", isRaised: true },
+        { label: "古银凹下", name: "Recessed Antique (silver) Metal" },
+        { label: "古红铜凸起", name: "Raised Antique Copper Metal", isRaised: true },
+        { label: "古红铜凹下", name: "Recessed  Antique Copper Metal" },
+        { label: "染黑凸起", name: "Raised  Dye Black Metal", isRaised: true },
+        { label: "染黑凹下", name: "Recessed  Dye Black Metal" },
+        { label: "红铜凸起", name: "Raised Shiny Copper Metal", isRaised: true },
+        { label: "红铜凹下", name: "Recessed  Shiny Copper Metal" },
+        { label: "玫瑰金凸起", name: "Raised  Rose Gold Metal", isRaised: true },
+        { label: "玫瑰金凹下", name: "Recessed  Rose Gold Metal" },
+        { label: "青铜凸起", name: "Raised Shiny Brass Metal", isRaised: true },
+        { label: "青铜凹下", name: "Recessed  Shiny Brass Metal" },
     ],
 
     markColorGap: 40, // 对象与颜色块之间的间距
@@ -46,6 +56,55 @@ var UTILS = {
             }
         }
         return result;
+    },
+
+    /**
+     * 判断两个颜色是否匹配
+     * @param {*} color1
+     * @param {*} color2
+     * @param {*} tolerance
+     */
+    isColorMatch: function (color1, color2, tolerance) {
+        // 添加空值检查
+        if (!color1 || !color2) return false;
+
+        // 设置默认容差值
+        tolerance = tolerance || 0;
+
+        // 检查颜色类型
+        if (color1.typename !== color2.typename) {
+            // 如果是专色，获取其实际颜色进行比较
+            if (color1.typename === "SpotColor") {
+                return UTILS.isColorMatch(color1.spot.color, color2, tolerance);
+            }
+            if (color2.typename === "SpotColor") {
+                return UTILS.isColorMatch(color1, color2.spot.color, tolerance);
+            }
+            return false;
+        }
+
+        // 根据颜色类型进行比较
+        switch (color1.typename) {
+            case "CMYKColor":
+                return (
+                    Math.abs(color1.cyan - color2.cyan) <= tolerance &&
+                    Math.abs(color1.magenta - color2.magenta) <= tolerance &&
+                    Math.abs(color1.yellow - color2.yellow) <= tolerance &&
+                    Math.abs(color1.black - color2.black) <= tolerance
+                );
+
+            case "RGBColor":
+                return Math.abs(color1.red - color2.red) <= tolerance && Math.abs(color1.green - color2.green) <= tolerance && Math.abs(color1.blue - color2.blue) <= tolerance;
+
+            case "GrayColor":
+                return Math.abs(color1.gray - color2.gray) <= tolerance;
+
+            case "SpotColor":
+                return UTILS.isColorMatch(color1.spot.color, color2.spot.color, tolerance);
+
+            default:
+                return false;
+        }
     },
 
     /**
@@ -112,8 +171,16 @@ var UTILS = {
 
     /**
      * 获取选区的金属颜色
+     * @param {boolean} isRaised 是否只获取凸起的金属颜色
+     * @returns {Array} 金属颜色数组
      */
-    getSelectionMetalColors: function () {
+    getSelectionMetalColors: function (isRaised) {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return [];
+        }
+
         var selectionColors = UTILS.getSelectionColors().map(function (color) {
             color = color
                 .replace(/^RGB\(/, "")
@@ -127,17 +194,18 @@ var UTILS = {
         var metalColors = CFG.metalColors.map(function (color) {
             return color.name;
         });
+        if (isRaised) {
+            metalColors = CFG.metalColors
+                .filter(function (color) {
+                    return color.isRaised;
+                })
+                .map(function (color) {
+                    return color.name;
+                });
+        }
         var selectedMetalColors = selectionColors.filter(function (color) {
             return metalColors.includes(color);
         });
-
-        $.writeln("选区颜色列表: " + selectionColors.join(", "));
-
-        if (selectedMetalColors.length > 0) {
-            alert("选区中的金属颜色: " + selectedMetalColors.join(", "));
-        } else {
-            alert("选区中没有金属颜色。");
-        }
 
         return selectedMetalColors;
     },
@@ -629,63 +697,67 @@ function getMetalColors() {
  */
 function metalEdging() {
     try {
-        var metalColors = getMetalColors();
-        $.writeln("金属颜色数量: " + metalColors.length);
-        $.writeln("金属颜色: " + metalColors);
-        $.writeln(metalColors instanceof Array);
-        if (metalColors.length <= 0) {
-            return alert("没有匹配的金属颜色");
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return [];
         }
 
-        if (metalColors.length >= 2) {
-            return alert("金属颜色超过1种");
+        // 1. 获取选区的凸起金属颜色
+        var metalColors = UTILS.getSelectionMetalColors(true);
+        $.writeln("凸起金属颜色数量: " + metalColors.length);
+        $.writeln("凸起金属颜色: " + metalColors.join(" @ "));
+
+        if (metalColors.length === 0 || metalColors.length >= 2) {
+            return alert("只支持选区中有且仅有一个凸起金属颜色");
         }
 
-        // 金属颜色
-        var METALCOLOR = new RGBColor();
-        METALCOLOR.red = metalColors[0][0];
-        METALCOLOR.green = metalColors[0][1];
-        METALCOLOR.blue = metalColors[0][2];
+        // 2. 构造颜色
+        var METALCOLOR = new SpotColor();
+        METALCOLOR.spot = app.activeDocument.spots.getByName(metalColors[0]);
+        $.writeln("METALCOLOR: " + METALCOLOR.spot);
 
-        var items = app.activeDocument.pathItems;
-        $.writeln("items.length: " + items.length);
-
+        // 3. 获取描边宽度
+        // var strokeWidth = parseFloat(prompt("请输入描边宽度（单位：毫米）", "0.5"));
         var strokeWidth = parseFloat(PB.strokeWidth.text);
 
+        $.writeln("描边宽度: " + strokeWidth + "mm");
+
+        // 3. 遍历选区中的 pathItem
         for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            $.writeln("item.name: " + item.name);
-            $.writeln("item.typename: " + item.typename);
-            $.writeln("item.filled: " + item.filled);
-            $.writeln("item.fillColor: " + item.fillColor);
-            $.writeln("item.fillColor.typename: " + item.fillColor.typename);
-            $.writeln("item.fillColor.red: " + item.fillColor.red);
-            $.writeln("item.fillColor.green: " + item.fillColor.green);
-            $.writeln("item.fillColor.blue: " + item.fillColor.blue);
-            // 检查是否为有效的路径对象
-            if (item.typename !== "PathItem") continue;
-            if (item.filled && isColorMatch(item.fillColor, METALCOLOR, 1)) {
-                $.writeln("发现匹配的颜色项：" + item.typename);
+            handle(items[i]);
+        }
 
-                // 先设置描边颜色和宽度
-                item.strokeColor = METALCOLOR;
-                item.strokeWidth = new UnitValue(strokeWidth, "mm").as("pt"); // 明确指定单位
+        function handle(item) {
+            if (item.typename === "GroupItem") {
+                for (var j = 0; j < item.pageItems.length; j++) {
+                    handle(item.pageItems[j]);
+                }
+            } else if (item.typename === "CompoundPathItem") {
+                for (var j = 0; j < item.pathItems.length; j++) {
+                    handle(item.pathItems[j]);
+                }
+            } else if (item.typename === "PathItem") {
+                if (item.filled && item.fillColor && UTILS.isColorMatch(item.fillColor, METALCOLOR, 1)) {
+                    $.writeln("METALCOLOR111: " + METALCOLOR.spot);
+                    // 先设置描边颜色和宽度
+                    item.strokeColor = METALCOLOR;
+                    item.strokeWidth = new UnitValue(strokeWidth, "mm").as("pt"); // 明确指定单位
 
-                // 然后启用描边
-                item.stroked = true;
+                    // 然后启用描边
+                    item.stroked = true;
 
-                // 最后设置描边样式
-                item.strokeCap = StrokeCap.ROUNDENDCAP;
-                item.strokeJoin = StrokeJoin.ROUNDENDJOIN;
+                    // 最后设置描边样式
+                    item.strokeCap = StrokeCap.ROUNDENDCAP;
+                    item.strokeJoin = StrokeJoin.ROUNDENDJOIN;
 
-                // 置于顶层
-                item.zOrder(ZOrderMethod.BRINGTOFRONT);
-
-                $.writeln("已设置描边: " + item.stroked + ", 宽度: " + item.strokeWidth);
+                    // 置于顶层
+                    item.zOrder(ZOrderMethod.BRINGTOFRONT);
+                }
             }
         }
     } catch (error) {
-        alert("出错了: " + error.message);
+        alert("给凸起金属描边失败: " + error.message);
     }
 }
 
