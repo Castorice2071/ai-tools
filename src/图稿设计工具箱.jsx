@@ -30,11 +30,154 @@ var CFG = {
     markColorSize: 10, // 颜色块的大小
 };
 
+var UTILS = {
+    /**
+     * 数组去重
+     * @param {Array} arr
+     */
+    uniqueArray: function (arr) {
+        var unique = {};
+        var result = [];
+        for (var j = 0; j < arr.length; j++) {
+            var c = arr[j];
+            if (!unique[c]) {
+                unique[c] = true;
+                result.push(c);
+            }
+        }
+        return result;
+    },
+
+    /**
+     * 获取颜色
+     * @param {*} obj 对象
+     * @returns {Array} 颜色数组
+     */
+    getColors: function (obj) {
+        var colors = [];
+
+        function collectColors(item) {
+            if (item.typename === "GroupItem") {
+                for (var i = 0; i < item.pageItems.length; i++) {
+                    collectColors(item.pageItems[i]);
+                }
+            } else if (item.typename === "CompoundPathItem") {
+                for (var i = 0; i < item.pathItems.length; i++) {
+                    collectColors(item.pathItems[i]);
+                }
+            } else {
+                if (item.filled && item.fillColor) {
+                    addColor(item.fillColor);
+                }
+            }
+        }
+
+        function addColor(color) {
+            if (color.typename === "RGBColor") {
+                colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+            } else if (color.typename === "CMYKColor") {
+                colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
+            } else if (color.typename === "GrayColor") {
+                colors.push("Gray(" + color.gray + ")");
+            } else if (color.typename === "SpotColor") {
+                colors.push("SpotColor(" + color.spot.name + ")");
+            } else if (color.typename === "PatternColor") {
+                colors.push("PatternColor(" + color.pattern.name + ")");
+            }
+        }
+
+        collectColors(obj);
+
+        return UTILS.uniqueArray(colors);
+    },
+
+    /**
+     * 获取选区的颜色
+     */
+    getSelectionColors: function () {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return [];
+        }
+
+        var allColors = [];
+        for (var i = 0; i < items.length; i++) {
+            var colors = UTILS.getColors(items[i]);
+            allColors = allColors.concat(colors);
+        }
+
+        return UTILS.uniqueArray(allColors);
+    },
+
+    /**
+     * 获取选区的金属颜色
+     */
+    getSelectionMetalColors: function () {
+        var selectionColors = UTILS.getSelectionColors().map(function (color) {
+            return color.replace(/RGB\(|CMYK\(|Gray\(|SpotColor\(|PatternColor\(|\)/g, "").trim();
+        });
+        var metalColors = CFG.metalColors.map(function (color) {
+            return color.name;
+        });
+        var selectedMetalColors = selectionColors.filter(function (color) {
+            return metalColors.includes(color);
+        });
+
+        if (selectedMetalColors.length > 0) {
+            alert("选区中的金属颜色: " + selectedMetalColors.join(", "));
+        } else {
+            alert("选区中没有金属颜色。");
+        }
+
+        return selectedMetalColors;
+    },
+};
+
 // 金属颜色
 var METALCOLOR = new RGBColor();
 METALCOLOR.red = 211;
 METALCOLOR.green = 211;
 METALCOLOR.blue = 211;
+
+polyfills();
+// Setup JavaScript Polyfills
+function polyfills() {
+    Array.prototype.forEach = function (callback) {
+        for (var i = 0; i < this.length; i++) callback(this[i], i, this);
+    };
+
+    Array.prototype.includes = function (search) {
+        return this.indexOf(search) !== -1;
+    };
+
+    Array.prototype.indexOf = function (obj, start) {
+        for (var i = start || 0, j = this.length; i < j; i++) {
+            if (this[i] === obj) return i;
+        }
+        return -1;
+    };
+
+    Array.prototype.filter = function (callback, context) {
+        arr = [];
+        for (var i = 0; i < this.length; i++) {
+            if (callback.call(context, this[i], i, this)) arr.push(this[i]);
+        }
+        return arr;
+    };
+
+    Array.prototype.map = function (callback, context) {
+        arr = [];
+        for (var i = 0; i < this.length; i++) {
+            arr.push(callback.call(context, this[i], i, this));
+        }
+        return arr;
+    };
+
+    String.prototype.trim = function () {
+        return this.replace(/^\s+|\s+$/g, "");
+    };
+}
 
 function buildMsg(code) {
     try {
