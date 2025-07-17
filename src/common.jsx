@@ -44,6 +44,55 @@ var UTILS = {
     },
 
     /**
+     * 判断两个颜色是否匹配
+     * @param {*} color1
+     * @param {*} color2
+     * @param {*} tolerance
+     */
+    isColorMatch: function (color1, color2, tolerance) {
+        // 添加空值检查
+        if (!color1 || !color2) return false;
+
+        // 设置默认容差值
+        tolerance = tolerance || 0;
+
+        // 检查颜色类型
+        if (color1.typename !== color2.typename) {
+            // 如果是专色，获取其实际颜色进行比较
+            if (color1.typename === "SpotColor") {
+                return UTILS.isColorMatch(color1.spot.color, color2, tolerance);
+            }
+            if (color2.typename === "SpotColor") {
+                return UTILS.isColorMatch(color1, color2.spot.color, tolerance);
+            }
+            return false;
+        }
+
+        // 根据颜色类型进行比较
+        switch (color1.typename) {
+            case "CMYKColor":
+                return (
+                    Math.abs(color1.cyan - color2.cyan) <= tolerance &&
+                    Math.abs(color1.magenta - color2.magenta) <= tolerance &&
+                    Math.abs(color1.yellow - color2.yellow) <= tolerance &&
+                    Math.abs(color1.black - color2.black) <= tolerance
+                );
+
+            case "RGBColor":
+                return Math.abs(color1.red - color2.red) <= tolerance && Math.abs(color1.green - color2.green) <= tolerance && Math.abs(color1.blue - color2.blue) <= tolerance;
+
+            case "GrayColor":
+                return Math.abs(color1.gray - color2.gray) <= tolerance;
+
+            case "SpotColor":
+                return UTILS.isColorMatch(color1.spot.color, color2.spot.color, tolerance);
+
+            default:
+                return false;
+        }
+    },
+
+    /**
      * 获取颜色
      * @param {*} obj 对象
      * @returns {Array} 颜色数组
@@ -107,8 +156,16 @@ var UTILS = {
 
     /**
      * 获取选区的金属颜色
+     * @param {boolean} isRaised 是否只获取凸起的金属颜色
+     * @returns {Array} 金属颜色数组
      */
-    getSelectionMetalColors: function () {
+    getSelectionMetalColors: function (isRaised) {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return [];
+        }
+
         var selectionColors = UTILS.getSelectionColors().map(function (color) {
             color = color
                 .replace(/^RGB\(/, "")
@@ -122,17 +179,18 @@ var UTILS = {
         var metalColors = CFG.metalColors.map(function (color) {
             return color.name;
         });
+        if (isRaised) {
+            metalColors = CFG.metalColors
+                .filter(function (color) {
+                    return color.isRaised;
+                })
+                .map(function (color) {
+                    return color.name;
+                });
+        }
         var selectedMetalColors = selectionColors.filter(function (color) {
             return metalColors.includes(color);
         });
-
-        $.writeln("选区颜色列表: " + selectionColors.join(", "));
-
-        if (selectedMetalColors.length > 0) {
-            alert("选区中的金属颜色: " + selectedMetalColors.join(", "));
-        } else {
-            alert("选区中没有金属颜色。");
-        }
 
         return selectedMetalColors;
     },
