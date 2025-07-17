@@ -742,12 +742,12 @@ function metalEdging() {
             } else if (item.typename === "PathItem") {
                 if (item.filled && item.fillColor && UTILS.isColorMatch(item.fillColor, METALCOLOR, 1)) {
                     $.writeln("METALCOLOR111: " + METALCOLOR.spot);
-                    // 先设置描边颜色和宽度
+                    // 启用描边
+                    item.stroked = true;
+
+                    // 设置描边颜色和宽度
                     item.strokeColor = METALCOLOR;
                     item.strokeWidth = new UnitValue(strokeWidth, "mm").as("pt"); // 明确指定单位
-
-                    // 然后启用描边
-                    item.stroked = true;
 
                     // 最后设置描边样式
                     item.strokeCap = StrokeCap.ROUNDENDCAP;
