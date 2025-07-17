@@ -4,9 +4,9 @@
         {
             "type": "extendscript-debug",
             "request": "launch",
-            "name": "extendScript-Debug attach",
-            // "hostAppSpecifier": "illustrator-16.032",
-            "hostAppSpecifier": "illustrator-21.064",
+            "name": "Launch to ExtendScript Engine",
+            "hostAppSpecifier": "illustrator-16.032",
+            // "hostAppSpecifier": "illustrator-21.064",
             // "hostAppSpecifier": "photoshop-110.064",
             "engineName": "main"
         }
