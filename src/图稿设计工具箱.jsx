@@ -115,7 +115,14 @@ var UTILS = {
      */
     getSelectionMetalColors: function () {
         var selectionColors = UTILS.getSelectionColors().map(function (color) {
-            return color.replace(/RGB\(|CMYK\(|Gray\(|SpotColor\(|PatternColor\(|\)/g, "").trim();
+            color = color
+                .replace(/^RGB\(/, "")
+                .replace(/^CMYK\(/, "")
+                .replace(/^Gray\(/, "")
+                .replace(/^SpotColor\(/, "")
+                .replace(/^PatternColor\(/, "");
+            color = color.replace(/\)$/, "").trim();
+            return color;
         });
         var metalColors = CFG.metalColors.map(function (color) {
             return color.name;
@@ -123,6 +130,8 @@ var UTILS = {
         var selectedMetalColors = selectionColors.filter(function (color) {
             return metalColors.includes(color);
         });
+
+        $.writeln("选区颜色列表: " + selectionColors.join(", "));
 
         if (selectedMetalColors.length > 0) {
             alert("选区中的金属颜色: " + selectedMetalColors.join(", "));
