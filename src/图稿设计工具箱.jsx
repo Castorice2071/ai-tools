@@ -1,8 +1,6 @@
-﻿//@target illustrator
-//@targetengine main
-app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
+﻿app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
-var bit = 64;
+var bit = 32;
 var aiVersion = app.version.split(".")[0];
 var vs = "illustrator-" + aiVersion + ".0" + bit;
 
@@ -1217,9 +1215,13 @@ function markColor() {
                     fillColor = grayColor;
                 }
             } else if (/^SpotColor\(/.test(color)) {
-                contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
-
-                if (contents === "SpotColor([套版色])") {
+                contents = color.replace(/^SpotColor\((.+)\)/, "$1");
+                // PANTONE 颜色处理
+                contents = contents.replace("PANTONE ", "");
+                // contents = color.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+                // 特殊处理套版色
+                // 如果是套版色，替换为 "Black C"
+                if (contents === "[套版色]") {
                     contents = "Black C";
                 }
 
