@@ -1,4 +1,15 @@
-﻿//@target illustrator
+﻿/**
+ * 图稿设计工具箱
+ * 
+ * Author: Li Wei
+ * Date: 2025-07
+ * 
+ * Release notes:
+ * 0.0.1 Initial version
+ * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行
+ */
+
+//@target illustrator
 //@targetengine main
 app.preferences.setBooleanPreference("ShowExternalJSXWarning", false); // Fix drag and drop a .jsx file
 
@@ -8,7 +19,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.0",
+    version: "v0.0.7",
 };
 
 var CFG = {
