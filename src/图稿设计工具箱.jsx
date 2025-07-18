@@ -321,7 +321,6 @@ METALCOLOR.green = 211;
 METALCOLOR.blue = 211;
 
 polyfills();
-// Setup JavaScript Polyfills
 function polyfills() {
     Array.prototype.forEach = function (callback) {
         for (var i = 0; i < this.length; i++) callback(this[i], i, this);
@@ -356,6 +355,16 @@ function polyfills() {
 
     String.prototype.trim = function () {
         return this.replace(/^\s+|\s+$/g, "");
+    };
+
+    Object.keys = function (obj) {
+        var keys = [];
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        }
+        return keys;
     };
 }
 
@@ -880,7 +889,7 @@ PA.BTN1 = PA.add("button", undefined, "PSD");
 PA.BTN2 = PA.add("button", undefined, "AI");
 PA.BTN3 = PA.add("button", undefined, "重置文件夹");
 PA.BTN1.onClick = function () {
-    buildMsg("analyzeColorsAndExportPSD();");
+    buildMsg("analyzeColorsAndExportPSDNew();");
 };
 PA.BTN2.onClick = function () {
     buildMsg("analyzeColorsAndExportAI();");
@@ -1663,4 +1672,137 @@ function startAction() {
     } catch (error) {
         alert("对象排列出错了: " + error.message);
     }
+}
+
+/**
+ * 识别颜色并导出PSD
+ */
+function analyzeColorsAndExportPSDNew() {
+    try {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            return alert("No items selected.");
+        }
+
+        // 1. 获取选区的颜色分组
+        var colorGroups = UTILS.getSelectionColorGroups();
+        UTILS.printProperties(colorGroups);
+
+        if (Object.keys(colorGroups).length === 0) {
+            return alert("没有识别出颜色");
+        }
+
+        // 2.创建文件夹
+        CFG.folderName++;
+        var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
+        if (!Folder(fileFolder).exists) {
+            Folder(fileFolder).create();
+        }
+
+        // // 3. 隐藏所有颜色分组中的项
+        // for (var colorName in colorGroups) {
+        //     var group = colorGroups[colorName];
+        //     for (var i = 0; i < group.length; i++) {
+        //         var item = group[i];
+        //         item.hidden = true; // 确保所有项都隐藏
+        //     }
+        // }
+
+        // 4. 显示当前颜色并导出
+        for (var colorName in colorGroups) {
+            var group = colorGroups[colorName];
+            $.writeln("colorName: " + colorName);
+
+            // 先隐藏所有 colorGroups 中的项
+            for (var key in colorGroups) {
+                var groupItems = colorGroups[key];
+                for (var i = 0; i < groupItems.length; i++) {
+                    groupItems[i].hidden = true; // 隐藏所有分组项
+                }
+            }
+
+            // 显示当前颜色分组
+            for (var i = 0; i < group.length; i++) {
+                var item = group[i];
+                item.hidden = false;
+            }
+
+            // 处理文件名
+            var fileName = colorName
+                .replace(/^SpotColor\(PANTONE (.+)\)/, "$1")
+                .replace(/^SpotColor\((.+)\)/, "$1")
+                .replace(/^RGB\((.+)\)/, "$1")
+                .replace(/^CMYK\((.+)\)/, "$1")
+                .replace(/^Gray\((.+)\)/, "$1")
+                .replace(/[,]/g, "_");
+
+            exportToPSD(fileFolder + fileName + ".psd");
+
+            // 恢复所有项的显示状态
+            app.undo();
+            app.redraw();
+        }
+        alert("导出完成");
+    } catch (error) {
+        alert("识别颜色并导出PSD出错了: " + error.message);
+    }
+    // var colors = getAllColors();
+
+    // // 创建文件夹
+    // CFG.folderName++;
+    // var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
+    // if (!Folder(fileFolder).exists) {
+    //     Folder(fileFolder).create();
+    // }
+
+    // // 遍历所有颜色
+    // for (var i = 0; i < colors.length; i++) {
+    //     var colorStr = colors[i];
+
+    //     // 获取当前文档
+    //     var doc = app.activeDocument;
+
+    //     // 遍历所有路径项并隐藏不匹配当前颜色的项
+    //     for (var j = 0; j < doc.pathItems.length; j++) {
+    //         var pathItem = doc.pathItems[j];
+    //         if (pathItem.filled && pathItem.fillColor) {
+    //             var itemColorStr = "";
+    //             var color = pathItem.fillColor;
+
+    //             if (color.typename === "RGBColor") {
+    //                 itemColorStr = "RGB(" + color.red + ", " + color.green + ", " + color.blue + ")";
+    //             } else if (color.typename === "CMYKColor") {
+    //                 itemColorStr = "CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")";
+    //             } else if (color.typename === "GrayColor") {
+    //                 itemColorStr = "Gray(" + color.gray + ")";
+    //             } else if (color.typename === "SpotColor") {
+    //                 itemColorStr = "SpotColor(" + color.spot.name + ")";
+    //             }
+
+    //             pathItem.hidden = itemColorStr !== colorStr;
+    //         }
+    //     }
+
+    //     // 处理文件名
+    //     var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
+    //     fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
+    //     fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
+    //     fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
+    //     fileName = fileName.replace(/[,]/g, "_");
+
+    //     exportToPSD(fileFolder + fileName + ".psd");
+
+    //     // 恢复所有项的显示状态
+    //     app.undo();
+    //     app.redraw();
+    // }
+
+    // // 释放文件夹引用
+    // folder = null;
+    // fileFolder = null;
+    // $.gc(); // 触发垃圾回收
+    // $.gc();
+
+    // // 上面的释放与gc，本意是避免文件夹被占用不能删除，结果一直没有生效。反而下面的alert可以满足
+    // alert("导出完成");
 }
