@@ -314,6 +314,9 @@ var UTILS = {
     },
 };
 
+// 定义一个全局变量用于存储当前脚本是否正在执行任务中
+var isRunning = false;
+
 // 金属颜色
 var METALCOLOR = new RGBColor();
 METALCOLOR.red = 211;
@@ -370,9 +373,19 @@ function polyfills() {
 
 function buildMsg(code) {
     try {
+        if (isRunning) {
+            return; // 如果脚本正在运行，直接返回
+        }
+        isRunning = true; // 设置脚本正在运行状态
         var bt = new BridgeTalk();
         bt.target = vs;
         bt.body = code;
+        bt.onResult = function (result) {
+            isRunning = false; // 脚本执行完毕，重置状态
+        };
+        bt.onError = function (error) {
+            isRunning = false; // 脚本执行出错，重置状态
+        };
         bt.send();
     } catch (error) {}
 }
