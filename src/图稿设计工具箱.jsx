@@ -6,7 +6,7 @@
  * 
  * Release notes:
  * 0.0.1 Initial version
- * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行
+ * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行 标注颜色增加描边支持
  */
 
 //@target illustrator
@@ -476,6 +476,10 @@ function getSelectedColors(the_obj) {
         } else {
             if (item.filled && item.fillColor) {
                 addColor(item.fillColor);
+            }
+            
+            if (item.stroked && item.strokeColor) {
+                addColor(item.strokeColor);
             }
         }
     }
