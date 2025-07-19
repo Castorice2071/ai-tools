@@ -1914,6 +1914,7 @@ function colorLayer() {
             app.executeMenuCommand("Live Pathfinder Merge");
             app.executeMenuCommand("expandStyle");
             app.executeMenuCommand("ungroup");
+            app.executeMenuCommand("group");
 
             // 操作完成之后，重新赋值给 duplicateGroup
             duplicateGroup = app.activeDocument.selection[0];

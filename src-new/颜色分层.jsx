@@ -25,6 +25,10 @@ function colorLayer() {
         // 创建轮廓对象
         var outlineGroup = copyGroupFillColor(sourceItem, outlineColor);
 
+        $.writeln(outlineGroup)
+
+        // return;
+
         // 获取选区的颜色分组
         var colorGroups = UTILS.getSelectionColorGroups();
 
@@ -79,6 +83,7 @@ function colorLayer() {
             app.executeMenuCommand("Live Pathfinder Merge");
             app.executeMenuCommand("expandStyle");
             app.executeMenuCommand("ungroup");
+            app.executeMenuCommand("group");
 
             // 操作完成之后，重新赋值给 duplicateGroup
             duplicateGroup = app.activeDocument.selection[0];
