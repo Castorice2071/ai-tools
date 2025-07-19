@@ -13,28 +13,43 @@ function copySelectionOutline() {
         return alert("Please select only one item.");
     }
 
+    // 操作对象
+    var sourceItem = items[0]
+
     // 0. 定义一个轮廓的颜色
     var outlineColor = new RGBColor();
     outlineColor.red = 0; // 红色分量
     outlineColor.green = 0; // 绿色分量
     outlineColor.blue = 0; // 蓝色分量
 
-    // 1. 复制选区
-    app.copy();
+    // 1. 复制sourceItem
+    sourceItem.duplicate();
 
     // 2. 粘贴到下面
-    app.paste();
+    // app.paste();
 
     // 3. 获取新创建的选区
-    var newItems = app.activeDocument.selection;
+    // var newItems = app.activeDocument.selection;
 
-    // 4. 填色
-    UTILS.setColor(newItems[0], outlineColor);
+    // // 4. 填色
+    // UTILS.setColor(newItems[0], outlineColor);
 
     // 6. 路径查找器 - 合并
     // app.executeMenuCommand("Live Pathfinder Merge");
 
-    app.executeMenuCommand("Live Pathfinder Add");
+    // app.executeMenuCommand("Live Pathfinder Add");
+
+    // app.executeMenuCommand("Make Envelope");
+
+    // app.executeMenuCommand("group");
+    // app.executeMenuCommand("Live Pathfinder Merge");
+    // app.executeMenuCommand("expandStyle");
+    // app.executeMenuCommand("ungroup");
+
+    // newItems = app.activeDocument.selection;
+
+    // // 重新选择操作对象
+    // app.activeDocument.selection = items[0];
 
     // $.writeln("New items count: " + newItems.length);
 
@@ -56,5 +71,3 @@ function copySelectionOutline() {
 }
 
 copySelectionOutline();
-
-

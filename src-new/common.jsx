@@ -249,6 +249,52 @@ var UTILS = {
 
         return selectedMetalColors;
     },
+
+    /**
+     * 获取选区的颜色分组
+     */
+    getSelectionColorGroups: function () {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return null;
+        }
+        var colorGroups = {};
+
+        for (var i = 0; i < items.length; i++) {
+            handle(items[i]);
+        }
+
+        function handle(item) {
+            if (item.typename === "GroupItem") {
+                for (var j = 0; j < item.pageItems.length; j++) {
+                    handle(item.pageItems[j]);
+                }
+            } else if (item.typename === "CompoundPathItem" && item.pathItems[0].filled && item.pathItems[0].fillColor) {
+                // 对于复合路径，处理第一个路径项
+                var firstPathItem = item.pathItems[0];
+                var colorKey = UTILS.getColorText(firstPathItem.fillColor);
+                if (colorKey) {
+                    if (!colorGroups[colorKey]) {
+                        colorGroups[colorKey] = [];
+                    }
+                    colorGroups[colorKey].push(item);
+                }
+            } else if (item.typename === "PathItem") {
+                if (item.filled && item.fillColor) {
+                    var colorKey = UTILS.getColorText(item.fillColor);
+                    if (colorKey) {
+                        if (!colorGroups[colorKey]) {
+                            colorGroups[colorKey] = [];
+                        }
+                        colorGroups[colorKey].push(item);
+                    }
+                }
+            }
+        }
+
+        return colorGroups;
+    },
 };
 
 polyfills();

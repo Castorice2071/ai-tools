@@ -1,12 +1,13 @@
 ﻿/**
  * 图稿设计工具箱
- * 
+ *
  * Author: Li Wei
  * Date: 2025-07
- * 
+ *
  * Release notes:
  * 0.0.1 Initial version
  * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行 标注颜色增加描边支持
+ * 0.0.8 新增颜色分层功能，注释代码中的 writeln 输出
  */
 
 //@target illustrator
@@ -19,7 +20,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v0.0.7",
+    version: "v0.0.8",
 };
 
 var CFG = {
@@ -477,7 +478,7 @@ function getSelectedColors(the_obj) {
             if (item.filled && item.fillColor) {
                 addColor(item.fillColor);
             }
-            
+
             if (item.stroked && item.strokeColor) {
                 addColor(item.strokeColor);
             }
@@ -538,7 +539,7 @@ function getAllColors() {
     }
 
     function collectColors(item) {
-        $.writeln("collectColors item.typename: " + item.typename);
+        // $.writeln("collectColors item.typename: " + item.typename);
         if (item.typename === "GroupItem") {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
@@ -845,8 +846,8 @@ function metalEdging() {
 
         // 1. 获取选区的凸起金属颜色
         var metalColors = UTILS.getSelectionMetalColors(true);
-        $.writeln("凸起金属颜色数量: " + metalColors.length);
-        $.writeln("凸起金属颜色: " + metalColors.join(" @ "));
+        // $.writeln("凸起金属颜色数量: " + metalColors.length);
+        // $.writeln("凸起金属颜色: " + metalColors.join(" @ "));
 
         if (metalColors.length === 0 || metalColors.length >= 2) {
             return alert("只支持选区中有且仅有一个凸起金属颜色");
@@ -855,13 +856,13 @@ function metalEdging() {
         // 2. 构造颜色
         var METALCOLOR = new SpotColor();
         METALCOLOR.spot = app.activeDocument.spots.getByName(metalColors[0]);
-        $.writeln("METALCOLOR: " + METALCOLOR.spot);
+        // $.writeln("METALCOLOR: " + METALCOLOR.spot);
 
         // 3. 获取描边宽度
         // var strokeWidth = parseFloat(prompt("请输入描边宽度（单位：毫米）", "0.5"));
         var strokeWidth = parseFloat(PB.strokeWidth.text);
 
-        $.writeln("描边宽度: " + strokeWidth + "mm");
+        // $.writeln("描边宽度: " + strokeWidth + "mm");
 
         // 3. 遍历选区中的 pathItem
         for (var i = 0; i < items.length; i++) {
@@ -879,7 +880,7 @@ function metalEdging() {
                 }
             } else if (item.typename === "PathItem") {
                 if (item.filled && item.fillColor && UTILS.isColorMatch(item.fillColor, METALCOLOR, 1)) {
-                    $.writeln("METALCOLOR111: " + METALCOLOR.spot);
+                    // $.writeln("METALCOLOR111: " + METALCOLOR.spot);
                     // 启用描边
                     item.stroked = true;
 
@@ -908,19 +909,20 @@ win.alignChildren = ["fill", "fill"];
 
 // 识别颜色并导出
 // =======
-var PA = win.add("panel", undefined, "识别颜色并导出");
+var PA = win.add("panel", undefined, "识别颜色");
 PA.orientation = "row";
 PA.alignChildren = ["fill", "fill"];
 PA.margins = 20;
 PA.spacing = 8;
-PA.BTN1 = PA.add("button", undefined, "PSD");
-PA.BTN2 = PA.add("button", undefined, "AI");
+PA.BTN1 = PA.add("button", undefined, "导出PSD");
 PA.BTN3 = PA.add("button", undefined, "重置文件夹");
+PA.BTN2 = PA.add("button", undefined, "分层");
 PA.BTN1.onClick = function () {
     buildMsg("analyzeColorsAndExportPSDNew();");
 };
 PA.BTN2.onClick = function () {
-    buildMsg("analyzeColorsAndExportAI();");
+    // buildMsg("analyzeColorsAndExportAI();");
+    buildMsg("colorLayer();");
 };
 PA.BTN3.onClick = function () {
     buildMsg("resetFolder();");
@@ -936,7 +938,6 @@ PB.spacing = 8;
 
 PB.strokeWidth = PB.add("editText", undefined, "0.1");
 PB.strokeWidth.addEventListener("keydown", function (kd) {
-    $.writeln(kd.keyName);
     if (kd.keyName == "Enter") {
         buildMsg("metalEdging();");
     }
@@ -1106,8 +1107,8 @@ function label_Info() {
     var unitConvert = PC.unitControl.selection.toString().replace(/[^a-zA-Z]/g, "");
     var fontSize = PC.fontSizeControl.text;
     var color = createRGBColor([0, 0, 0]);
-    $.writeln("unitConvert: " + unitConvert);
-    $.writeln("fontSize: " + fontSize);
+    // $.writeln("unitConvert: " + unitConvert);
+    // $.writeln("fontSize: " + fontSize);
 
     if (!top && !left && !right && !bottom) {
         return alert("请至少选择一个标注边。");
@@ -1513,7 +1514,7 @@ function markColor() {
         for (var i = 0; i < sel.length; i++) {
             var bounds = sel[i].geometricBounds;
             var colors = getSelectedColors(sel[i]);
-            $.writeln("colors: " + colors);
+            // $.writeln("colors: " + colors);
             sel[i].selected = false;
 
             var x = bounds[0],
@@ -1714,7 +1715,6 @@ function analyzeColorsAndExportPSDNew() {
 
         // 1. 获取选区的颜色分组
         var colorGroups = UTILS.getSelectionColorGroups();
-        UTILS.printProperties(colorGroups);
 
         if (Object.keys(colorGroups).length === 0) {
             return alert("没有识别出颜色");
@@ -1739,7 +1739,7 @@ function analyzeColorsAndExportPSDNew() {
         // 4. 显示当前颜色并导出
         for (var colorName in colorGroups) {
             var group = colorGroups[colorName];
-            $.writeln("colorName: " + colorName);
+            // $.writeln("colorName: " + colorName);
 
             // 先隐藏所有 colorGroups 中的项
             for (var key in colorGroups) {
@@ -1833,4 +1833,96 @@ function analyzeColorsAndExportPSDNew() {
 
     // // 上面的释放与gc，本意是避免文件夹被占用不能删除，结果一直没有生效。反而下面的alert可以满足
     // alert("导出完成");
+}
+
+/**
+ * 颜色分层
+ */
+function colorLayer() {
+    try {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            return alert("No items selected.");
+        }
+
+        if (items.length > 1) {
+            return alert("Please select only one item.");
+        }
+
+        var outlineColor = new RGBColor();
+        outlineColor.red = 0; // 红色分量
+        outlineColor.green = 0; // 绿色分量
+        outlineColor.blue = 0; // 蓝色分量
+
+        // 操作对象
+        var sourceItem = items[0];
+
+        // 创建轮廓对象
+        var outlineGroup = copyGroupFillColor(sourceItem, outlineColor);
+
+        // 获取选区的颜色分组
+        var colorGroups = UTILS.getSelectionColorGroups();
+
+        if (Object.keys(colorGroups).length === 0) {
+            return alert("No color groups found in the selection.");
+        }
+
+        // 获取选区的边界
+        var selectionBounds = sourceItem.geometricBounds;
+        var selectionBoundsWidth = selectionBounds[2] - selectionBounds[0];
+        var selectionBoundsHeight = selectionBounds[1] - selectionBounds[3];
+
+        // 创建颜色分组
+        var index = 0;
+        for (var colorKey in colorGroups) {
+            var group = colorGroups[colorKey];
+
+            // 创建新组
+            var newGroup = app.activeDocument.groupItems.add();
+            newGroup.name = "Color_Group_" + (index + 1);
+
+            // 复制轮廓对象并加入新组
+            var outlineItem = outlineGroup.duplicate(newGroup);
+
+            // 将相同颜色的对象移动到新组中
+            for (var i = 0; i < group.length; i++) {
+                var item = group[i];
+                item.duplicate(newGroup);
+            }
+
+            // 设置新组的位置
+            newGroup.translate(index * (selectionBoundsWidth + 40), -selectionBoundsHeight - 40);
+            newGroup.selected = false;
+
+            index++;
+        }
+
+        // 删除 outlineGroup
+        outlineGroup.remove();
+
+        /**
+         * 复制对象并填色
+         */
+        function copyGroupFillColor(group, color) {
+            var duplicateGroup = group.duplicate();
+
+            UTILS.setColor(duplicateGroup, color);
+
+            app.activeDocument.selection = duplicateGroup;
+
+            app.executeMenuCommand("group");
+            app.executeMenuCommand("Live Pathfinder Merge");
+            app.executeMenuCommand("expandStyle");
+            app.executeMenuCommand("ungroup");
+
+            // 操作完成之后，重新赋值给 duplicateGroup
+            duplicateGroup = app.activeDocument.selection[0];
+
+            app.activeDocument.selection = group;
+
+            return duplicateGroup;
+        }
+    } catch (error) {
+        alert("颜色分层错误: " + error.message);
+    }
 }
