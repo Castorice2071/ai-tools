@@ -1698,6 +1698,11 @@ function startAction() {
         var bounds = "visibleBounds";
         var items = app.selection;
 
+        // 从上到下排序
+        items.sort(function (a, b) {
+            return a[bounds][1] < b[bounds][1];
+        });
+
         var l = items.length;
         var __rows = 0;
         var gutter = {
