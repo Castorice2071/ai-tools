@@ -1511,11 +1511,44 @@ function markColor() {
             return alert("请先选择标注对象！");
         }
 
+        // 凸起金属
+        var raisedMetalColors = CFG.metalColors
+            .filter(function (item) {
+                return item.isRaised;
+            })
+            .map(function (color) {
+                return "SpotColor(" + color.name + ")";
+            });
+
+        // 金属
+        var metalColors = CFG.metalColors.map(function (color) {
+            return "SpotColor(" + color.name + ")";
+        });
+
         for (var i = 0; i < sel.length; i++) {
             var bounds = sel[i].geometricBounds;
             var colors = getSelectedColors(sel[i]);
-            // $.writeln("colors: " + colors);
+
             sel[i].selected = false;
+
+            // colors 排序
+            //      凸起金属---凹下金属---色号
+            colors.sort(function (a, b) {
+                if (metalColors.includes(a)) {
+                    if (metalColors.includes(b)) {
+                        if (raisedMetalColors.includes(a)) {
+                            return -1;
+                        } else if (raisedMetalColors.includes(b)) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
 
             var x = bounds[0],
                 y = bounds[1],

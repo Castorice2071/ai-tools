@@ -15,15 +15,17 @@ function colorLayer() {
         }
 
         var outlineColor = new RGBColor();
-        outlineColor.red = 0; // 红色分量
+        outlineColor.red = 217; // 红色分量
         outlineColor.green = 0; // 绿色分量
-        outlineColor.blue = 0; // 蓝色分量
+        outlineColor.blue = 133; // 蓝色分量
 
         // 操作对象
         var sourceItem = items[0];
 
         // 创建轮廓对象
         var outlineGroup = copyGroupFillColor(sourceItem, outlineColor);
+
+        return
 
         $.writeln(outlineGroup)
 
