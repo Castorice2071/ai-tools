@@ -8,6 +8,7 @@
  * 0.0.1 Initial version
  * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行 标注颜色增加描边支持
  * 0.0.8 新增颜色分层功能，注释代码中的 writeln 输出
+ * 1.0.0 颜色标注增加金属色排序在前功能
  */
 
 //@target illustrator
@@ -20,7 +21,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v0.0.8",
+    version: "v1.0.0",
 };
 
 var CFG = {
