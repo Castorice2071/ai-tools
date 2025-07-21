@@ -52,6 +52,9 @@ var CFG = {
 
     markColorGap: 40, // 对象与颜色块之间的间距
     markColorSize: 10, // 颜色块的大小
+
+    // 窗口 margin
+    windowMargins: 12,
 };
 
 var UTILS = {
@@ -912,7 +915,7 @@ win.alignChildren = ["fill", "fill"];
 var PA = win.add("panel", undefined, "识别颜色");
 PA.orientation = "row";
 PA.alignChildren = ["fill", "fill"];
-PA.margins = 20;
+PA.margins = CFG.windowMargins;
 PA.spacing = 8;
 PA.BTN1 = PA.add("button", undefined, "导出PSD");
 PA.BTN3 = PA.add("button", undefined, "重置文件夹");
@@ -933,7 +936,7 @@ PA.BTN3.onClick = function () {
 var PB = win.add("panel", undefined, "金属描边");
 PB.orientation = "row";
 PB.alignChildren = ["fill", "fill"];
-PB.margins = 20;
+PB.margins = CFG.windowMargins;
 PB.spacing = 8;
 
 PB.strokeWidth = PB.add("editText", undefined, "0.1");
@@ -951,7 +954,7 @@ PB.BTN1.onClick = function () {
 // =======
 var PC = win.add("panel", undefined, "标注尺寸");
 PC.alignChildren = ["fill", "fill"];
-PC.margins = 20;
+PC.margins = CFG.windowMargins;
 PC.spacing = 8;
 
 var sidePanel = PC.add("panel", undefined, "选择标注边");
@@ -1005,7 +1008,7 @@ PC.BTN1.onClick = function () {
 // =======
 var PD = win.add("panel", undefined, "标注颜色与排列");
 PD.alignChildren = ["fill", "fill"];
-PD.margins = 20;
+PD.margins = CFG.windowMargins;
 
 var groupColumns = PD.add("group");
 groupColumns.orientation = "row";
