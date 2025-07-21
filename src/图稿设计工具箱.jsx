@@ -9,6 +9,7 @@
  * 0.0.7 新增全局变量以管理脚本执行状态，避免重复执行 标注颜色增加描边支持
  * 0.0.8 新增颜色分层功能，注释代码中的 writeln 输出
  * 1.0.0 颜色标注增加金属色排序在前功能
+ * 1.0.1 颜色标注与对象排列时，垂直间距默认设置为3
  */
 
 //@target illustrator
@@ -21,7 +22,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.0",
+    version: "v1.0.1",
 };
 
 var CFG = {
@@ -1030,7 +1031,7 @@ PD.valueGutterX.preferredSize = [50, -1];
 var groupGutterY = groupGutter.add("group");
 groupGutterY.orientation = "row";
 var captionGutterY = groupGutterY.add("statictext", undefined, "垂直间距");
-PD.valueGutterY = groupGutterY.add("edittext", undefined, 4);
+PD.valueGutterY = groupGutterY.add("edittext", undefined, 3);
 PD.valueGutterY.preferredSize = [50, -1];
 
 var winButtons = PD.add("group");
@@ -1561,7 +1562,7 @@ function markColor() {
 
             for (var j = 0; j < colors.length; j++) {
                 var color = colors[j];
-                drawColorBlockWithLabel(color, x, y - h - CFG.markColorGap - (CFG.markColorSize + 10) * j, CFG.markColorSize);
+                drawColorBlockWithLabel(color, x, y - h - CFG.markColorGap - (CFG.markColorSize + 3) * j, CFG.markColorSize);
             }
         }
 
