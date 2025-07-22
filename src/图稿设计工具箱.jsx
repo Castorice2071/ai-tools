@@ -10,6 +10,7 @@
  * 0.0.8 新增颜色分层功能，注释代码中的 writeln 输出
  * 1.0.0 颜色标注增加金属色排序在前功能
  * 1.0.1 颜色标注与对象排列时，垂直间距默认设置为3
+ * 1.0.2 金属描边，处理复合路径置顶
  */
 
 //@target illustrator
@@ -22,7 +23,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.1",
+    version: "v1.0.2",
 };
 
 var CFG = {
@@ -899,6 +900,10 @@ function metalEdging() {
 
                     // 置于顶层
                     item.zOrder(ZOrderMethod.BRINGTOFRONT);
+
+                    if (item.parent.typename === "CompoundPathItem") {
+                        item.parent.zOrder(ZOrderMethod.BRINGTOFRONT);
+                    }
                 }
             }
         }
