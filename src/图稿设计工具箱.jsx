@@ -11,6 +11,7 @@
  * 1.0.0 颜色标注增加金属色排序在前功能
  * 1.0.1 颜色标注与对象排列时，垂直间距默认设置为3
  * 1.0.2 金属描边，处理复合路径置顶
+ * 1.0.3 导出PSD，增加尺寸固定，避免错位
  */
 
 //@target illustrator
@@ -23,7 +24,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.2",
+    version: "v1.0.3",
 };
 
 var CFG = {
@@ -1768,6 +1769,13 @@ function analyzeColorsAndExportPSDNew() {
             return alert("没有识别出颜色");
         }
 
+        // 获取选区的边界
+        var sourceItem = items[0];
+        var selectionBounds = sourceItem.geometricBounds;
+        var selectionBoundsWidth = selectionBounds[2] - selectionBounds[0];
+        var selectionBoundsHeight = selectionBounds[1] - selectionBounds[3];
+        var doc = app.activeDocument;
+
         // 2.创建文件夹
         CFG.folderName++;
         var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
@@ -1786,6 +1794,20 @@ function analyzeColorsAndExportPSDNew() {
 
         // 4. 显示当前颜色并导出
         for (var colorName in colorGroups) {
+            // 创建底层矩形（透明填充，无描边）
+            var bgRect = doc.pathItems.rectangle(
+                selectionBounds[1], // top
+                selectionBounds[0], // left
+                selectionBoundsWidth,
+                selectionBoundsHeight,
+            );
+            bgRect.filled = true;
+            var noColor = new NoColor();
+            bgRect.fillColor = noColor;
+            bgRect.stroked = false;
+            bgRect.locked = false;
+            bgRect.hidden = false;
+
             var group = colorGroups[colorName];
             // $.writeln("colorName: " + colorName);
 
@@ -1818,6 +1840,7 @@ function analyzeColorsAndExportPSDNew() {
             app.undo();
             app.redraw();
         }
+
         alert("导出完成");
     } catch (error) {
         alert("识别颜色并导出PSD出错了: " + error.message);
