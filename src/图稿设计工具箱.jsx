@@ -1822,65 +1822,6 @@ function analyzeColorsAndExportPSDNew() {
     } catch (error) {
         alert("识别颜色并导出PSD出错了: " + error.message);
     }
-    // var colors = getAllColors();
-
-    // // 创建文件夹
-    // CFG.folderName++;
-    // var fileFolder = Folder.desktop + "/" + CFG.folderName + "/";
-    // if (!Folder(fileFolder).exists) {
-    //     Folder(fileFolder).create();
-    // }
-
-    // // 遍历所有颜色
-    // for (var i = 0; i < colors.length; i++) {
-    //     var colorStr = colors[i];
-
-    //     // 获取当前文档
-    //     var doc = app.activeDocument;
-
-    //     // 遍历所有路径项并隐藏不匹配当前颜色的项
-    //     for (var j = 0; j < doc.pathItems.length; j++) {
-    //         var pathItem = doc.pathItems[j];
-    //         if (pathItem.filled && pathItem.fillColor) {
-    //             var itemColorStr = "";
-    //             var color = pathItem.fillColor;
-
-    //             if (color.typename === "RGBColor") {
-    //                 itemColorStr = "RGB(" + color.red + ", " + color.green + ", " + color.blue + ")";
-    //             } else if (color.typename === "CMYKColor") {
-    //                 itemColorStr = "CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")";
-    //             } else if (color.typename === "GrayColor") {
-    //                 itemColorStr = "Gray(" + color.gray + ")";
-    //             } else if (color.typename === "SpotColor") {
-    //                 itemColorStr = "SpotColor(" + color.spot.name + ")";
-    //             }
-
-    //             pathItem.hidden = itemColorStr !== colorStr;
-    //         }
-    //     }
-
-    //     // 处理文件名
-    //     var fileName = colorStr.replace(/^SpotColor\(PANTONE (.+)\)/, "$1");
-    //     fileName = fileName.replace(/^RGB\((.+)\)/, "$1");
-    //     fileName = fileName.replace(/^CMYK\((.+)\)/, "$1");
-    //     fileName = fileName.replace(/^Gray\((.+)\)/, "$1");
-    //     fileName = fileName.replace(/[,]/g, "_");
-
-    //     exportToPSD(fileFolder + fileName + ".psd");
-
-    //     // 恢复所有项的显示状态
-    //     app.undo();
-    //     app.redraw();
-    // }
-
-    // // 释放文件夹引用
-    // folder = null;
-    // fileFolder = null;
-    // $.gc(); // 触发垃圾回收
-    // $.gc();
-
-    // // 上面的释放与gc，本意是避免文件夹被占用不能删除，结果一直没有生效。反而下面的alert可以满足
-    // alert("导出完成");
 }
 
 /**
