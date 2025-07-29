@@ -1046,6 +1046,7 @@ winButtons.margins = [0, 16, 0, 0];
 winButtons.alignChildren = ["center", "center"];
 PD.BTN1 = winButtons.add("button", undefined, "标注颜色");
 PD.BTN2 = winButtons.add("button", undefined, "对象排列");
+PD.BTN3 = winButtons.add("button", undefined, "标注刺绣");
 
 PD.BTN1.onClick = function () {
     buildMsg("markColor();");
@@ -1053,6 +1054,10 @@ PD.BTN1.onClick = function () {
 
 PD.BTN2.onClick = function () {
     buildMsg("startAction();");
+};
+
+PD.BTN3.onClick = function () {
+    buildMsg("markEmbroidery();");
 };
 
 win.show();
@@ -1937,5 +1942,67 @@ function colorLayer() {
         }
     } catch (error) {
         alert("颜色分层错误: " + error.message);
+    }
+}
+
+/**
+ * 标注刺绣
+ */
+function markEmbroidery() {
+    try {
+        var items = app.activeDocument.selection;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return;
+        }
+
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var bounds = item.geometricBounds;
+            var x = bounds[0],
+                y = bounds[1],
+                w = bounds[2] - bounds[0],
+                h = bounds[1] - bounds[3];
+            var left = x + w + 10,
+                top = y;
+
+            var fillColor = getFillColor(item);
+            if (fillColor) {
+                placeImage(fillColor, left, top, h);
+            }
+        }
+
+        function getFillColor(item) {
+            if (!item.filled || !item.fillColor) return null;
+            var color = item.fillColor;
+            switch (color.typename) {
+                case "RGBColor":
+                    return color.red + "-" + color.green + "-" + color.blue;
+                case "CMYKColor":
+                    return color.cyan + "-" + color.magenta + "-" + color.yellow + "-" + color.black;
+                case "GrayColor":
+                    return color.gray;
+                case "SpotColor":
+                    return color.spot.name;
+                default:
+                    return null;
+            }
+        }
+
+        function placeImage(fileName, left, top, height) {
+            var doc = app.activeDocument;
+            var filePath = "D:\\Program Files\\Adobe Illustrator CS6\\Embroidered\\" + fileName + ".png";
+            var file = new File(filePath);
+            if (!file.exists) return;
+
+            var imageFrame = doc.placedItems.add();
+            imageFrame.file = file;
+            imageFrame.left = left || 0;
+            imageFrame.top = top - (height - imageFrame.height) / 2;
+            imageFrame.embed();
+            return imageFrame;
+        }
+    } catch (error) {
+        alert("标注刺绣出错了: " + error.message);
     }
 }
