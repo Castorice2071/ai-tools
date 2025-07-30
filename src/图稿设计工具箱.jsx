@@ -12,6 +12,7 @@
  * 1.0.1 颜色标注与对象排列时，垂直间距默认设置为3
  * 1.0.2 金属描边，处理复合路径置顶
  * 1.0.3 导出PSD，增加尺寸固定，避免错位
+ * 1.0.4 新增标注刺绣功能; 标注颜色支持渐变色(需色板);
  */
 
 //@target illustrator
@@ -24,7 +25,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.3",
+    version: "v1.0.4",
 };
 
 var CFG = {
