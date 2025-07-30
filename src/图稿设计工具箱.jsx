@@ -469,7 +469,7 @@ function isColorMatch(color1, color2, tolerance) {
 }
 
 /**
- * 获取选中的颜色
+ * 获取选中的颜色 - 标注颜色使用
  */
 function getSelectedColors(the_obj) {
     var colors = [];
@@ -503,6 +503,8 @@ function getSelectedColors(the_obj) {
             colors.push("SpotColor(" + color.spot.name + ")");
         } else if (color.typename === "PatternColor") {
             colors.push("PatternColor(" + color.pattern.name + ")");
+        } else if (color.typename === "GradientColor") {
+            colors.push("GradientColor(" + color.gradient.name + ")");
         }
     }
 
@@ -1524,7 +1526,7 @@ function markColor() {
         var doc = app.activeDocument;
         var sel = doc.selection;
         if (sel.length <= 0) {
-            return alert("请先选择标注对象！");
+            return alert("No items selected.");
         }
 
         // 凸起金属
@@ -1663,6 +1665,23 @@ function markColor() {
                         var patternColor = new PatternColor();
                         patternColor.pattern = doc.patterns.getByName(patternColor[1]);
                         fillColor = patternColor;
+                    } catch (e) {
+                        // SpotColor 不存在时，默认灰色
+                        var fallback = new GrayColor();
+                        fallback.gray = 50;
+                        fillColor = fallback;
+                    }
+                }
+            } else if (/^GradientColor\(/.test(color)) {
+                contents = color.replace(/^GradientColor\((.+)\)/, "$1");
+
+                // 解析 GradientColor
+                var gradient = color.match(/GradientColor\((.+)\)/);
+                if (gradient) {
+                    try {
+                        var gradientColor = new GradientColor();
+                        gradientColor.gradient = doc.gradients.getByName(gradient[1]);
+                        fillColor = gradientColor;
                     } catch (e) {
                         // SpotColor 不存在时，默认灰色
                         var fallback = new GrayColor();
@@ -1967,6 +1986,7 @@ function markEmbroidery() {
                 top = y;
 
             var fillColor = getFillColor(item);
+            $.writeln("Fill Color: " + fillColor);
             if (fillColor) {
                 placeImage(fillColor, left, top, h);
             }
