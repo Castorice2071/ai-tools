@@ -1995,7 +1995,7 @@ function markEmbroidery() {
                 top = y;
 
             var fillColor = getFillColor(item);
-            $.writeln("Fill Color: " + fillColor);
+            // $.writeln("Fill Color: " + fillColor);
             if (fillColor) {
                 placeImage(fillColor, left, top, h);
             }
