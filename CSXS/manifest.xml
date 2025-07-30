@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 1) -->
+<ExtensionManifest ExtensionBundleId="top.lvmx" ExtensionBundleVersion="1.0.0" Version="7.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <ExtensionList>
+        <!-- 2) -->
+        <Extension Id="top.lvmx.ai-tools" Version="1.0.0" />
+    </ExtensionList>
+    <ExecutionEnvironment>
+        <HostList>
+            <!-- 3) -->
+            <Host Name="PHSP" Version="16" />
+            <Host Name="PHXS" Version="16" />
+            <Host Name="ILST" Version="16" />
+        </HostList>
+        <LocaleList>
+            <Locale Code="All" />
+        </LocaleList>
+        <RequiredRuntimeList>
+            <RequiredRuntime Name="CSXS" Version="7.0" />
+        </RequiredRuntimeList>
+    </ExecutionEnvironment>
+    <DispatchInfoList>
+        <!-- 2) -->
+        <Extension Id="top.lvmx.ai-tools">
+            <DispatchInfo>
+                <Resources>
+                    <!-- 4) -->
+                    <MainPath>./index.html</MainPath>
+                    <!-- 5) -->
+                    <ScriptPath>./jsx/main.jsx</ScriptPath>
+                    <CEFCommandLine />
+                </Resources>
+                <Lifecycle>
+                    <AutoVisible>true</AutoVisible>
+                </Lifecycle>
+                <UI>
+                    <Type>Panel</Type>
+                    <!-- 6) -->
+                    <Menu>My First Panel</Menu>
+                    <Geometry>
+                        <Size>
+                            <!-- 7) -->
+                            <Height>500</Height>
+                            <Width>350</Width>
+                        </Size>
+                        <MaxSize>
+                            <Height>500</Height>
+                            <Width>350</Width>
+                        </MaxSize>
+                    </Geometry>
+                    <Icons />
+                </UI>
+            </DispatchInfo>
+        </Extension>
+    </DispatchInfoList>
+</ExtensionManifest>
