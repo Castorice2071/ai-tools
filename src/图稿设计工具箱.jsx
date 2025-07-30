@@ -59,6 +59,9 @@ var CFG = {
 
     // 窗口 margin
     windowMargins: 12,
+
+    // 刺绣色号图片目录
+    embroideredFolder: Folder.userData + "/Adobe/Embroidered/",
 };
 
 var UTILS = {
@@ -1969,6 +1972,11 @@ function colorLayer() {
  */
 function markEmbroidery() {
     try {
+        var f = new Folder(CFG.embroideredFolder);
+        if (!f.exists) {
+            return alert("刺绣色号文件夹不存在: " + CFG.embroideredFolder);
+        }
+
         var items = app.activeDocument.selection;
         if (items.length === 0) {
             alert("No items selected.");
@@ -1997,7 +2005,7 @@ function markEmbroidery() {
             var color = item.fillColor;
             switch (color.typename) {
                 case "RGBColor":
-                    return color.red + "-" + color.green + "-" + color.blue;
+                    return Math.round(color.red) + "-" + Math.round(color.green) + "-" + Math.round(color.blue);
                 case "CMYKColor":
                     return color.cyan + "-" + color.magenta + "-" + color.yellow + "-" + color.black;
                 case "GrayColor":
@@ -2011,12 +2019,19 @@ function markEmbroidery() {
 
         function placeImage(fileName, left, top, height) {
             var doc = app.activeDocument;
-            var filePath = "D:\\Program Files\\Adobe Illustrator CS6\\Embroidered\\" + fileName + ".png";
+            var filePath = CFG.embroideredFolder + fileName + ".png";
             var file = new File(filePath);
             if (!file.exists) return;
 
+            var fixedWidth = 100;
             var imageFrame = doc.placedItems.add();
             imageFrame.file = file;
+
+            // 计算比例以保持宽高比
+            var aspectRatio = imageFrame.height / imageFrame.width;
+            imageFrame.width = fixedWidth;
+            imageFrame.height = fixedWidth * aspectRatio;
+
             imageFrame.left = left || 0;
             imageFrame.top = top - (height - imageFrame.height) / 2;
             imageFrame.embed();
