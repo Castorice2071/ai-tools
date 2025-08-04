@@ -13,6 +13,7 @@
  * 1.0.2 金属描边，处理复合路径置顶
  * 1.0.3 导出PSD，增加尺寸固定，避免错位
  * 1.0.4 新增标注刺绣功能; 标注颜色支持渐变色(需色板);
+ * 1.0.5 解决标注颜色，复合路径，没有子路径报错问题
  */
 
 //@target illustrator
@@ -25,7 +26,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.4",
+    version: "v1.0.5",
 };
 
 var CFG = {
@@ -483,7 +484,7 @@ function getSelectedColors(the_obj) {
             for (var i = 0; i < item.pageItems.length; i++) {
                 collectColors(item.pageItems[i]);
             }
-        } else if (item.typename === "CompoundPathItem" && item.pathItems[0].filled && item.pathItems[0].fillColor) {
+        } else if (item.typename === "CompoundPathItem" && item.pathItems.length > 0 && item.pathItems[0].filled && item.pathItems[0].fillColor) {
             addColor(item.pathItems[0].fillColor);
         } else {
             if (item.filled && item.fillColor) {
