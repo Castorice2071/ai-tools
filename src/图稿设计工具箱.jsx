@@ -189,7 +189,7 @@ var UTILS = {
 
         function addColor(color) {
             if (color.typename === "RGBColor") {
-                colors.push("RGB(" + color.red + ", " + color.green + ", " + color.blue + ")");
+                colors.push("RGB(" + Math.round(color.red) + ", " + Math.round(color.green) + ", " + Math.round(color.blue) + ")");
             } else if (color.typename === "CMYKColor") {
                 colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
             } else if (color.typename === "GrayColor") {
@@ -241,6 +241,25 @@ var UTILS = {
             return [];
         }
 
+        var allColors = [];
+        for (var i = 0; i < items.length; i++) {
+            var colors = UTILS.getColors(items[i]);
+            allColors = allColors.concat(colors);
+        }
+
+        return UTILS.uniqueArray(allColors);
+    },
+
+    /**
+     * 获取文档中所有的颜色
+     */
+    getAllColorsByDoc: function (doc) {
+        var doc = doc || app.activeDocument;
+        var items = doc.pathItems;
+        if (items.length === 0) {
+            alert("No items selected.");
+            return [];
+        }
         var allColors = [];
         for (var i = 0; i < items.length; i++) {
             var colors = UTILS.getColors(items[i]);
@@ -1054,6 +1073,7 @@ winButtons.alignChildren = ["center", "center"];
 PD.BTN1 = winButtons.add("button", undefined, "标注颜色");
 PD.BTN2 = winButtons.add("button", undefined, "对象排列");
 PD.BTN3 = winButtons.add("button", undefined, "标注刺绣");
+PD.BTN4 = winButtons.add("button", undefined, "标注刺绣-识图");
 
 PD.BTN1.onClick = function () {
     buildMsg("markColor();");
@@ -1065,6 +1085,10 @@ PD.BTN2.onClick = function () {
 
 PD.BTN3.onClick = function () {
     buildMsg("markEmbroidery();");
+};
+
+PD.BTN4.onClick = function () {
+    buildMsg("markEmbroideryNew();");
 };
 
 win.show();
@@ -2041,5 +2065,78 @@ function markEmbroidery() {
         }
     } catch (error) {
         alert("标注刺绣出错了: " + error.message);
+    }
+}
+
+/**
+ * 标注刺绣 New
+ */
+function markEmbroideryNew() {
+    try {
+        // 打开文件选择框
+        var file = new File().openDlg();
+        if (!file) return; // 用户取消选择
+
+        // 打开选中的文件
+        var doc = app.open(file, DocumentColorSpace.RGB);
+
+        // 获取 RasterItem
+        var image = doc.pageItems[0]; // 假设第一个图层是图片
+        if (!image || image.typename !== "RasterItem") {
+            throw new Error("所选文件中没有找到图片");
+        }
+
+        // 执行描摹
+        var pItem = image.trace();
+
+        // 扩展描摹结果
+        pItem.tracing.tracingOptions.loadFromPreset("高保真度照片"); // 使用高保真度照片
+        pItem.tracing.expandTracing();
+
+        // 获取描摹结果所有的颜色
+        var colors = UTILS.getAllColorsByDoc(doc);
+
+        // 关闭临时文档
+        doc.close(SaveOptions.DONOTSAVECHANGES);
+
+        // $.writeln("提取到的颜色: " + colors.join(", "));
+
+        // 打开原始文件
+        doc = app.activeDocument;
+
+        var files = [];
+        for (var i = 0; i < colors.length; i++) {
+            var color = colors[i];
+            if (color.indexOf("RGB") !== 0) continue; // 跳过图案颜色
+
+            // RGB(250, 247, 242) -> 250-247-242
+            var fileName = color
+                .replace(/^RGB\(/, "")
+                .replace(/\)$/, "")
+                .replace(/,\s*/g, "-")
+                .trim();
+
+            var filePath = CFG.embroideredFolder + fileName + ".png";
+            var file = new File(filePath);
+            if (!file.exists) continue; // 文件不存在则跳过
+            files.push(file);
+        }
+
+        for (var i = 0; i < files.length; i++) {
+            var fixedWidth = 100;
+            var imageFrame = doc.placedItems.add();
+            imageFrame.file = files[i];
+
+            // 计算比例以保持宽高比
+            var aspectRatio = imageFrame.height / imageFrame.width;
+            imageFrame.width = fixedWidth;
+            imageFrame.height = fixedWidth * aspectRatio;
+
+            imageFrame.left = 0;
+            imageFrame.top = -i * 50;
+            imageFrame.embed();
+        }
+    } catch (error) {
+        alert("标注刺绣出错了: " + error.message + "\n line: " + error.line);
     }
 }
