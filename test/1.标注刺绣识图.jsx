@@ -1,3 +1,40 @@
+var CFG = {
+    folderName: 0,
+    metalColors: [
+        { label: "黑镍凸起", name: "Raised  Black  Nickel  Metal", isRaised: true },
+        { label: "黑镍凹下", name: "Recessed  Black  Nickel  Metal" },
+        { label: "古金凸起", name: "Raised Antique  Gold Metal", isRaised: true },
+        { label: "古金凹下", name: "Recessed  Antique Gold Metal" },
+        { label: "镀金凸起", name: "Raised  Gold Metal", isRaised: true },
+        { label: "镀金凹下", name: "Recessed  Gold Metal" },
+        { label: "古青铜凸起", name: "Raised Antique Brass Metal", isRaised: true },
+        { label: "古青铜凹下", name: "Recessed  Antique Brass Metal" },
+        { label: "镀镍凸起", name: "Raised silver Metal", isRaised: true },
+        { label: "镀镍凹下", name: "Recessed silver Metal" },
+        { label: "古银凸起", name: "Raised Antique (silver) Metal", isRaised: true },
+        { label: "古银凹下", name: "Recessed Antique (silver) Metal" },
+        { label: "古红铜凸起", name: "Raised Antique Copper Metal", isRaised: true },
+        { label: "古红铜凹下", name: "Recessed  Antique Copper Metal" },
+        { label: "染黑凸起", name: "Raised  Dye Black Metal", isRaised: true },
+        { label: "染黑凹下", name: "Recessed  Dye Black Metal" },
+        { label: "红铜凸起", name: "Raised Shiny Copper Metal", isRaised: true },
+        { label: "红铜凹下", name: "Recessed  Shiny Copper Metal" },
+        { label: "玫瑰金凸起", name: "Raised  Rose Gold Metal", isRaised: true },
+        { label: "玫瑰金凹下", name: "Recessed  Rose Gold Metal" },
+        { label: "青铜凸起", name: "Raised Shiny Brass Metal", isRaised: true },
+        { label: "青铜凹下", name: "Recessed  Shiny Brass Metal" },
+    ],
+
+    markColorGap: 40, // 对象与颜色块之间的间距
+    markColorSize: 10, // 颜色块的大小
+
+    // 窗口 margin
+    windowMargins: 12,
+
+    // 刺绣色号图片目录
+    embroideredFolder: Folder.userData + "/Adobe/Embroidered/",
+};
+
 var UTILS = {
     /**
      * 数组去重
@@ -108,18 +145,13 @@ var UTILS = {
                 for (var i = 0; i < item.pageItems.length; i++) {
                     collectColors(item.pageItems[i]);
                 }
-            } else if (item.typename === "CompoundPathItem" && item.pathItems.length > 0) {
-                // 修复：先检查pathItems是否为空
+            } else if (item.typename === "CompoundPathItem") {
                 for (var i = 0; i < item.pathItems.length; i++) {
                     collectColors(item.pathItems[i]);
                 }
             } else {
                 if (item.filled && item.fillColor) {
                     addColor(item.fillColor);
-                }
-                // 同时收集描边颜色
-                if (item.stroked && item.strokeColor) {
-                    addColor(item.strokeColor);
                 }
             }
         }
@@ -128,19 +160,13 @@ var UTILS = {
             if (color.typename === "RGBColor") {
                 colors.push("RGB(" + Math.round(color.red) + ", " + Math.round(color.green) + ", " + Math.round(color.blue) + ")");
             } else if (color.typename === "CMYKColor") {
-                colors.push("CMYK(" + Math.round(color.cyan) + ", " + Math.round(color.magenta) + ", " + Math.round(color.yellow) + ", " + Math.round(color.black) + ")");
+                colors.push("CMYK(" + color.cyan + ", " + color.magenta + ", " + color.yellow + ", " + color.black + ")");
             } else if (color.typename === "GrayColor") {
-                colors.push("Gray(" + Math.round(color.gray) + ")");
+                colors.push("Gray(" + color.gray + ")");
             } else if (color.typename === "SpotColor") {
                 colors.push("SpotColor(" + color.spot.name + ")");
             } else if (color.typename === "PatternColor") {
                 colors.push("PatternColor(" + color.pattern.name + ")");
-            } else if (color.typename === "GradientColor") {
-                // 处理渐变色，提取渐变中的关键颜色
-                var gradientStops = color.gradient.gradientStops;
-                for (var j = 0; j < gradientStops.length; j++) {
-                    addColor(gradientStops[j].color);
-                }
             }
         }
 
@@ -300,184 +326,133 @@ var UTILS = {
     },
 };
 
-// 从光栅图像中提取颜色信息（使用Illustrator支持的方法）
-function extractColorsFromRaster(raster) {
-    var result = [];
+polyfills();
+function polyfills() {
+    Array.prototype.forEach = function (callback) {
+        for (var i = 0; i < this.length; i++) callback(this[i], i, this);
+    };
 
-    try {
-        // 创建临时文档
-        var tempDoc = app.documents.add(DocumentColorSpace.RGB, raster.width, raster.height);
+    Array.prototype.includes = function (search) {
+        return this.indexOf(search) !== -1;
+    };
 
-        // 复制图像到临时文档
-        var tempRaster = raster.duplicate(tempDoc, ElementPlacement.PLACEATBEGINNING);
-        tempRaster.position = [0, tempDoc.height];
-
-        // 执行描摹并设置描摹选项以提高颜色准确性
-        var pItem = tempRaster.trace();
-        
-        try {
-            // 设置描摹选项来提高颜色识别准确性
-            var tracingOptions = pItem.tracing.tracingOptions;
-            
-            // 使用兼容性更好的方式设置描摹选项
-            if (typeof TracingColorTypeValue !== 'undefined') {
-                tracingOptions.colorTypeValue = TracingColorTypeValue.TRACINGFULLCOLOR;
-            }
-            
-            if (typeof TracingPaletteValue !== 'undefined') {
-                tracingOptions.palette = TracingPaletteValue.TRACINGFULLCOLORPALETTE;
-            }
-            
-            if (typeof TracingMethodValue !== 'undefined') {
-                tracingOptions.tracingMethod = TracingMethodValue.TRACINGMETHODABUTTING;
-            }
-            
-            // 基本数值设置（兼容性更好）
-            tracingOptions.maxColors = 256; // 增加最大颜色数
-            tracingOptions.colorFidelity = 85; // 设置颜色保真度（0-100）
-            tracingOptions.grayLevels = 50; // 灰度级别
-            tracingOptions.pathFidelity = 85; // 路径保真度
-            tracingOptions.cornerFidelity = 85; // 拐角保真度
-            tracingOptions.noiseFidelity = 20; // 噪点保真度
-            tracingOptions.fills = true; // 创建填充
-            tracingOptions.strokes = false; // 不创建描边
-            tracingOptions.snapCurveToLines = false; // 不将曲线对齐到直线
-            tracingOptions.ignoreWhite = true; // 忽略白色
-            
-            // 应用描摹选项
-            pItem.tracing.tracingOptions = tracingOptions;
-        } catch (optionError) {
-            // 如果设置选项失败，使用默认选项
-            $.writeln("描摹选项设置失败，使用默认选项: " + optionError.message);
+    Array.prototype.indexOf = function (obj, start) {
+        for (var i = start || 0, j = this.length; i < j; i++) {
+            if (this[i] === obj) return i;
         }
+        return -1;
+    };
+
+    Array.prototype.filter = function (callback, context) {
+        arr = [];
+        for (var i = 0; i < this.length; i++) {
+            if (callback.call(context, this[i], i, this)) arr.push(this[i]);
+        }
+        return arr;
+    };
+
+    Array.prototype.map = function (callback, context) {
+        arr = [];
+        for (var i = 0; i < this.length; i++) {
+            arr.push(callback.call(context, this[i], i, this));
+        }
+        return arr;
+    };
+
+    String.prototype.trim = function () {
+        return this.replace(/^\s+|\s+$/g, "");
+    };
+
+    Object.keys = function (obj) {
+        var keys = [];
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        }
+        return keys;
+    };
+}
+
+function markEmbroideryNew() {
+    try {
+        // 打开文件选择框
+        var file = new File().openDlg();
+        if (!file) return; // 用户取消选择
+
+        // 打开选中的文件
+        var doc = app.open(file, DocumentColorSpace.RGB);
+
+        // 获取 RasterItem
+        var image = doc.pageItems[0]; // 假设第一个图层是图片
+        if (!image || image.typename !== "RasterItem") {
+            throw new Error("所选文件中没有找到图片");
+        }
+
+        // 执行描摹
+
+        var pItem = image.trace();
 
         // 扩展描摹结果
+        pItem.tracing.tracingOptions.loadFromPreset("高保真度照片"); // 使用高保真度照片
         pItem.tracing.expandTracing();
 
-        result = UTILS.getAllColorsByDoc(tempDoc);
+        // 获取描摹结果所有的颜色
+        var colors = UTILS.getAllColorsByDoc(doc);
 
         // 关闭临时文档
-        // tempDoc.close(SaveOptions.DONOTSAVECHANGES);
-    } catch (e) {
-        alert("提取颜色时出错: " + e.message + "\n行号: " + e.line);
-    }
+        doc.close(SaveOptions.DONOTSAVECHANGES);
 
-    return result;
-}
+        $.writeln("提取到的颜色: " + colors.join(", "));
 
-// 改进的颜色提取函数，包含颜色合并功能
-function extractColorsFromRasterWithMerging(raster, colorTolerance) {
-    var rawColors = extractColorsFromRaster(raster);
-    var tolerance = colorTolerance || 10; // 默认容差值
-    
-    // 将颜色字符串转换为颜色对象进行比较
-    var colorObjects = [];
-    for (var i = 0; i < rawColors.length; i++) {
-        var colorStr = rawColors[i];
-        var colorObj = parseColorString(colorStr);
-        if (colorObj) {
-            colorObjects.push({
-                original: colorStr,
-                parsed: colorObj
-            });
-        }
-    }
-    
-    // 合并相似颜色
-    var mergedColors = [];
-    var used = [];
-    
-    for (var i = 0; i < colorObjects.length; i++) {
-        if (used[i]) continue;
-        
-        var currentColor = colorObjects[i];
-        var similarColors = [currentColor];
-        used[i] = true;
-        
-        // 查找相似颜色
-        for (var j = i + 1; j < colorObjects.length; j++) {
-            if (used[j]) continue;
-            
-            if (areColorsSimilar(currentColor.parsed, colorObjects[j].parsed, tolerance)) {
-                similarColors.push(colorObjects[j]);
-                used[j] = true;
+        // 打开原始文件
+        var originalDoc = app.activeDocument;
+
+        // 循环标注颜色图片
+        for (var i = 0; i < colors.length; i++) {
+            var color = colors[i];
+            if (color.indexOf("RGB") !== 0) {
+                $.writeln("跳过图案颜色: " + color);
+                continue; // 跳过图案颜色
             }
-        }
-        
-        // 选择最具代表性的颜色（可以是第一个或平均值）
-        mergedColors.push(currentColor.original);
-    }
-    
-    return mergedColors;
-}
 
-// 解析颜色字符串为颜色对象
-function parseColorString(colorStr) {
-    if (colorStr.indexOf('RGB(') === 0) {
-        var values = colorStr.replace('RGB(', '').replace(')', '').split(', ');
-        return {
-            type: 'RGB',
-            r: parseInt(values[0]),
-            g: parseInt(values[1]),
-            b: parseInt(values[2])
-        };
-    } else if (colorStr.indexOf('CMYK(') === 0) {
-        var values = colorStr.replace('CMYK(', '').replace(')', '').split(', ');
-        return {
-            type: 'CMYK',
-            c: parseFloat(values[0]),
-            m: parseFloat(values[1]),
-            y: parseFloat(values[2]),
-            k: parseFloat(values[3])
-        };
-    }
-    return null;
-}
+            // RGB(250, 247, 242) -> 250-247-242
+            var fileName = color
+                .replace(/^RGB\(/, "")
+                .replace(/\)$/, "")
+                .replace(/,\s*/g, "-")
+                .trim();
 
-// 检查两个颜色是否相似
-function areColorsSimilar(color1, color2, tolerance) {
-    if (color1.type !== color2.type) return false;
-    
-    if (color1.type === 'RGB') {
-        var rDiff = Math.abs(color1.r - color2.r);
-        var gDiff = Math.abs(color1.g - color2.g);
-        var bDiff = Math.abs(color1.b - color2.b);
-        return rDiff <= tolerance && gDiff <= tolerance && bDiff <= tolerance;
-    } else if (color1.type === 'CMYK') {
-        var cDiff = Math.abs(color1.c - color2.c);
-        var mDiff = Math.abs(color1.m - color2.m);
-        var yDiff = Math.abs(color1.y - color2.y);
-        var kDiff = Math.abs(color1.k - color2.k);
-        return cDiff <= tolerance && mDiff <= tolerance && yDiff <= tolerance && kDiff <= tolerance;
-    }
-    
-    return false;
-}
+            $.writeln("标注颜色: " + color + ", 文件名: " + fileName);
 
-function main() {
-    try {
-        var items = app.activeDocument.selection;
-        if (items.length === 0) {
-            return alert("No items selected.");
+            placeImage(fileName, 0, -i * 120, 100);
         }
 
-        var image = items[0];
+        // 绘制矩形
 
-        $.writeln("Selected item: " + image.name + ", Type: " + image.typename);
+        function placeImage(fileName, left, top, height) {
+            var doc = app.activeDocument;
+            var filePath = CFG.embroideredFolder + fileName + ".png";
+            var file = new File(filePath);
+            if (!file.exists) return;
 
-        // 使用改进的颜色提取方法
-        var rawColors = extractColorsFromRaster(image);
-        $.writeln("原始提取到的颜色数量: " + rawColors.length);
-        $.writeln("原始颜色: " + rawColors.join(", "));
-        
-        // 使用颜色合并功能减少相似颜色
-        var mergedColors = extractColorsFromRasterWithMerging(image, 15); // 容差值15
-        $.writeln("合并后的颜色数量: " + mergedColors.length);
-        $.writeln("合并后的颜色: " + mergedColors.join(", "));
+            var fixedWidth = 100;
+            var imageFrame = doc.placedItems.add();
+            imageFrame.file = file;
 
+            // 计算比例以保持宽高比
+            var aspectRatio = imageFrame.height / imageFrame.width;
+            imageFrame.width = fixedWidth;
+            imageFrame.height = fixedWidth * aspectRatio;
+
+            imageFrame.left = left || 0;
+            imageFrame.top = top - (height - imageFrame.height) / 2;
+            imageFrame.embed();
+            return imageFrame;
+        }
     } catch (error) {
-        alert("脚本初始化错误: " + error.message + "\n行号: " + error.line);
+        alert("标注刺绣出错了: " + error.message + "\n line: " + error.line);
     }
 }
 
-main();
+markEmbroideryNew();
