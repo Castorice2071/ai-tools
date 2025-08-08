@@ -14,6 +14,7 @@
  * 1.0.3 导出PSD，增加尺寸固定，避免错位
  * 1.0.4 新增标注刺绣功能; 标注颜色支持渐变色(需色板);
  * 1.0.5 解决标注颜色，复合路径，没有子路径报错问题
+ * 1.1.0 新增标注刺绣功能
  */
 
 //@target illustrator
@@ -26,7 +27,7 @@ var vs = "illustrator-" + aiVersion + ".0" + bit;
 
 var SCRIPT = {
     name: "图稿设计工具箱",
-    version: "v1.0.5",
+    version: "v1.1.0",
 };
 
 var CFG = {
@@ -1073,7 +1074,7 @@ winButtons.alignChildren = ["center", "center"];
 PD.BTN1 = winButtons.add("button", undefined, "标注颜色");
 PD.BTN2 = winButtons.add("button", undefined, "对象排列");
 PD.BTN3 = winButtons.add("button", undefined, "标注刺绣");
-PD.BTN4 = winButtons.add("button", undefined, "标注刺绣-识图");
+// PD.BTN4 = winButtons.add("button", undefined, "标注刺绣-识图");
 
 PD.BTN1.onClick = function () {
     buildMsg("markColor();");
@@ -1087,9 +1088,9 @@ PD.BTN3.onClick = function () {
     buildMsg("markEmbroidery();");
 };
 
-PD.BTN4.onClick = function () {
-    buildMsg("markEmbroideryNew();");
-};
+// PD.BTN4.onClick = function () {
+//     buildMsg("markEmbroideryNew();");
+// };
 
 win.show();
 
@@ -2005,68 +2006,62 @@ function markEmbroidery() {
 
         var items = app.activeDocument.selection;
         if (items.length === 0) {
-            alert("No items selected.");
-            return;
+            return alert("No items selected.");
         }
 
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var bounds = item.geometricBounds;
-            var x = bounds[0],
-                y = bounds[1],
-                w = bounds[2] - bounds[0],
-                h = bounds[1] - bounds[3];
-            var left = x + w + 10,
-                top = y;
-
-            var fillColor = getFillColor(item);
-            // $.writeln("Fill Color: " + fillColor);
-            if (fillColor) {
-                placeImage(fillColor, left, top, h);
-            }
+        if (items.length > 1) {
+            return alert("Please select only one item.");
         }
 
-        function getFillColor(item) {
-            if (!item.filled || !item.fillColor) return null;
-            var color = item.fillColor;
-            switch (color.typename) {
-                case "RGBColor":
-                    return Math.round(color.red) + "-" + Math.round(color.green) + "-" + Math.round(color.blue);
-                case "CMYKColor":
-                    return color.cyan + "-" + color.magenta + "-" + color.yellow + "-" + color.black;
-                case "GrayColor":
-                    return color.gray;
-                case "SpotColor":
-                    return color.spot.name;
-                default:
-                    return null;
-            }
-        }
+        var doc = app.activeDocument;
+        var item = items[0];
+        var bounds = item.geometricBounds;
+        var x = bounds[0],
+            y = bounds[1],
+            w = bounds[2] - bounds[0],
+            h = bounds[1] - bounds[3];
+        var left = x + w + 20,
+            top = y;
 
-        function placeImage(fileName, left, top, height) {
-            var doc = app.activeDocument;
+        var colors = UTILS.getColors(item);
+        var files = [];
+        // $.writeln("colors: " + colors);
+        for (var i = 0; i < colors.length; i++) {
+            var color = colors[i];
+            if (color.indexOf("RGB") !== 0) continue; // 跳过图案颜色
+
+            // RGB(250, 247, 242) -> 250-247-242
+            var fileName = color
+                .replace(/^RGB\(/, "")
+                .replace(/\)$/, "")
+                .replace(/,\s*/g, "-")
+                .trim();
+
             var filePath = CFG.embroideredFolder + fileName + ".png";
             var file = new File(filePath);
-            if (!file.exists) return;
+            if (!file.exists) continue; // 文件不存在则跳过
+            files.push(file);
+        }
 
+        for (var i = 0; i < files.length; i++) {
             var fixedWidth = 100;
             var imageFrame = doc.placedItems.add();
-            imageFrame.file = file;
+            imageFrame.file = files[i];
 
             // 计算比例以保持宽高比
             var aspectRatio = imageFrame.height / imageFrame.width;
             imageFrame.width = fixedWidth;
             imageFrame.height = fixedWidth * aspectRatio;
 
-            imageFrame.left = left || 0;
-            imageFrame.top = top - (height - imageFrame.height) / 2;
+            imageFrame.left = left;
+            imageFrame.top = -i * 50 + top;
             imageFrame.embed();
-            return imageFrame;
         }
     } catch (error) {
         alert("标注刺绣出错了: " + error.message);
     }
 }
+
 
 /**
  * 标注刺绣 New
